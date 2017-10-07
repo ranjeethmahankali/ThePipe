@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PipeDataModel.Types;
 
 namespace PipeDataModel.DataTree
 {
@@ -10,7 +11,8 @@ namespace PipeDataModel.DataTree
     {
         #region-fields
         private DataNode _parent;
-        private List<DataNode> _children;
+        private Dictionary<string, DataNode> _children;
+        private IPipeData _data;
         #endregion
 
         #region-properties

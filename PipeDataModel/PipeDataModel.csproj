@@ -42,8 +42,7 @@
   <ItemGroup>
     <Compile Include="Class1.cs" />
     <Compile Include="DataTree\DataNode.cs" />
-    <Compile Include="Primitives\Number.cs" />
-    <Compile Include="Primitives\Primitive.cs" />
+    <Compile Include="Types\PipeData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
