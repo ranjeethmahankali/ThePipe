@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PipeDataModel.DataTree;
+using PipeDataModel.Utils;
 
 namespace PipeDataModel.Types
 {
@@ -14,7 +15,7 @@ namespace PipeDataModel.Types
         TEXT
     }
 
-    internal interface IPipeData
+    public interface IPipeData:IEquatable<IPipeData>
     {
         string Name { get; set; }
         DataNode ContainerNode { get; }
@@ -38,11 +39,29 @@ namespace PipeDataModel.Types
         #endregion
 
         #region-properties
+        #endregion
+
+        #region-constructors
+        public PipeData(int integer)
+        {
+            Value = integer;
+        }
+        public PipeData(double realNumber)
+        {
+            Value = realNumber;
+        }
+        public PipeData(string text)
+        {
+            Value = text;
+        }
+        #endregion
+
+        #region-IPipeDataImplementation
         public object Value
         {
             get
             {
-                if(_dataType == DataType.INTEGER) { return _integer; }
+                if (_dataType == DataType.INTEGER) { return _integer; }
                 else if (_dataType == DataType.REALNUMBER) { return _realNumber; }
                 else if (_dataType == DataType.TEXT) { return _text; }
                 else
@@ -74,12 +93,17 @@ namespace PipeDataModel.Types
         {
             get { return _dataType; }
         }
-        #endregion
 
-        #region-IPipeDataImplementation
         public override string ToString()
         {
             return Value.ToString();
+        }
+
+        public bool Equals(IPipeData other)
+        {
+            if(_name != other.Name) { return false; }
+            if(Value != other.Value) { return false; }
+            return PipeDataUtil.EqualIgnoreOrder(_tags, other.Tags);
         }
 
         public string Name

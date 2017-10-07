@@ -42,8 +42,12 @@
   <ItemGroup>
     <Compile Include="Class1.cs" />
     <Compile Include="DataTree\DataNode.cs" />
+    <Compile Include="Types\IPipeCollector.cs" />
+    <Compile Include="Types\IPipeEmitter.cs" />
     <Compile Include="Types\PipeData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Types\Pipe\Pipe.cs" />
+    <Compile Include="Utils\PipeDataUtil.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
