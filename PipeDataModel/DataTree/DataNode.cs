@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PipeDataModel.Types;
+using PipeDataModel.Utils;
 
 namespace PipeDataModel.DataTree
 {
@@ -11,6 +12,8 @@ namespace PipeDataModel.DataTree
     public class DataNode: IEquatable<DataNode>
     {
         #region-fields
+        public static string DEFAULT_NODE_NAME = "ROOT";
+
         private DataNode _parent;
         private Dictionary<string, DataNode> _children;
         private IPipeData _data;
@@ -22,9 +25,15 @@ namespace PipeDataModel.DataTree
             get { return _parent; }
             set { _parent = value; }
         }
-        public Dictionary<string, DataNode> ChildrenDict { get { return _children; } }
-        public List<DataNode> ChildrenList { get { return _children.Values.ToList(); } }
-        public List<string> ChildrenNames { get { return _children.Keys.ToList(); } }
+        public Dictionary<string, DataNode> ChildrenDict {
+            get
+            {
+                if(_children == null) { _children = new Dictionary<string, DataNode>(); }
+                return _children;
+            }
+        }
+        public List<DataNode> ChildrenList { get { return ChildrenDict.Values.ToList(); } }
+        public List<string> ChildrenNames { get { return ChildrenDict.Keys.ToList(); } }
         public IPipeData Data
         {
             get { return _data; }
@@ -38,6 +47,11 @@ namespace PipeDataModel.DataTree
                 else { return _parent.Root; }
             }
         }
+        public string Name
+        {
+            get { return _data.Name; }
+            set { _data.Name = value; }
+        }
         public List<string> Address
         {
             get
@@ -46,7 +60,7 @@ namespace PipeDataModel.DataTree
                 else
                 {
                     List<string> address = _parent.Address;
-                    address.Add(_data.Name);
+                    address.Add(Name);
                     return address;
                 }
             }
@@ -54,13 +68,19 @@ namespace PipeDataModel.DataTree
         #endregion
 
         #region-constructors
+        public DataNode(IPipeData data)
+        {
+            _data = data;
+            EnsureValidNodeName();
+        }
         #endregion
 
         #region-methods
         public void AddChild(DataNode child)
         {
             child.Parent = this;
-            _children.Add(child.Data.Name, child);
+            child.EnsureValidNodeName();
+            _children.Add(child.Name, child);
         }
         public void RemoveChild(string childName)
         {
@@ -73,7 +93,7 @@ namespace PipeDataModel.DataTree
         {
             if (_children.ContainsValue(child))
             {
-                _children.Remove(child.Data.Name);
+                _children.Remove(child.Name);
             }
         }
         public DataNode GetChild(string childName)
@@ -98,6 +118,41 @@ namespace PipeDataModel.DataTree
             }
 
             return true;
+        }
+        public string TreeAsString(int depth = int.MaxValue, int tabNum = 0)
+        {
+            StringBuilder str = new StringBuilder();
+            str.Append(string.Format("{0}{1}: {2}\n", string.Concat(Enumerable.Repeat("\t", tabNum)),
+                Name, Data));
+            if(depth > 0)
+            {
+                foreach(var child in ChildrenList)
+                {
+                    str.Append(child.TreeAsString(depth - 1, tabNum + 1));
+                }
+            }
+
+            return str.ToString();
+        }
+        public override string ToString()
+        {
+            return TreeAsString();
+        }
+        public void EnsureValidNodeName()
+        {
+            if(Parent == null && Name == null)
+            {
+                Name = DEFAULT_NODE_NAME;
+            }
+            else if(Parent != null && (Name == Parent.Name || Name == DEFAULT_NODE_NAME || Name == null))
+            {
+                Name = string.Format("{0}_{1}", Parent.Name,
+                    Parent.ChildrenDict.Count);
+            }
+            else if (Parent != null && Parent.ChildrenDict.ContainsKey(Name))
+            {
+                Name = string.Format("{0}_{1}", Name, Convert.ToBase64String(Guid.NewGuid().ToByteArray()));
+            }
         }
         #endregion
     }

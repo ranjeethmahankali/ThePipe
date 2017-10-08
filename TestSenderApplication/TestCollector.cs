@@ -12,8 +12,12 @@ namespace TestSenderApplication
     {
         public DataNode CollectPipeData()
         {
-            var data = new DataNode();
-            data.Data = new PipeData("This is my test message that I am sending over.");
+            var data = new DataNode(new PipeData("This is my test message that I am sending over."));
+            data.AddChild(new DataNode(new PipeData(2.56))); ;
+            data.ChildrenList[0].AddChild(new DataNode(new PipeData(2)));
+            data.ChildrenList[0].AddChild(new DataNode(new PipeData(3)));
+            data.AddChild(new DataNode(new PipeData(3.14)));
+            data.ChildrenList[1].AddChild(new DataNode(new PipeData("Does this work ?")));
             return data;
         }
     }

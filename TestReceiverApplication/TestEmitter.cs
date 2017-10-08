@@ -12,8 +12,8 @@ namespace TestReceiverApplication
     {
         public void EmitPipeData(DataNode data)
         {
-            Console.WriteLine("The following is the data from the pipe:");
-            Console.WriteLine(data.Data.ToString());
+            Console.WriteLine("The following is the data from the pipe\n=========================\n");
+            Console.WriteLine(data.ToString());
         }
     }
 }
