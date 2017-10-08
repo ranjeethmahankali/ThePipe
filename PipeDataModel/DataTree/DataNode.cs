@@ -7,6 +7,7 @@ using PipeDataModel.Types;
 
 namespace PipeDataModel.DataTree
 {
+    [Serializable]
     public class DataNode: IEquatable<DataNode>
     {
         #region-fields

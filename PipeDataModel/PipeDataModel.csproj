@@ -40,9 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="DataTree\DataNode.cs" />
-    <Compile Include="Pipe\MemoryMappedPipe.cs" />
+    <Compile Include="Pipe\LocalNamedPipe.cs" />
     <Compile Include="Types\IPipeCollector.cs" />
     <Compile Include="Types\IPipeEmitter.cs" />
     <Compile Include="Types\PipeData.cs" />

@@ -25,6 +25,7 @@ namespace PipeDataModel.Types
         string ToString();
     }
 
+    [Serializable]
     public class PipeData: IPipeData
     {
         #region-fields
