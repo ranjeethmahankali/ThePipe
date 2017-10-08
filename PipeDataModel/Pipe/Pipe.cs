@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PipeDataModel.DataTree;
+using PipeDataModel.Types;
 
-namespace PipeDataModel.Types.Pipe
+namespace PipeDataModel.Pipe
 {
     public abstract class Pipe
     {
@@ -16,16 +17,11 @@ namespace PipeDataModel.Types.Pipe
          * on the exact implementation of the class that will inherit this class.
          */
         #region-fields
-        private Guid _guid;
         private IPipeCollector _collector = null;
         private IPipeEmitter _emitter = null;
         #endregion
 
         #region-constructors
-        public Pipe(Guid guid)
-        {
-            _guid = guid;
-        }
         #endregion
 
         #region-methods
