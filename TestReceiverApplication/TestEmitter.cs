@@ -12,7 +12,7 @@ namespace TestReceiverApplication
     {
         public void EmitPipeData(DataNode data)
         {
-            Console.WriteLine("=========================\nThe following is the data fromt the pipe:");
+            Console.WriteLine("The following is the data from the pipe:");
             Console.WriteLine(data.Data.ToString());
         }
     }
