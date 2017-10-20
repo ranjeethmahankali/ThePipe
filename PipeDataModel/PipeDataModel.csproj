@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="DataTree\DataNode.cs" />
     <Compile Include="Pipe\LocalNamedPipe.cs" />
+    <Compile Include="Pipe\WebPipe.cs" />
     <Compile Include="Types\IPipeCollector.cs" />
     <Compile Include="Types\IPipeEmitter.cs" />
     <Compile Include="Types\PipeData.cs" />
