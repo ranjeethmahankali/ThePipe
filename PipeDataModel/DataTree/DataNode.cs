@@ -22,7 +22,14 @@ namespace PipeDataModel.DataTree
             get { return _parent; }
             set { _parent = value; }
         }
-        public Dictionary<string, DataNode> ChildrenDict { get { return _children; } }
+        public Dictionary<string, DataNode> ChildrenDict
+        {
+            get
+            {
+                if(_children == null) { _children = new Dictionary<string, DataNode>(); }
+                return _children;
+            }
+        }
         public List<DataNode> ChildrenList { get { return _children.Values.ToList(); } }
         public List<string> ChildrenNames { get { return _children.Keys.ToList(); } }
         public IPipeData Data
