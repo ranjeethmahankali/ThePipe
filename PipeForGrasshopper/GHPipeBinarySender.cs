@@ -88,8 +88,7 @@ namespace PipeForGrasshopper
         public DataNode CollectPipeData()
         {
             string msg = _pipeData.ToString();
-            DataNode node = new DataNode();
-            node.Data = new PipeData(msg);
+            DataNode node = new DataNode(new PipeData(msg));
             return node;
         }
 
