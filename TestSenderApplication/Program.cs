@@ -19,7 +19,7 @@ namespace TestSenderApplication
             Console.WriteLine("Ready to serve the data.");
             senderPipe.Update();
             Console.WriteLine("The data was received and extracted");
-            Console.ReadKey();
+            //Console.ReadKey();
         }
     }
 }
