@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
@@ -53,7 +54,6 @@ namespace PipeForGrasshopper
         {
             string pipeName = null;
             IGH_Goo data = null;
-            DA.SetData(0, "Data transfer not completed.");
 
             if(!DA.GetData(0, ref pipeName))
             {
@@ -75,14 +75,12 @@ namespace PipeForGrasshopper
             LocalNamedPipe senderPipe = new LocalNamedPipe(pipeName);
             senderPipe.SetCollector(this);
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Waiting for the data to go through the pipe...");
-            senderPipe.Update();
-            AddRuntimeMessage(GH_RuntimeMessageLevel.Blank, "");
-            DA.SetData(0, "Data transfer successful!");
-        }
-
-        private void UpdatePipe(Pipe pipe)
-        {
-
+            Action finishingDelegate = () =>
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Blank, "");
+                DA.SetData(0, "Data transfer successful!");
+            };
+            Common.UpdatePipeAsync(senderPipe, DA, finishingDelegate);
         }
 
         public DataNode CollectPipeData()

@@ -9,7 +9,7 @@ namespace TestReceiverApplication
 {
     class Program
     {
-        private static string PIPE_NAME = "test_pipe";
+        private static string PIPE_NAME = "first";
         static void Main(string[] args)
         {
             var receiverPipe = new LocalNamedPipe(PIPE_NAME);
