@@ -60,12 +60,10 @@ namespace PipeForGrasshopper
             _da = DA;
             LocalNamedPipe receiverPipe = new LocalNamedPipe(pipeName);
             receiverPipe.SetEmitter(this);
-            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Waiting to receive the data...");
-            Action finisher = () =>
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Data transfer successful!");
-            };
-            Common.UpdatePipeAsync(receiverPipe, DA, finisher);
+            //AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Waiting to receive the data...");
+
+            receiverPipe.Update();
+            //AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Data transfer successful!");
         }
 
         public void EmitPipeData(DataNode node)

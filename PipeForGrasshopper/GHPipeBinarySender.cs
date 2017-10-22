@@ -74,13 +74,13 @@ namespace PipeForGrasshopper
 
             LocalNamedPipe senderPipe = new LocalNamedPipe(pipeName);
             senderPipe.SetCollector(this);
-            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Waiting for the data to go through the pipe...");
-            Action finishingDelegate = () =>
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Blank, "");
-                DA.SetData(0, "Data transfer successful!");
-            };
-            Common.UpdatePipeAsync(senderPipe, DA, finishingDelegate);
+            //AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Waiting for the data to go through the pipe...");
+            //Action finishingDelegate = () =>
+            //{
+            //    AddRuntimeMessage(GH_RuntimeMessageLevel.Blank, "");
+            //    DA.SetData(0, "Data transfer successful!");
+            //};
+            senderPipe.Update();
         }
 
         public DataNode CollectPipeData()

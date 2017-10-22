@@ -14,6 +14,7 @@ namespace PipeDataModel.Pipe
     {
         #region-fields
         private string _name;
+        private Action _callBack = null;
         #endregion
 
         #region-properties
@@ -28,6 +29,10 @@ namespace PipeDataModel.Pipe
         public LocalNamedPipe(string name)
         {
             _name = name;
+        }
+        public LocalNamedPipe(string name, Action callBack) : this(name)
+        {
+            _callBack = callBack;
         }
         #endregion
 
@@ -48,7 +53,6 @@ namespace PipeDataModel.Pipe
                 pipeServer = null;
                 throw e;                
             }
-
             pipeServer.Close();
             pipeServer = null;
         }
@@ -60,6 +64,18 @@ namespace PipeDataModel.Pipe
             BinaryFormatter bf = new BinaryFormatter();
             object received = bf.Deserialize(pipeClient);
             return (DataNode)received;
+        }
+        #endregion
+
+        #region-methods
+        public override void Update()
+        {
+            Thread updateThread = new Thread(() =>
+            {
+                base.Update();
+                if(_callBack != null) { _callBack.Invoke(); }
+            });
+            updateThread.Start();
         }
         #endregion
     }

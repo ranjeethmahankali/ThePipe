@@ -49,7 +49,7 @@ namespace PipeDataModel.Pipe
         protected abstract void PushData(DataNode data);
         protected abstract DataNode PullData();
 
-        public void Update()
+        public virtual void Update()
         {
             if (_collector != null) { PushData(_collector.CollectPipeData()); }
             if(_emitter != null) { _emitter.EmitPipeData(PullData()); }
