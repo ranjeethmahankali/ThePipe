@@ -14,6 +14,7 @@ namespace PipeForGrasshopper
     public class GHPipeBinarySender : GH_Component, IPipeCollector
     {
         private IGH_Goo _pipeData;
+        private bool _pipeServerActive = false;
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
         /// constructor without any arguments.
@@ -42,7 +43,7 @@ namespace PipeForGrasshopper
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Pipe Status", "S", "Status of the data transfer over the pipe.", GH_ParamAccess.item);
+            //pManager.AddTextParameter("Pipe Status", "S", "Status of the data transfer over the pipe.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -72,14 +73,15 @@ namespace PipeForGrasshopper
 
             _pipeData = (GH_String)data;
 
-            LocalNamedPipe senderPipe = new LocalNamedPipe(pipeName);
+            Action finishingDelegate = () =>
+            {
+                ClearRuntimeMessages();
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Data Transfer finished");
+            };
+
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Ready to send the data... waiting for listener.");
+            LocalNamedPipe senderPipe = new LocalNamedPipe(pipeName, finishingDelegate);
             senderPipe.SetCollector(this);
-            //AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Waiting for the data to go through the pipe...");
-            //Action finishingDelegate = () =>
-            //{
-            //    AddRuntimeMessage(GH_RuntimeMessageLevel.Blank, "");
-            //    DA.SetData(0, "Data transfer successful!");
-            //};
             senderPipe.Update();
         }
 

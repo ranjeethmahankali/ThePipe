@@ -154,6 +154,15 @@ namespace PipeDataModel.DataTree
                 Name = string.Format("{0}_{1}", Name, Convert.ToBase64String(Guid.NewGuid().ToByteArray()));
             }
         }
+        public DataNode Duplicate()
+        {
+            DataNode copy = new DataNode(_data);
+            foreach(var ch in ChildrenList)
+            {
+                copy.AddChild(ch);
+            }
+            return copy;
+        }
         #endregion
     }
 }

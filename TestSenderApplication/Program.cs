@@ -11,15 +11,18 @@ namespace TestSenderApplication
 {
     class Program
     {
-        private static string PIPE_NAME = "test_pipe";
+        private static string PIPE_NAME = "first";
         static void Main(string[] args)
         {
-            var senderPipe = new LocalNamedPipe(PIPE_NAME);
+            Action finihser = () =>
+            {
+                Console.WriteLine("The data was received and extracted");
+            };
+            var senderPipe = new LocalNamedPipe(PIPE_NAME, finihser);
             senderPipe.SetCollector(new TestCollector());
             Console.WriteLine("Ready to serve the data.");
             senderPipe.Update();
-            Console.WriteLine("The data was received and extracted");
-            //Console.ReadKey();
+            Console.ReadKey();
         }
     }
 }

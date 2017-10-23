@@ -12,7 +12,11 @@ namespace TestReceiverApplication
         private static string PIPE_NAME = "first";
         static void Main(string[] args)
         {
-            var receiverPipe = new LocalNamedPipe(PIPE_NAME);
+            Action finisher = () =>
+            {
+                Console.WriteLine("Data transfer finished!.");
+            };
+            var receiverPipe = new LocalNamedPipe(PIPE_NAME, finisher);
             receiverPipe.SetEmitter(new TestEmitter());
 
             receiverPipe.Update();

@@ -12,7 +12,8 @@ namespace PipeForGrasshopper
 {
     public class GHPipeBinaryReceiver: GH_Component, IPipeEmitter
     {
-        private IGH_DataAccess _da;
+        private DataNode _oldData = null, _newData = null;
+        private bool _listenerProcessIsActive = false;
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
         /// constructor without any arguments.
@@ -57,19 +58,47 @@ namespace PipeForGrasshopper
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Please provide a unique name for the pipe.");
             }
 
-            _da = DA;
-            LocalNamedPipe receiverPipe = new LocalNamedPipe(pipeName);
-            receiverPipe.SetEmitter(this);
-            //AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Waiting to receive the data...");
-
-            receiverPipe.Update();
-            //AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Data transfer successful!");
+            if (_newData != null)
+            {
+                //AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "received new data.");
+                DA.SetData(0, _newData.Data);
+                _oldData = _newData.Duplicate();
+                _newData = null;
+            }
+            else if (_newData == null && _oldData != null)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "did not receive any new data.");
+                DA.SetData(0, _oldData.Data);
+                StartListening(pipeName);
+            }
+            else if (_newData == null && _oldData == null)
+            {
+                StartListening(pipeName);
+                DA.AbortComponentSolution();
+            }
         }
 
         public void EmitPipeData(DataNode node)
         {
             //IGH_Goo data = (IGH_Goo)node.Data;
-            _da.SetData(0, node.Data);
+            _newData = node;
+            ExpireSolution(true);
+        }
+
+        private void StartListening(string pipeName)
+        {
+            Action finishDelegate = () =>
+            {
+                _listenerProcessIsActive = false;
+                StartListening(pipeName);
+            };
+            if(!_listenerProcessIsActive)
+            {
+                LocalNamedPipe receiverPipe = new LocalNamedPipe(pipeName, finishDelegate);
+                receiverPipe.SetEmitter(this);
+                _listenerProcessIsActive = true;
+                receiverPipe.Update();
+            }
         }
 
         /// <summary>

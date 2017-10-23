@@ -7,14 +7,19 @@ using System.IO;
 using System.IO.Pipes;
 using PipeDataModel.DataTree;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Diagnostics;
 
 namespace PipeDataModel.Pipe
 {
     public class LocalNamedPipe : Pipe
     {
         #region-fields
+        private static int THREAD_TIMEOUT_MILLIS = 60000;
+
         private string _name;
         private Action _callBack = null;
+        private Thread _pipeThread;
+        private Thread _timerThread;
         #endregion
 
         #region-properties
@@ -29,6 +34,22 @@ namespace PipeDataModel.Pipe
         public LocalNamedPipe(string name)
         {
             _name = name;
+            _timerThread = new Thread(() =>
+            {
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+                while (true)
+                {
+                    if (watch.ElapsedMilliseconds >= THREAD_TIMEOUT_MILLIS)
+                    {
+                        watch.Stop();
+                        watch.Reset();
+                        if (_pipeThread != null) { _pipeThread.Abort(); }
+                        Debug.WriteLine("Stopping the server thread due to timeout.");
+                        break;
+                    }
+                }
+            });
         }
         public LocalNamedPipe(string name, Action callBack) : this(name)
         {
@@ -63,6 +84,8 @@ namespace PipeDataModel.Pipe
             pipeClient.Connect();
             BinaryFormatter bf = new BinaryFormatter();
             object received = bf.Deserialize(pipeClient);
+            pipeClient.Close();
+            pipeClient = null;
             return (DataNode)received;
         }
         #endregion
@@ -70,12 +93,13 @@ namespace PipeDataModel.Pipe
         #region-methods
         public override void Update()
         {
-            Thread updateThread = new Thread(() =>
+            _pipeThread = new Thread(() =>
             {
                 base.Update();
                 if(_callBack != null) { _callBack.Invoke(); }
             });
-            updateThread.Start();
+            //_timerThread.Start();
+            _pipeThread.Start();
         }
         #endregion
     }
