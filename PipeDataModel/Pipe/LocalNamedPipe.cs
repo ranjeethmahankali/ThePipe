@@ -14,12 +14,9 @@ namespace PipeDataModel.Pipe
     public class LocalNamedPipe : Pipe
     {
         #region-fields
-        private static int THREAD_TIMEOUT_MILLIS = 60000;
-
         private string _name;
         private Action _callBack = null;
         private Thread _pipeThread;
-        private Thread _timerThread;
         #endregion
 
         #region-properties
@@ -34,22 +31,6 @@ namespace PipeDataModel.Pipe
         public LocalNamedPipe(string name)
         {
             _name = name;
-            _timerThread = new Thread(() =>
-            {
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
-                while (true)
-                {
-                    if (watch.ElapsedMilliseconds >= THREAD_TIMEOUT_MILLIS)
-                    {
-                        watch.Stop();
-                        watch.Reset();
-                        if (_pipeThread != null) { _pipeThread.Abort(); }
-                        Debug.WriteLine("Stopping the server thread due to timeout.");
-                        break;
-                    }
-                }
-            });
         }
         public LocalNamedPipe(string name, Action callBack) : this(name)
         {
@@ -98,7 +79,6 @@ namespace PipeDataModel.Pipe
                 base.Update();
                 if(_callBack != null) { _callBack.Invoke(); }
             });
-            //_timerThread.Start();
             _pipeThread.Start();
         }
         #endregion

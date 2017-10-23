@@ -14,7 +14,6 @@ namespace PipeForGrasshopper
     public class GHPipeBinarySender : GH_Component, IPipeCollector
     {
         private IGH_Goo _pipeData;
-        private bool _pipeServerActive = false;
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
         /// constructor without any arguments.
