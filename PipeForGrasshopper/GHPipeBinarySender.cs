@@ -81,7 +81,7 @@ namespace PipeForGrasshopper
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Ready to send the data... waiting for listener.");
             LocalNamedPipe senderPipe = new LocalNamedPipe(pipeName, finishingDelegate);
             senderPipe.SetCollector(this);
-            senderPipe.Update();
+            senderPipe.UpdateAsync();
         }
 
         public DataNode CollectPipeData()

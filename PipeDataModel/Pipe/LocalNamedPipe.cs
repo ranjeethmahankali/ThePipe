@@ -72,11 +72,11 @@ namespace PipeDataModel.Pipe
         #endregion
 
         #region-methods
-        public override void Update()
+        public void UpdateAsync()
         {
             _pipeThread = new Thread(() =>
             {
-                base.Update();
+                Update();
                 if(_callBack != null) { _callBack.Invoke(); }
             });
             _pipeThread.Start();

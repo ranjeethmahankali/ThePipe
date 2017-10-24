@@ -21,7 +21,7 @@ namespace TestSenderApplication
             var senderPipe = new LocalNamedPipe(PIPE_NAME, finihser);
             senderPipe.SetCollector(new TestCollector());
             Console.WriteLine("Ready to serve the data.");
-            senderPipe.Update();
+            senderPipe.UpdateAsync();
             Console.ReadKey();
         }
     }

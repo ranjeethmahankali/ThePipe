@@ -97,7 +97,7 @@ namespace PipeForGrasshopper
                 LocalNamedPipe receiverPipe = new LocalNamedPipe(pipeName, finishDelegate);
                 receiverPipe.SetEmitter(this);
                 _listenerProcessIsActive = true;
-                receiverPipe.Update();
+                receiverPipe.UpdateAsync();
             }
         }
 
