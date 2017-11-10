@@ -13,6 +13,7 @@ namespace PipeForGrasshopper
 {
     public class GHPipeBinarySender : GH_Component, IPipeCollector
     {
+        private LocalNamedPipe _senderPipe;
         private IGH_Goo _pipeData;
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -79,9 +80,14 @@ namespace PipeForGrasshopper
             };
 
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Ready to send the data... waiting for listener.");
-            LocalNamedPipe senderPipe = new LocalNamedPipe(pipeName, finishingDelegate);
-            senderPipe.SetCollector(this);
-            senderPipe.UpdateAsync();
+            //if(_senderPipe != null) { _senderPipe.ClosePipe(); }
+            if(_senderPipe == null)
+            {
+                _senderPipe = new LocalNamedPipe(pipeName, finishingDelegate);
+                _senderPipe.SetCollector(this);
+            }
+            _senderPipe.Update();
+            //finishingDelegate.Invoke();
         }
 
         public DataNode CollectPipeData()

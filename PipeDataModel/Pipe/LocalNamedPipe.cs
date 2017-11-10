@@ -16,7 +16,11 @@ namespace PipeDataModel.Pipe
         #region-fields
         private string _name;
         private Action _callBack = null;
-        private Thread _pipeThread;
+        private NamedPipeServerStream _pipeServer;
+        private NamedPipeClientStream _pipeClient;
+
+        private IAsyncResult _result;
+        private bool _isActive = false;
         #endregion
 
         #region-properties
@@ -41,45 +45,53 @@ namespace PipeDataModel.Pipe
         #region-base class implementation
         protected override void PushData(DataNode data)
         {
-            var pipeServer = new NamedPipeServerStream(_name, PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
-            pipeServer.WaitForConnection();
-            try
+            /*
+             * if the server is already active trying to send the data and waiting for a listener. We need to stop it before 
+             * sending the latest data again. So we check if it is active, create a fake listener and intercept the data to make the
+             * pipe close and then we can continue doing our thing and sending the new data
+             */
+            if (_isActive)
             {
+                DataNode oldData = PullData();
+                //if the new data and the old data are same then we don't need to resend it so we bail out.
+                if (oldData.Equals(data)) { return; }
+            }
+
+            _pipeServer = new NamedPipeServerStream(_name, PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            _result = _pipeServer.BeginWaitForConnection(ar => {
+                _isActive = false;
+                _pipeServer.EndWaitForConnection(ar);
                 BinaryFormatter bf = new BinaryFormatter();
-                bf.Serialize(pipeServer, data);
-                pipeServer.WaitForPipeDrain();
-            }
-            catch(Exception e)
-            {
-                pipeServer.Close();
-                pipeServer = null;
-                throw e;                
-            }
-            pipeServer.Close();
-            pipeServer = null;
+                bf.Serialize(_pipeServer, data);
+                _pipeServer.WaitForPipeDrain();
+                _pipeServer.Flush();
+                _pipeServer.Close();
+                _pipeServer.Dispose();
+                _callBack.Invoke();
+            }, _pipeServer);
+            _isActive = true;
         }
 
         protected override DataNode PullData()
         {
-            var pipeClient = new NamedPipeClientStream(".", _name, PipeDirection.In, PipeOptions.None);
-            pipeClient.Connect();
+            if(_pipeClient == null)
+            {
+                _pipeClient = new NamedPipeClientStream(".", _name, PipeDirection.In, PipeOptions.Asynchronous);
+                _pipeClient.Connect();
+            }
+            //if (!pipeClient.IsConnected) { return null; }
             BinaryFormatter bf = new BinaryFormatter();
-            object received = bf.Deserialize(pipeClient);
-            pipeClient.Close();
-            pipeClient = null;
+            object received = bf.Deserialize(_pipeClient);
+            _pipeClient.Close();
+            _pipeClient = null;
             return (DataNode)received;
         }
         #endregion
 
         #region-methods
-        public void UpdateAsync()
+        public override void Update()
         {
-            _pipeThread = new Thread(() =>
-            {
-                Update();
-                if(_callBack != null) { _callBack.Invoke(); }
-            });
-            _pipeThread.Start();
+            base.Update();
         }
         #endregion
     }

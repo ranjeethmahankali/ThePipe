@@ -94,10 +94,10 @@ namespace PipeForGrasshopper
             };
             if(!_listenerProcessIsActive)
             {
-                LocalNamedPipe receiverPipe = new LocalNamedPipe(pipeName, finishDelegate);
-                receiverPipe.SetEmitter(this);
+                LocalNamedPipe _receiverPipe = new LocalNamedPipe(pipeName, finishDelegate);
+                _receiverPipe.SetEmitter(this);
                 _listenerProcessIsActive = true;
-                receiverPipe.UpdateAsync();
+                _receiverPipe.Update();
             }
         }
 

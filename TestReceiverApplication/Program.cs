@@ -19,7 +19,7 @@ namespace TestReceiverApplication
             var receiverPipe = new LocalNamedPipe(PIPE_NAME, finisher);
             receiverPipe.SetEmitter(new TestEmitter());
 
-            receiverPipe.UpdateAsync();
+            receiverPipe.Update();
             Console.ReadKey();
         }
     }
