@@ -18,9 +18,10 @@ namespace PipeDataModel.Pipe
         private Action _callBack = null;
         private NamedPipeServerStream _pipeServer;
         private NamedPipeClientStream _pipeClient;
-
-        private IAsyncResult _result;
+        private bool _updateFlag = false;
+        private bool _threadActive = false;
         private bool _isActive = false;
+        private IAsyncResult _result;
         #endregion
 
         #region-properties
@@ -45,11 +46,6 @@ namespace PipeDataModel.Pipe
         #region-base class implementation
         protected override void PushData(DataNode data)
         {
-            /*
-             * if the server is already active trying to send the data and waiting for a listener. We need to stop it before 
-             * sending the latest data again. So we check if it is active, create a fake listener and intercept the data to make the
-             * pipe close and then we can continue doing our thing and sending the new data
-             */
             if (_isActive)
             {
                 DataNode oldData = PullData();
@@ -74,25 +70,25 @@ namespace PipeDataModel.Pipe
 
         protected override DataNode PullData()
         {
-            if(_pipeClient == null)
+            object received = null;
+            BinaryFormatter bf = new BinaryFormatter();
+            try
             {
                 _pipeClient = new NamedPipeClientStream(".", _name, PipeDirection.In, PipeOptions.Asynchronous);
-                _pipeClient.Connect();
+                _pipeClient.Connect(50);
+                received = bf.Deserialize(_pipeClient);
+                _pipeClient.Close();
+                _pipeClient = null;
             }
-            //if (!pipeClient.IsConnected) { return null; }
-            BinaryFormatter bf = new BinaryFormatter();
-            object received = bf.Deserialize(_pipeClient);
-            _pipeClient.Close();
-            _pipeClient = null;
-            return (DataNode)received;
+            catch(TimeoutException e)
+            {
+                return null;
+            }
+            return received != null ? (DataNode)received : null;
         }
         #endregion
 
         #region-methods
-        public override void Update()
-        {
-            base.Update();
-        }
         #endregion
     }
 }
