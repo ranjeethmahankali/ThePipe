@@ -8,11 +8,10 @@ using PipeDataModel.Utils;
 
 namespace PipeDataModel.Types
 {
-    public enum DataType
+    //this is to be used by the various data types in the pipe data model
+    //its current job is only to enfore equals method and to tell the pipe data types apart
+    public interface IPipeMemberType: IEquatable<IPipeMemberType>
     {
-        INTEGER,
-        REALNUMBER,
-        TEXT
     }
 
     public interface IPipeData:IEquatable<IPipeData>
@@ -21,7 +20,6 @@ namespace PipeDataModel.Types
         DataNode ContainerNode { get; }
         List<string> Tags { get; }
         object Value { get; set; }
-        DataType DataType { get; }
         string ToString();
     }
 
@@ -29,14 +27,22 @@ namespace PipeDataModel.Types
     public class PipeData: IPipeData
     {
         #region-fields
-        protected int? _integer;
-        protected double? _realNumber;
-        protected string _text;
-        protected DataType _dataType;
+        private object _value;
 
-        protected string _name;
-        protected DataNode _containerNode;
-        protected List<string> _tags;
+        private string _name;
+        private DataNode _containerNode;
+        private List<string> _tags;
+
+        private static readonly List<Type> _allowedValueTypes = new List<Type>
+        {
+            typeof(string),
+            typeof(double),
+            typeof(int),
+            typeof(float),
+            typeof(long),
+            typeof(uint),
+            typeof(ulong),
+        };
         #endregion
 
         #region-properties
@@ -60,39 +66,15 @@ namespace PipeDataModel.Types
         #region-IPipeDataImplementation
         public object Value
         {
-            get
-            {
-                if (_dataType == DataType.INTEGER) { return _integer; }
-                else if (_dataType == DataType.REALNUMBER) { return _realNumber; }
-                else if (_dataType == DataType.TEXT) { return _text; }
-                else
-                {
-                    throw new InvalidOperationException("Datatype is unknown.");
-                }
-            }
+            get { return _value; }
             set
             {
-                _integer = null; _realNumber = null; _text = null;
-                if (typeof(int).IsAssignableFrom(value.GetType()))
+                if (!IsAllowedType(value.GetType()))
                 {
-                    _integer = (int)value;
-                    _dataType = DataType.INTEGER;
+                    throw new InvalidCastException("The Pipe does not support this data type !");
                 }
-                else if (typeof(double).IsAssignableFrom(value.GetType()))
-                {
-                    _realNumber = (double)value;
-                    _dataType = DataType.REALNUMBER;
-                }
-                else if (typeof(string).IsAssignableFrom(value.GetType()))
-                {
-                    _text = (string)value;
-                    _dataType = DataType.TEXT;
-                }
+                _value = value;
             }
-        }
-        public DataType DataType
-        {
-            get { return _dataType; }
         }
 
         public override string ToString()
@@ -103,7 +85,7 @@ namespace PipeDataModel.Types
         public bool Equals(IPipeData other)
         {
             if(_name != other.Name) { return false; }
-            if(Value != other.Value) { return false; }
+            if(!Value.Equals(other.Value)) { return false; }
             return PipeDataUtil.EqualIgnoreOrder(_tags, other.Tags);
         }
 
@@ -124,6 +106,19 @@ namespace PipeDataModel.Types
                 if ( _tags == null ) { _tags = new List<string>(); }
                 return _tags;
             }
+        }
+        #endregion
+
+        #region-methods
+        private static bool IsAllowedType(Type type)
+        {
+            if (typeof(IPipeMemberType).IsAssignableFrom(type)) { return true; }
+            foreach(var t in _allowedValueTypes)
+            {
+                if (t.IsAssignableFrom(type)) { return true; }
+            }
+
+            return false;
         }
         #endregion
     }
