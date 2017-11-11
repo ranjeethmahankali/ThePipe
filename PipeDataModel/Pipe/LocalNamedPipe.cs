@@ -18,8 +18,6 @@ namespace PipeDataModel.Pipe
         private Action _callBack = null;
         private NamedPipeServerStream _pipeServer;
         private NamedPipeClientStream _pipeClient;
-        private bool _updateFlag = false;
-        private bool _threadActive = false;
         private bool _isActive = false;
         private IAsyncResult _result;
         #endregion

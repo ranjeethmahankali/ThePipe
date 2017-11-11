@@ -10,5 +10,6 @@ namespace PipeDataModel.Types
     public interface IPipeEmitter
     {
         void EmitPipeData(DataNode data);
+        object ConvertFromPipe(IPipeMemberType pipeObj);
     }
 }

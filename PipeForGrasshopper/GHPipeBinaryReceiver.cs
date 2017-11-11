@@ -84,9 +84,13 @@ namespace PipeForGrasshopper
 
         public void EmitPipeData(DataNode node)
         {
-            //IGH_Goo data = (IGH_Goo)node.Data;
             _newData = node;
-            //ExpireSolution(true);
+        }
+
+        public object ConvertFromPipe(IPipeMemberType pipeObj)
+        {
+            //incomplete
+            throw new NotImplementedException();
         }
 
         /// <summary>

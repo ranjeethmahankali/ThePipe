@@ -49,17 +49,13 @@ namespace PipeDataModel.Types
         #endregion
 
         #region-constructors
-        public PipeData(int integer)
+        public PipeData(object val)
         {
-            Value = integer;
+            Value = val;
         }
-        public PipeData(double realNumber)
+        public PipeData(string name, object val):this(val)
         {
-            Value = realNumber;
-        }
-        public PipeData(string text)
-        {
-            Value = text;
+            _name = name;
         }
         #endregion
 

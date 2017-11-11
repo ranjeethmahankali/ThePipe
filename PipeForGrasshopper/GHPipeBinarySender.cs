@@ -97,6 +97,12 @@ namespace PipeForGrasshopper
             return node;
         }
 
+        public IPipeMemberType ConvertToPipe(object obj)
+        {
+            //incomplete
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Provides an Icon for every component that will be visible in the User Interface.
         /// Icons need to be 24x24 pixels.

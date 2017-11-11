@@ -20,5 +20,11 @@ namespace TestSenderApplication
             data.ChildrenList[1].AddChild(new DataNode(new PipeData("Does this work ?")));
             return data;
         }
+
+        public IPipeMemberType ConvertToPipe(object obj)
+        {
+            //incomplete
+            throw new NotImplementedException();
+        }
     }
 }
