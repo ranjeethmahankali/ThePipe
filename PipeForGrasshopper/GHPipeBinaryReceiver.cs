@@ -57,7 +57,7 @@ namespace PipeForGrasshopper
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("Data", "D", "Data received", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Data", "pipe_name", "Data received", GH_ParamAccess.item);
         }
 
         /// <summary>

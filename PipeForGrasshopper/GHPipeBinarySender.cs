@@ -50,7 +50,8 @@ namespace PipeForGrasshopper
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("Pipe Input", "pipe_name", "Input for the pipe.", GH_ParamAccess.item);
+            string pipeName = "pipe_name_" + Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+            pManager.AddGenericParameter("Pipe Input", pipeName, "Input for the pipe.", GH_ParamAccess.item);
         }
 
         /// <summary>
