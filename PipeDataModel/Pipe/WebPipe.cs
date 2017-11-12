@@ -25,5 +25,11 @@ namespace PipeDataModel.Pipe
             //incomplete
             throw new NotImplementedException();
         }
+
+        public override void ClosePipe()
+        {
+            //incomplete
+            throw new NotImplementedException();
+        }
     }
 }

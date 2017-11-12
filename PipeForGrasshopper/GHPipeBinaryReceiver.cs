@@ -7,6 +7,7 @@ using Rhino.Geometry;
 using PipeDataModel.Types;
 using PipeDataModel.DataTree;
 using PipeDataModel.Pipe;
+using Grasshopper;
 
 namespace PipeForGrasshopper
 {
@@ -22,18 +23,33 @@ namespace PipeForGrasshopper
         /// new tabs/panels will automatically be created.
         /// </summary>
         public GHPipeBinaryReceiver()
-          : base("Binary Pipe Receiver", "BPR",
+          : base("LocalBinaryPipeReceiver", "LBPR",
               "PipeForGrasshopper",
               "Data", "Data Transfer")
         {
+            Params.ParameterChanged += new GH_ComponentParamServer.ParameterChangedEventHandler(OnParameterChange);
+            Instances.DocumentServer.DocumentRemoved += OnDocumentClose;
         }
 
+        private void OnDocumentClose(GH_DocumentServer sender, GH_Document doc)
+        {
+            if(_receiverPipe != null)
+            {
+                _receiverPipe.ClosePipe();
+                _receiverPipe = null;
+            }
+        }
+
+        protected virtual void OnParameterChange(object sender, GH_ParamServerEventArgs e)
+        {
+            ExpireSolution(true);
+        }
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Pipe Name", "P", "The unique name of the pipe.", GH_ParamAccess.item);
+            //pManager.AddTextParameter("Pipe Name", "P", "The unique name of the pipe.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -51,12 +67,13 @@ namespace PipeForGrasshopper
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            string pipeName = null;
-            if (!DA.GetData(0, ref pipeName))
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Please provide a unique name for the pipe.");
-            }
+            string pipeName = Params.Output[0].NickName;
 
+            if(_receiverPipe != null && _receiverPipe.Name != pipeName)
+            {
+                _receiverPipe.ClosePipe();
+                _receiverPipe = null;
+            }
             if (_receiverPipe == null)
             {
                 _receiverPipe = new LocalNamedPipe(pipeName);

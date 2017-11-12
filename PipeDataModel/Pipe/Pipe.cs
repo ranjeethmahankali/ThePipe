@@ -48,6 +48,7 @@ namespace PipeDataModel.Pipe
          */
         protected abstract void PushData(DataNode data);
         protected abstract DataNode PullData();
+        public abstract void ClosePipe();
 
         public virtual void Update()
         {

@@ -8,6 +8,7 @@ using Rhino.Geometry;
 using PipeDataModel.Types;
 using PipeDataModel.DataTree;
 using PipeDataModel.Pipe;
+using Grasshopper;
 
 namespace PipeForGrasshopper
 {
@@ -23,19 +24,33 @@ namespace PipeForGrasshopper
         /// new tabs/panels will automatically be created.
         /// </summary>
         public GHPipeBinarySender()
-          : base("Binary Pipe Sender", "BPS",
+          : base("LocalBinaryPipeSender", "LBPS",
               "PipeForGrasshopper",
               "Data", "Data Transfer")
         {
+            Params.ParameterChanged += new GH_ComponentParamServer.ParameterChangedEventHandler(OnParameterChange);
+            Instances.DocumentServer.DocumentRemoved += OnDocumentClose;
         }
 
+        private void OnDocumentClose(GH_DocumentServer sender, GH_Document doc)
+        {
+            if(_senderPipe != null)
+            {
+                _senderPipe.ClosePipe();
+                _senderPipe = null;
+            }
+        }
+
+        protected virtual void OnParameterChange(object sender, GH_ParamServerEventArgs e)
+        {
+            ExpireSolution(true);
+        }
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Pipe Name", "P", "The unique name of the pipe.", GH_ParamAccess.item);
-            pManager.AddGenericParameter("Data", "D", "Data to send over the pipe.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Pipe Input", "pipe_name", "Input for the pipe.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -53,14 +68,10 @@ namespace PipeForGrasshopper
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            string pipeName = null;
             IGH_Goo data = null;
 
-            if(!DA.GetData(0, ref pipeName))
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Please provide a unique name for the pipe.");
-            }
-            if(!DA.GetData(1, ref data))
+            string pipeName = Params.Input[0].NickName;
+            if (!DA.GetData(0, ref data))
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "please provide some data to send over the pipe.");
             }
@@ -71,7 +82,7 @@ namespace PipeForGrasshopper
                 return;
             }
 
-            _pipeData = (GH_String)data;
+            _pipeData = data;
 
             Action finishingDelegate = () =>
             {
@@ -81,13 +92,17 @@ namespace PipeForGrasshopper
 
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Ready to send the data... waiting for listener.");
             //if(_senderPipe != null) { _senderPipe.ClosePipe(); }
+            if(_senderPipe != null && _senderPipe.Name != pipeName)
+            {
+                _senderPipe.ClosePipe();
+                _senderPipe = null;
+            }
             if(_senderPipe == null)
             {
                 _senderPipe = new LocalNamedPipe(pipeName, finishingDelegate);
                 _senderPipe.SetCollector(this);
             }
             _senderPipe.Update();
-            //finishingDelegate.Invoke();
         }
 
         public DataNode CollectPipeData()

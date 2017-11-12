@@ -9,7 +9,7 @@ namespace TestReceiverApplication
 {
     class Program
     {
-        private static string PIPE_NAME = "first";
+        private static string PIPE_NAME = "test_pipe";
         static void Main(string[] args)
         {
             Action finisher = () =>

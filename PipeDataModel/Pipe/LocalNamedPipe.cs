@@ -44,13 +44,7 @@ namespace PipeDataModel.Pipe
         #region-base class implementation
         protected override void PushData(DataNode data)
         {
-            if (_isActive)
-            {
-                DataNode oldData = PullData();
-                //if the new data and the old data are same then we don't need to resend it so we bail out.
-                if (oldData.Equals(data)) { return; }
-            }
-
+            InterceptData();
             _pipeServer = new NamedPipeServerStream(_name, PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
             _result = _pipeServer.BeginWaitForConnection(ar => {
                 _isActive = false;
@@ -87,6 +81,29 @@ namespace PipeDataModel.Pipe
         #endregion
 
         #region-methods
+        public override void ClosePipe()
+        {
+            InterceptData();
+            if(_pipeClient != null)
+            {
+                if (_pipeClient.IsConnected) { _pipeClient.Close(); }
+                _pipeClient.Dispose();
+                _pipeClient = null;
+            }
+        }
+        private void InterceptData()
+        {
+            if (_isActive)
+            {
+                var callBackCopy = _callBack;
+                _callBack = () =>
+                {
+                    _callBack = callBackCopy;
+                };
+                //intercepting the data in order to close the pipe
+                DataNode oldData = PullData();
+            }
+        }
         #endregion
     }
 }
