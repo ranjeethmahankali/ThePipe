@@ -10,6 +10,5 @@ namespace PipeDataModel.Types
     public interface IPipeCollector
     {
         DataNode CollectPipeData();
-        IPipeMemberType ConvertToPipe(object obj);
     }
 }

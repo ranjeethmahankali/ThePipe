@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace PipeDataModel.Types.Geometry
-{
-    public abstract class Line: IPipeMemberType
+{   
+    [Serializable]
+    public class Line: IPipeMemberType
     {
         #region-fields
         private Vec _startPt;

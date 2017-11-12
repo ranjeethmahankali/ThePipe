@@ -10,12 +10,6 @@ namespace TestReceiverApplication
 {
     public class TestEmitter : IPipeEmitter
     {
-        public object ConvertFromPipe(IPipeMemberType pipeObj)
-        {
-            //incomplete
-            throw new NotImplementedException();
-        }
-
         public void EmitPipeData(DataNode data)
         {
             Console.WriteLine("The following is the data from the pipe\n=========================\n");

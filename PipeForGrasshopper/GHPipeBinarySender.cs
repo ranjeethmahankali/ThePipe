@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Types;
+using Grasshopper.Kernel.Parameters;
 using Rhino.Geometry;
 using PipeDataModel.Types;
 using PipeDataModel.DataTree;
@@ -15,7 +17,7 @@ namespace PipeForGrasshopper
     public class GHPipeBinarySender : GH_Component, IPipeCollector
     {
         private LocalNamedPipe _senderPipe;
-        private IGH_Goo _pipeData;
+        private List<IGH_Goo> _pipeData;
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
         /// constructor without any arguments.
@@ -50,8 +52,13 @@ namespace PipeForGrasshopper
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            string pipeName = "pipe_name_" + Convert.ToBase64String(Guid.NewGuid().ToByteArray());
-            pManager.AddGenericParameter("Pipe Input", pipeName, "Input for the pipe.", GH_ParamAccess.item);
+            Param_GenericObject parameter = new Param_GenericObject();
+            parameter.Name = "Pipe Input";
+            parameter.NickName = "pipe_name_" + Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+            parameter.Description = "Input for the pipe.";
+            parameter.Access = GH_ParamAccess.list;
+            parameter.DataMapping = GH_DataMapping.Flatten;
+            pManager.AddParameter(parameter);
         }
 
         /// <summary>
@@ -69,18 +76,11 @@ namespace PipeForGrasshopper
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            IGH_Goo data = null;
-
+            List<IGH_Goo> data = new List<IGH_Goo>();
             string pipeName = Params.Input[0].NickName;
-            if (!DA.GetData(0, ref data))
+            if (!DA.GetDataList(0, data))
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "please provide some data to send over the pipe.");
-            }
-
-            if (!typeof(GH_String).IsAssignableFrom(data.GetType()))
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Only strings are supported at this stage!");
-                return;
             }
 
             _pipeData = data;
@@ -89,6 +89,7 @@ namespace PipeForGrasshopper
             {
                 ClearRuntimeMessages();
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Data Transfer finished");
+                ExpireSolution(true);
             };
 
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Ready to send the data... waiting for listener.");
@@ -108,15 +109,12 @@ namespace PipeForGrasshopper
 
         public DataNode CollectPipeData()
         {
-            string msg = _pipeData.ToString();
-            DataNode node = new DataNode(new PipeData(msg));
+            DataNode node = new DataNode(new PipeData(null));
+            for (int i = 0; i < _pipeData.Count; i++)
+            {
+                node.AddChild(new DataNode(ConvertToPipe.ConvertObject(_pipeData[i])));
+            }
             return node;
-        }
-
-        public IPipeMemberType ConvertToPipe(object obj)
-        {
-            //incomplete
-            throw new NotImplementedException();
         }
 
         /// <summary>

@@ -64,7 +64,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common.cs" />
+    <Compile Include="ConvertFromPipe.cs" />
+    <Compile Include="ConvertToPipe.cs" />
     <Compile Include="GHPipeBinaryReceiver.cs" />
     <Compile Include="GHPipeBinarySender.cs" />
     <Compile Include="PipeForGrasshopperInfo.cs" />

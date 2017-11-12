@@ -9,7 +9,7 @@ using PipeDataModel.Utils;
 namespace PipeDataModel.Types
 {
     //this is to be used by the various data types in the pipe data model
-    //its current job is only to enfore equals method and to tell the pipe data types apart
+    //its current job is only to enfore equals method and to tell the pipe data types apart    
     public interface IPipeMemberType: IEquatable<IPipeMemberType>
     {
     }
@@ -65,7 +65,12 @@ namespace PipeDataModel.Types
             get { return _value; }
             set
             {
-                if (!IsAllowedType(value.GetType()))
+                if(value == null)
+                {
+                    _value = value;
+                    return;
+                }
+                else if (!IsAllowedType(value.GetType()))
                 {
                     throw new InvalidCastException("The Pipe does not support this data type !");
                 }

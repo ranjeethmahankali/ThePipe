@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using Grasshopper.Kernel.Parameters;
 using Rhino.Geometry;
 using PipeDataModel.Types;
 using PipeDataModel.DataTree;
@@ -13,7 +15,7 @@ namespace PipeForGrasshopper
 {
     public class GHPipeBinaryReceiver: GH_Component, IPipeEmitter
     {
-        private DataNode _oldData = null, _newData = null;
+        private List<IGH_Goo> _oldData = null, _newData = null;
         private LocalNamedPipe _receiverPipe;
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -57,7 +59,13 @@ namespace PipeForGrasshopper
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("Data", "pipe_name", "Data received", GH_ParamAccess.item);
+            Param_GenericObject parameter = new Param_GenericObject();
+            parameter.Name = "Pipe Output";
+            parameter.NickName = "pipe_name";
+            parameter.Description = "Output from the pipe.";
+            parameter.Access = GH_ParamAccess.list;
+            parameter.DataMapping = GH_DataMapping.Flatten;
+            pManager.AddParameter(parameter);
         }
 
         /// <summary>
@@ -84,14 +92,14 @@ namespace PipeForGrasshopper
             if (_newData != null)
             {
                 //AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "received new data.");
-                DA.SetData(0, _newData.Data);
-                _oldData = _newData.Duplicate();
+                DA.SetDataList(0, _newData);
+                _oldData = _newData.Select(x => x?.Duplicate()).ToList();
                 _newData = null;
             }
             else if (_newData == null && _oldData != null)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "did not receive any new data.");
-                DA.SetData(0, _oldData.Data);
+                DA.SetDataList(0, _oldData);
             }
             else if (_newData == null && _oldData == null)
             {
@@ -101,13 +109,12 @@ namespace PipeForGrasshopper
 
         public void EmitPipeData(DataNode node)
         {
-            _newData = node;
-        }
-
-        public object ConvertFromPipe(IPipeMemberType pipeObj)
-        {
-            //incomplete
-            throw new NotImplementedException();
+            if(node == null) { return; }
+            _newData = new List<IGH_Goo>();
+            foreach(var child in node.ChildrenList)
+            {
+                _newData.Add(ConvertFromPipe.ConvertObject(child.Data));
+            }
         }
 
         /// <summary>
