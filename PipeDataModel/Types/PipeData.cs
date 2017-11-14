@@ -8,23 +8,8 @@ using PipeDataModel.Utils;
 
 namespace PipeDataModel.Types
 {
-    //this is to be used by the various data types in the pipe data model
-    //its current job is only to enfore equals method and to tell the pipe data types apart    
-    public interface IPipeMemberType: IEquatable<IPipeMemberType>
-    {
-    }
-
-    public interface IPipeData:IEquatable<IPipeData>
-    {
-        string Name { get; set; }
-        DataNode ContainerNode { get; }
-        List<string> Tags { get; }
-        object Value { get; set; }
-        string ToString();
-    }
-
     [Serializable]
-    public class PipeData: IPipeData
+    public class PipeData
     {
         #region-fields
         private object _value;
@@ -49,6 +34,7 @@ namespace PipeDataModel.Types
         #endregion
 
         #region-constructors
+        internal PipeData() { }
         public PipeData(object val)
         {
             Value = val;
@@ -83,7 +69,7 @@ namespace PipeDataModel.Types
             return Value.ToString();
         }
 
-        public bool Equals(IPipeData other)
+        public bool Equals(PipeData other)
         {
             if(_name != other.Name) { return false; }
             if(!Value.Equals(other.Value)) { return false; }

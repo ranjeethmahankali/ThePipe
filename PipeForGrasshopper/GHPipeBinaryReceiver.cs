@@ -16,7 +16,8 @@ namespace PipeForGrasshopper
     public class GHPipeBinaryReceiver: GH_Component, IPipeEmitter
     {
         private List<IGH_Goo> _oldData = null, _newData = null;
-        private LocalNamedPipe _receiverPipe;
+        private LocalNamedPipe _localReceiverPipe;
+        private WebPipe _webPipe;
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
         /// constructor without any arguments.
@@ -35,10 +36,10 @@ namespace PipeForGrasshopper
 
         private void OnDocumentClose(GH_DocumentServer sender, GH_Document doc)
         {
-            if(_receiverPipe != null)
+            if(_localReceiverPipe != null)
             {
-                _receiverPipe.ClosePipe();
-                _receiverPipe = null;
+                _localReceiverPipe.ClosePipe();
+                _localReceiverPipe = null;
             }
         }
 
@@ -75,19 +76,19 @@ namespace PipeForGrasshopper
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            string pipeName = Params.Output[0].NickName;
+            string pipeIdentifier = Params.Output[0].NickName;
 
-            if(_receiverPipe != null && _receiverPipe.Name != pipeName)
+            Uri uriResult;
+            bool isWebUrl = Uri.TryCreate(pipeIdentifier, UriKind.Absolute, out uriResult)
+                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            if (isWebUrl)
             {
-                _receiverPipe.ClosePipe();
-                _receiverPipe = null;
+                PullFromWebPipe(pipeIdentifier);
             }
-            if (_receiverPipe == null)
+            else
             {
-                _receiverPipe = new LocalNamedPipe(pipeName);
-                _receiverPipe.SetEmitter(this);
+                PullFromLocalPipe(pipeIdentifier);
             }
-            _receiverPipe.Update();
 
             if (_newData != null)
             {
@@ -105,6 +106,31 @@ namespace PipeForGrasshopper
             {
                 DA.AbortComponentSolution();
             }
+        }
+
+        private void PullFromLocalPipe(string pipeName)
+        {
+            if (_localReceiverPipe != null && _localReceiverPipe.Name != pipeName)
+            {
+                _localReceiverPipe.ClosePipe();
+                _localReceiverPipe = null;
+            }
+            if (_localReceiverPipe == null)
+            {
+                _localReceiverPipe = new LocalNamedPipe(pipeName);
+                _localReceiverPipe.SetEmitter(this);
+            }
+            _localReceiverPipe.Update();
+        }
+
+        private void PullFromWebPipe(string pipeUrl)
+        {
+            if (_webPipe == null || (_webPipe != null && _webPipe.Url != pipeUrl))
+            {
+                _webPipe = new WebPipe(pipeUrl);
+                _webPipe.SetEmitter(this);
+            }
+            _webPipe.Update();
         }
 
         public void EmitPipeData(DataNode node)

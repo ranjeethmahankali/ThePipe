@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using System.Net;
 using System.Threading.Tasks;
+using System.Web;
+using System.IO;
 using PipeDataModel.DataTree;
+using Newtonsoft.Json;
 
 namespace PipeDataModel.Pipe
 {
@@ -12,6 +17,27 @@ namespace PipeDataModel.Pipe
         #region-fields
         private string _url;
         private Action _callBack = null;
+        private string _result;
+        private bool _pullSuccessful = false;
+
+        private static readonly string DATA_RECEIVED = "data_received_eea220ce-73d9-46c9-aa4e-664c8c47510a",
+            CLOSE_PIPE = "close_pipe_0decf8c3-4016-4cf7-a8db-40658b720da8",
+            PULL_FAILED = "pull_failed_9f8f31d8-ffc8-4d8d-93b3-7f5f2cffcd47";
+        #endregion
+
+        #region-properties
+        public string Url
+        {
+            get { return _url; }
+        }
+        public bool DataPostedToUrlSuccessful
+        {
+            get { return _result == DATA_RECEIVED; }
+        }
+        public bool PullDataSuccessful
+        {
+            get { return _pullSuccessful; }
+        }
         #endregion
 
         #region-constructors
@@ -28,26 +54,50 @@ namespace PipeDataModel.Pipe
         #region-base class implementation
         protected override DataNode PullData()
         {
-            //ping the url and get the response
-            //deserialize response into DataNode
-            //return the DataNode
-            //incomplete
-            throw new NotImplementedException();
+            try
+            {
+                string jsonStr;
+                using (WebClient client = new WebClient())
+                {
+                    jsonStr = client.DownloadString(_url + "?pull_request=true");
+                }
+                DataNode node = JsonConvert.DeserializeObject<DataNode>(jsonStr);
+                _pullSuccessful = true;
+                return node;
+            }
+            catch(Exception e)
+            {
+                _pullSuccessful = false;
+                return null;
+            }
         }
 
         protected override void PushData(DataNode data)
         {
-            //serialize the dataNode to a string
-            //send it to the url
-            //incomplete
-            throw new NotImplementedException();
+            NameValueCollection post_data = new NameValueCollection();
+            post_data.Add("PIPE_DATA", JsonConvert.SerializeObject(data));
+
+            byte[] result;
+            using (WebClient client = new WebClient())
+            {
+                result = client.UploadValues(_url, "POST", post_data);
+            }
+
+            _result = Encoding.UTF8.GetString(result);
+            if (_callBack != null) { _callBack.Invoke(); }
         }
 
         public override void ClosePipe()
         {
-            //incomplete
-            throw new NotImplementedException();
+            string response;
+            using (WebClient client = new WebClient())
+            {
+                response = client.DownloadString(_url + "?close_pipe="+CLOSE_PIPE);
+            }
         }
+        #endregion
+
+        #region-methods
         #endregion
     }
 }

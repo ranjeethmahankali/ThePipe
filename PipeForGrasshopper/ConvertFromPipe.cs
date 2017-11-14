@@ -14,7 +14,7 @@ namespace PipeForGrasshopper
 {
     public class ConvertFromPipe
     {
-        public static IGH_Goo ConvertObject(IPipeData data)
+        public static IGH_Goo ConvertObject(PipeData data)
         {
             if(data.Value == null) { return null; }
 

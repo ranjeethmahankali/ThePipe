@@ -134,11 +134,25 @@ namespace PipeForGrasshopper
         private void SendViaWebPipe(string pipeUrl)
         {
             CloseLocalPipe();
-            //now send the data to the webpipe
-            if(_webPipe == null)
+            Action finishingDelegate = () =>
             {
-                _webPipe = new WebPipe();
+                ClearRuntimeMessages();
+                if (_webPipe.DataPostedToUrlSuccessful)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Data posted to the url");
+                }
+                else
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "failed to post the data to url");
+                }
+            };
+            //now send the data to the webpipe
+            if (_webPipe == null || (_webPipe != null && _webPipe.Url != pipeUrl))
+            {
+                _webPipe = new WebPipe(pipeUrl);
+                _webPipe.SetCollector(this);
             }
+            _webPipe.Update();
         }
 
         public DataNode CollectPipeData()

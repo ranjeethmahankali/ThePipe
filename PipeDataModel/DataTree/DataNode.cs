@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PipeDataModel.Types;
 using PipeDataModel.Utils;
+using Newtonsoft.Json;
 
 namespace PipeDataModel.DataTree
 {
@@ -16,10 +17,11 @@ namespace PipeDataModel.DataTree
 
         private DataNode _parent;
         private Dictionary<string, DataNode> _children;
-        private IPipeData _data;
+        private PipeData _data;
         #endregion
 
         #region-properties
+        [JsonIgnore]
         public DataNode Parent
         {
             get { return _parent; }
@@ -34,11 +36,12 @@ namespace PipeDataModel.DataTree
         }
         public List<DataNode> ChildrenList { get { return ChildrenDict.Values.ToList(); } }
         public List<string> ChildrenNames { get { return ChildrenDict.Keys.ToList(); } }
-        public IPipeData Data
+        public PipeData Data
         {
             get { return _data; }
             set { _data = value; }
         }
+        [JsonIgnore]
         public DataNode Root
         {
             get
@@ -68,7 +71,8 @@ namespace PipeDataModel.DataTree
         #endregion
 
         #region-constructors
-        public DataNode(IPipeData data)
+        internal DataNode() { }
+        public DataNode(PipeData data)
         {
             _data = data;
             EnsureValidNodeName();
