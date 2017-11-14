@@ -16,7 +16,8 @@ namespace PipeForGrasshopper
 {
     public class GHPipeBinarySender : GH_Component, IPipeCollector
     {
-        private LocalNamedPipe _senderPipe;
+        private LocalNamedPipe _localSenderPipe;
+        private WebPipe _webPipe;
         private List<IGH_Goo> _pipeData;
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -36,10 +37,10 @@ namespace PipeForGrasshopper
 
         private void OnDocumentClose(GH_DocumentServer sender, GH_Document doc)
         {
-            if(_senderPipe != null)
+            if(_localSenderPipe != null)
             {
-                _senderPipe.ClosePipe();
-                _senderPipe = null;
+                _localSenderPipe.ClosePipe();
+                _localSenderPipe = null;
             }
         }
 
@@ -77,7 +78,7 @@ namespace PipeForGrasshopper
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             List<IGH_Goo> data = new List<IGH_Goo>();
-            string pipeName = Params.Input[0].NickName;
+            string pipeIdentifier = Params.Input[0].NickName;
             if (!DA.GetDataList(0, data))
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "please provide some data to send over the pipe.");
@@ -85,6 +86,30 @@ namespace PipeForGrasshopper
 
             _pipeData = data;
 
+            Uri uriResult;
+            bool isWebUrl = Uri.TryCreate(pipeIdentifier, UriKind.Absolute, out uriResult)
+                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            if (isWebUrl)
+            {
+                SendViaWebPipe(pipeIdentifier);
+            }
+            else
+            {
+                SendViaLocalPipe(pipeIdentifier);
+            }
+        }
+
+        private void CloseLocalPipe()
+        {
+            if(_localSenderPipe != null)
+            {
+                _localSenderPipe.ClosePipe();
+                _localSenderPipe = null;
+            }
+        }
+
+        private void SendViaLocalPipe(string pipeName)
+        {
             Action finishingDelegate = () =>
             {
                 ClearRuntimeMessages();
@@ -92,19 +117,28 @@ namespace PipeForGrasshopper
                 ExpireSolution(true);
             };
 
-            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Ready to send the data... waiting for listener.");
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "waiting for listener...");
             //if(_senderPipe != null) { _senderPipe.ClosePipe(); }
-            if(_senderPipe != null && _senderPipe.Name != pipeName)
+            if (_localSenderPipe != null && _localSenderPipe.Name != pipeName)
             {
-                _senderPipe.ClosePipe();
-                _senderPipe = null;
+                CloseLocalPipe();
             }
-            if(_senderPipe == null)
+            if (_localSenderPipe == null)
             {
-                _senderPipe = new LocalNamedPipe(pipeName, finishingDelegate);
-                _senderPipe.SetCollector(this);
+                _localSenderPipe = new LocalNamedPipe(pipeName, finishingDelegate);
+                _localSenderPipe.SetCollector(this);
             }
-            _senderPipe.Update();
+            _localSenderPipe.Update();
+        }
+
+        private void SendViaWebPipe(string pipeUrl)
+        {
+            CloseLocalPipe();
+            //now send the data to the webpipe
+            if(_webPipe == null)
+            {
+                _webPipe = new WebPipe();
+            }
         }
 
         public DataNode CollectPipeData()

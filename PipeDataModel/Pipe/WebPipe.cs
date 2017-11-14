@@ -7,8 +7,25 @@ using PipeDataModel.DataTree;
 
 namespace PipeDataModel.Pipe
 {
-    class WebPipe : Pipe
+    public class WebPipe : Pipe
     {
+        #region-fields
+        private string _url;
+        private Action _callBack = null;
+        #endregion
+
+        #region-constructors
+        public WebPipe(string url)
+        {
+            _url = url;
+        }
+        public WebPipe(string url, Action callBack):this(url)
+        {
+            _callBack = callBack;
+        }
+        #endregion
+
+        #region-base class implementation
         protected override DataNode PullData()
         {
             //ping the url and get the response
@@ -31,5 +48,6 @@ namespace PipeDataModel.Pipe
             //incomplete
             throw new NotImplementedException();
         }
+        #endregion
     }
 }
