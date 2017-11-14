@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.IO;
 using PipeDataModel.DataTree;
-using Newtonsoft.Json;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace PipeDataModel.Pipe
 {
@@ -61,7 +61,7 @@ namespace PipeDataModel.Pipe
                 {
                     jsonStr = client.DownloadString(_url + "?pull_request=true");
                 }
-                DataNode node = JsonConvert.DeserializeObject<DataNode>(jsonStr);
+                DataNode node = Deserialize(jsonStr);
                 _pullSuccessful = true;
                 return node;
             }
@@ -75,7 +75,7 @@ namespace PipeDataModel.Pipe
         protected override void PushData(DataNode data)
         {
             NameValueCollection post_data = new NameValueCollection();
-            post_data.Add("PIPE_DATA", JsonConvert.SerializeObject(data));
+            post_data.Add("PIPE_DATA", Serialize(data));
 
             byte[] result;
             using (WebClient client = new WebClient())
@@ -98,6 +98,42 @@ namespace PipeDataModel.Pipe
         #endregion
 
         #region-methods
+        private static string Serialize(DataNode node)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            byte[] arr;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                bf.Serialize(ms, node);
+                arr = ms.ToArray();
+            }
+
+            string byteStr = "";
+            foreach(byte b in arr)
+            {
+                byteStr += b.ToString()+"-";
+            }
+
+            return byteStr;
+        }
+
+        private static DataNode Deserialize(string byteStr)
+        {
+            List<byte> byteList = new List<byte>();
+            string[] bArr = byteStr.Split('-');
+            for (int i = 0; i < bArr.Length-1; i++)
+            {
+                byteList.Add(Convert.ToByte(bArr[i]));
+            }
+
+            byte[] arr = byteList.ToArray();
+            BinaryFormatter bf = new BinaryFormatter();
+            using (MemoryStream ms = new MemoryStream(arr))
+            {
+                object obj = bf.Deserialize(ms);
+                return (DataNode)obj;
+            }
+        }
         #endregion
     }
 }

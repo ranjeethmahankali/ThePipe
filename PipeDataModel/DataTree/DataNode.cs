@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using PipeDataModel.Types;
 using PipeDataModel.Utils;
-using Newtonsoft.Json;
 
 namespace PipeDataModel.DataTree
 {
@@ -21,7 +20,6 @@ namespace PipeDataModel.DataTree
         #endregion
 
         #region-properties
-        [JsonIgnore]
         public DataNode Parent
         {
             get { return _parent; }
@@ -41,7 +39,6 @@ namespace PipeDataModel.DataTree
             get { return _data; }
             set { _data = value; }
         }
-        [JsonIgnore]
         public DataNode Root
         {
             get
