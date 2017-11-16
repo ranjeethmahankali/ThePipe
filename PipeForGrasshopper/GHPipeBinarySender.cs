@@ -37,10 +37,11 @@ namespace PipeForGrasshopper
 
         private void OnDocumentClose(GH_DocumentServer sender, GH_Document doc)
         {
-            if(_localSenderPipe != null)
+            CloseLocalPipe();
+            if(_webPipe != null)
             {
-                _localSenderPipe.ClosePipe();
-                _localSenderPipe = null;
+                _webPipe.ClosePipe();
+                _webPipe = null;
             }
         }
 
@@ -149,7 +150,7 @@ namespace PipeForGrasshopper
             //now send the data to the webpipe
             if (_webPipe == null || (_webPipe != null && _webPipe.Url != pipeUrl))
             {
-                _webPipe = new WebPipe(pipeUrl);
+                _webPipe = new WebPipe(pipeUrl, finishingDelegate);
                 _webPipe.SetCollector(this);
             }
             _webPipe.Update();
