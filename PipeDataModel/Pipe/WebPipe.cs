@@ -109,9 +109,13 @@ namespace PipeDataModel.Pipe
             }
 
             string byteStr = "";
-            foreach(byte b in arr)
+            for(int i = 0; i < arr.Length; i++)
             {
-                byteStr += b.ToString()+"-";
+                byteStr += arr[i].ToString();
+                if(i < arr.Length - 1)
+                {
+                    byteStr += "-";
+                }
             }
 
             return byteStr;
@@ -121,7 +125,7 @@ namespace PipeDataModel.Pipe
         {
             List<byte> byteList = new List<byte>();
             string[] bArr = byteStr.Split('-');
-            for (int i = 0; i < bArr.Length-1; i++)
+            for (int i = 0; i < bArr.Length; i++)
             {
                 byteList.Add(Convert.ToByte(bArr[i]));
             }
