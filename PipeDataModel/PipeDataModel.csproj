@@ -47,6 +47,7 @@
     <Compile Include="Types\Geometry\Vec.cs" />
     <Compile Include="Types\IPipeCollector.cs" />
     <Compile Include="Types\IPipeEmitter.cs" />
+    <Compile Include="Types\PipeConverter.cs" />
     <Compile Include="Types\PipeData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pipe\Pipe.cs" />
