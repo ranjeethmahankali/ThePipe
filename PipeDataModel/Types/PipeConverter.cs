@@ -15,8 +15,9 @@ namespace PipeDataModel.Types
         where PipeT:IPipeMemberType
     {
         #region-fields
-        private Dictionary<Type, IPipeConverter> _pipeTypeMap;
-        private Dictionary<Type, IPipeConverter> _userTypeMap;
+        private List<IPipeConverter> _childrenConverters = null;
+        private readonly Func<UserT, PipeT> _toPipeConversionDelegate = null;
+        private readonly Func<PipeT, UserT> _fromPipeConversionDelegate = null;
         #endregion
 
         #region-properties
@@ -30,29 +31,81 @@ namespace PipeDataModel.Types
         }
         #endregion
 
+        #region-constructors
+        public PipeConverter(Func<UserT, PipeT> toConversion, Func<PipeT, UserT> fromConversion)
+        {
+            _toPipeConversionDelegate = toConversion;
+            _fromPipeConversionDelegate = fromConversion;
+        }
+        public PipeConverter()
+        {
+            _childrenConverters = new List<IPipeConverter>();
+        }
+        #endregion
+
         #region-methods
         public void AddToPipeConverter<T1, T2>(PipeConverter<T1, T2> converter)
             where T1:UserT
             where T2:PipeT
         {
-            _userTypeMap.Add(typeof(T1), converter);
-            _pipeTypeMap.Add(typeof(T2), converter);
+            var matchingChild = GetChildConverter<T1, T2>();
+            if(matchingChild != null)
+            {
+                throw new InvalidCastException("This converter already contains a child converter with this signature!");
+            }
+            _childrenConverters.Add(converter);
         }
 
-        public T2 ToPipe<T1, T2>(T1 obj)
-            where T2: PipeT
-            where T1: UserT
+        private PipeConverter<uT, pT> GetChildConverter<uT,pT>()
+            where uT : UserT
+            where pT : PipeT
         {
-            //incomplete
-            throw new NotImplementedException();
+            foreach (var child in _childrenConverters)
+            {
+                if (typeof(uT) == child.UserType && typeof(pT) == child.PipeType)
+                {
+                    return (PipeConverter<uT, pT>)child;
+                }
+            }
+            return null;
         }
 
-        public T1 FromPipe<T1, T2>(T2 obj)
-            where T2 : PipeT
+        public PipeT ToPipe<T1, T2>(T1 obj)
             where T1 : UserT
+            where T2 : PipeT
         {
-            //incomplete
-            throw new NotImplementedException();
+            if (PipeType == typeof(T2) && UserType == typeof(T1)
+                && _toPipeConversionDelegate != null)
+            {
+                return (T2)_toPipeConversionDelegate.Invoke(obj);
+            }
+
+            var childConverter = GetChildConverter<T1, T2>();
+            if (childConverter != null)
+            {
+                return childConverter.ToPipe<T1, T2>(obj);
+            }
+
+            return default(PipeT);
+        }
+
+        public UserT FromPipe<T1, T2>(T2 obj)
+            where T1 : UserT
+            where T2 : PipeT
+        {
+            if (PipeType == typeof(T2) && UserType == typeof(T1)
+                && _fromPipeConversionDelegate != null)
+            {
+                return (T1)_fromPipeConversionDelegate.Invoke(obj);
+            }
+
+            var childConverter = GetChildConverter<T1,T2>();
+            if(childConverter != null)
+            {
+                return childConverter.FromPipe<T1, T2>(obj);
+            }
+
+            return default(UserT);
         }
         #endregion
     }
