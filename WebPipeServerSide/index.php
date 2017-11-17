@@ -1,9 +1,11 @@
 <?php
-$pipe_data_file = "pipe_data.json";
+$pipe_data_file = "pipe_data.dat";
 
 if(isset($_GET["close_pipe"]) && $_GET["close_pipe"] == "close_pipe_0decf8c3-4016-4cf7-a8db-40658b720da8"){
 	//deleting the pipe data file
-	unlink($pipe_data_file);
+	if(file_exists($pipe_data_file)){
+		unlink($pipe_data_file);	
+	}
 	echo($_GET["close_pipe"]);
 }
 else if(isset($_GET["pull_request"]) && $_GET["pull_request"] == "true"){
@@ -23,5 +25,4 @@ else if(isset($_POST["PIPE_DATA"])){
 }else{
     echo("Invalid input");
 }
-
 ?>
