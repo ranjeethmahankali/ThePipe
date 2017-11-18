@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using pipeGeom = PipeDataModel.Types.Geometry;
 using PipeDataModel.Types.Geometry;
 using PipeDataModel.Types;
 
@@ -30,9 +31,9 @@ namespace PipeForGrasshopper
             {
                 return ConvertPoint((Vec)data.Value);
             }
-            else if (typeof(PipeDataModel.Types.Geometry.Line).IsAssignableFrom(data.Value.GetType()))
+            else if (typeof(pipeGeom.Curve.Line).IsAssignableFrom(data.Value.GetType()))
             {
-                return ConvertLine((PipeDataModel.Types.Geometry.Line)data.Value);
+                return ConvertLine((pipeGeom.Curve.Line)data.Value);
             }
             else { return null; }
         }
@@ -42,9 +43,9 @@ namespace PipeForGrasshopper
             return new GH_Point(new Point3d(v.Coordinates[0], v.Coordinates[1], v.Coordinates[2]));
         }
 
-        public static GH_Line ConvertLine(PipeDataModel.Types.Geometry.Line line)
+        public static GH_Line ConvertLine(pipeGeom.Curve.Line line)
         {
-            return new GH_Line(new Rhino.Geometry.Line(ConvertPoint(line.StartPoint).Value, ConvertPoint(line.EndPoint).Value));
+            return new GH_Line(new Line(ConvertPoint(line.StartPoint).Value, ConvertPoint(line.EndPoint).Value));
         }
     }
 }

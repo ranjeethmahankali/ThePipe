@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using PipeDataModel.Types.Geometry;
 using PipeDataModel.Types;
+using pipeGeom = PipeDataModel.Types.Geometry;
 
-using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 
@@ -58,13 +58,13 @@ namespace PipeForGrasshopper
         }
 
         //converting lines
-        public static PipeDataModel.Types.Geometry.Line ConvertLine(GH_Line line)
+        public static pipeGeom.Curve.Line ConvertLine(GH_Line line)
         {
-            return new PipeDataModel.Types.Geometry.Line(ConvertPoint(line.Value.From), ConvertPoint(line.Value.To));
+            return new pipeGeom.Curve.Line(ConvertPoint(line.Value.From), ConvertPoint(line.Value.To));
         }
-        public static PipeDataModel.Types.Geometry.Line ConvertLine(Rhino.Geometry.Line line)
+        public static pipeGeom.Curve.Line ConvertLine(Line line)
         {
-            return new PipeDataModel.Types.Geometry.Line(ConvertPoint(line.From), ConvertPoint(line.To));
+            return new pipeGeom.Curve.Line(ConvertPoint(line.From), ConvertPoint(line.To));
         }
     }
 }
