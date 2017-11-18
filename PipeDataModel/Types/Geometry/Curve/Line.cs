@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PipeDataModel.Types.Geometry
+namespace PipeDataModel.Types.Geometry.Curve
 {   
     [Serializable]
-    public class Line: IPipeMemberType
+    public class Line: Curve
     {
         #region-fields
         private Vec _startPt;
@@ -37,7 +37,7 @@ namespace PipeDataModel.Types.Geometry
             _endPt = end;
         }
 
-        public bool Equals(IPipeMemberType other)
+        public override bool Equals(IPipeMemberType other)
         {
             if (!GetType().IsAssignableFrom(other.GetType())) { return false; }
             Line otherLine = (Line)other;

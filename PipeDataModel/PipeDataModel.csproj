@@ -43,7 +43,11 @@
     <Compile Include="DataTree\DataNode.cs" />
     <Compile Include="Pipe\LocalNamedPipe.cs" />
     <Compile Include="Pipe\WebPipe.cs" />
-    <Compile Include="Types\Geometry\Line.cs" />
+    <Compile Include="Types\Geometry\Curve\Arc.cs" />
+    <Compile Include="Types\Geometry\Curve\Curve.cs" />
+    <Compile Include="Types\Geometry\Curve\Line.cs" />
+    <Compile Include="Types\Geometry\Curve\Polyline.cs" />
+    <Compile Include="Types\Geometry\Plane.cs" />
     <Compile Include="Types\Geometry\Vec.cs" />
     <Compile Include="Types\IPipeCollector.cs" />
     <Compile Include="Types\IPipeEmitter.cs" />

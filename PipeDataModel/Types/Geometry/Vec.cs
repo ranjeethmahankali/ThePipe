@@ -38,6 +38,11 @@ namespace PipeDataModel.Types.Geometry
         {
             get { return Coordinates.Count; }
         }
+
+        public Vec Unitized
+        {
+            get { return Multiply(1 / Length); }
+        }
         #endregion
 
         #region-constructors
@@ -63,12 +68,13 @@ namespace PipeDataModel.Types.Geometry
             }
         }
         #endregion
+
         #region-methods
         public static void EnsureDimensionMatch(Vec v1, Vec v2)
         {
             if (v1.Dimensions != v2.Dimensions)
             {
-                throw new InvalidOperationException("The two vectors have different dimensions, so distance cannot be calculated.");
+                throw new InvalidOperationException("The two vectors have different dimensions!");
             }
         }
         public static List<T> ElementWise<T>(Vec a, Vec b, Func<double,double,T> op)
@@ -82,13 +88,90 @@ namespace PipeDataModel.Types.Geometry
             }
             return newVals;
         }
+
+        public static List<T> ElementWise<T>(Vec a, Func<double, T> op)
+        {
+            int dim = a.Dimensions;
+            List<T> newVals = new List<T>();
+            for (int i = 0; i < dim; i++)
+            {
+                newVals.Add(op.Invoke(a.Coordinates[i]));
+            }
+            return newVals;
+        }
         public static Vec Sum(Vec a, Vec b)
         {
             return new Vec(ElementWise(a, b, (x1, x2) => { return x1 + x2; }));
         }
+
+        public static Vec Sum(params Vec[] vecs)
+        {
+            Vec sum = new Vec(0, 0, 0);
+            foreach(Vec v in vecs)
+            {
+                sum = Sum(sum, v);
+            }
+            return sum;
+        }
         public static Vec Difference(Vec a, Vec b)
         {
             return new Vec(ElementWise(a, b, (x1, x2) => { return x1 - x2; }));
+        }
+        public static Vec Cross(Vec a, Vec b)
+        {
+            return a.Cross(b);
+        }
+        public static double Dot(Vec a, Vec b)
+        {
+            return a.Dot(b);
+        }
+        public static double BoxProduct(Vec a, Vec b, Vec c)
+        {
+            return Dot(a, Cross(b, c));
+        }
+
+        public Vec Multiply(double scalar)
+        {
+            List<double> newCoords = ElementWise(this, (x) => x * scalar);
+            return new Vec(newCoords);
+        }
+
+        public double Dot(Vec another)
+        {
+            List<double> prods = ElementWise(this, another, (x1, x2) => x1 * x2);
+            return prods.Sum();
+        }
+
+        public Vec Cross(Vec another)
+        {
+            EnsureDimensionMatch(this, another);
+
+            Vec u = Ensure3D(this);
+            Vec v = Ensure3D(another);
+
+            return new Vec(
+                    u.Coordinates[1] * v.Coordinates[2] - u.Coordinates[2] * v.Coordinates[1],
+                    u.Coordinates[2] * v.Coordinates[0] - u.Coordinates[0] * v.Coordinates[2],
+                    u.Coordinates[0] * v.Coordinates[1] - u.Coordinates[1] * v.Coordinates[0]
+                );
+        }
+
+        public static Vec Ensure3D(Vec vec)
+        {
+            Vec v = new Vec(vec.Coordinates);
+            if(v.Dimensions > 3)
+            {
+                throw new ArgumentException("Invalid vector with too many dimensions.");
+            }
+            if(v.Dimensions < 3)
+            {
+                while(v.Dimensions < 3)
+                {
+                    v.Coordinates.Add(0);
+                }
+            }
+
+            return v;
         }
 
         public bool Equals(IPipeMemberType other)
