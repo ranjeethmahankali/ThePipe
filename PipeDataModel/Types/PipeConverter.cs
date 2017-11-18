@@ -44,7 +44,7 @@ namespace PipeDataModel.Types
         #endregion
 
         #region-methods
-        public void AddToPipeConverter<T1, T2>(PipeConverter<T1, T2> converter)
+        public PipeConverter<T1, T2> AddConverter<T1, T2>(PipeConverter<T1, T2> converter)
             where T1:UserT
             where T2:PipeT
         {
@@ -54,6 +54,7 @@ namespace PipeDataModel.Types
                 throw new InvalidCastException("This converter already contains a child converter with this signature!");
             }
             _childrenConverters.Add(converter);
+            return converter;
         }
 
         private PipeConverter<uT, pT> GetChildConverter<uT,pT>()
