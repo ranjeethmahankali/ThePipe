@@ -46,4 +46,22 @@ namespace RhinoPipeConverter
                  )
         { }
     }
+
+    public class Vector3DConverter:PipeConverter<rh.Vector3d, pp.Vec>
+    {
+        public Vector3DConverter():
+            base(
+                    (rhVec) =>
+                    {
+                        return new pp.Vec(rhVec.X, rhVec.Y, rhVec.Z);
+                    },
+                    (ppV) =>
+                    {
+                        pp.Vec v = pp.Vec.Ensure3D(ppV);
+                        List<double> coords = v.Coordinates;
+                        return new rh.Vector3d(coords[0], coords[1], coords[2]);
+                    }
+                )
+        { }
+    }
 }

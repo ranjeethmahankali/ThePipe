@@ -17,7 +17,7 @@ namespace RhinoPipeConverter
         public GeometryConverter()
         {
             _pt3dConv = new Point3dConverter();
-            AddConverter(new PointConverter(_pt3dConv));
+            var ptConv = AddConverter(new PointConverter(_pt3dConv));
             AddConverter(new CurveConverter());
         }
     }

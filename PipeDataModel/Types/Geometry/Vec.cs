@@ -174,6 +174,25 @@ namespace PipeDataModel.Types.Geometry
             return v;
         }
 
+        public static Vec Rotate(Vec vec, Vec axis, double angle)
+        {
+            vec = Ensure3D(vec);
+            axis = Ensure3D(axis);
+            Vec uAxis = axis.Unitized;
+            Vec parallelComp = uAxis.Multiply(uAxis.Dot(vec));
+            Vec perpComp = Difference(vec, parallelComp);
+            Vec uPerp = perpComp.Unitized;
+            Vec wVec = Cross(uAxis, uPerp);
+
+            Vec rotated = Sum(uPerp.Multiply(Math.Cos(angle)), wVec.Multiply(Math.Sin(angle)));
+            return rotated;
+        }
+
+        public Vec RotateAbout(Vec axis, double angle)
+        {
+            return Rotate(this, axis, angle);
+        }
+
         public bool Equals(IPipeMemberType other)
         {
             if (!GetType().IsAssignableFrom(other.GetType())) { return false; }

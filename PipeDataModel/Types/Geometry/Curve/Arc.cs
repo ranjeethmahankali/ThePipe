@@ -49,10 +49,19 @@ namespace PipeDataModel.Types.Geometry.Curve
             _radius = rad;
             _startAngle = startAng;
             _endAngle = endAng;
+            EnsureAlignment();
         }
         #endregion
 
         #region-methods
+        private void EnsureAlignment()
+        {
+            if(StartAngle == 0) { return; }
+            Plane = new Plane(Plane.Origin, Plane.X.RotateAbout(Plane.Z, StartAngle), 
+                Plane.Y.RotateAbout(Plane.Z, StartAngle));
+            EndAngle = EndAngle - StartAngle;
+            StartAngle = 0;
+        }
         public override bool Equals(IPipeMemberType other)
         {
             if(GetType() != other.GetType()) { return false; }

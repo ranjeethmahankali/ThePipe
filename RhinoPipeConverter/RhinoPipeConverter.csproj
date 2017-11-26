@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CurveConverter.cs" />
+    <Compile Include="PlaneConverter.cs" />
     <Compile Include="PointConverter.cs" />
     <Compile Include="RhinoPipeConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
