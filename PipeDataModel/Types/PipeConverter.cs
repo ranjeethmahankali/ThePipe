@@ -144,10 +144,10 @@ namespace PipeDataModel.Types
                 return (T1)_fromPipeConversionDelegate.Invoke(obj);
             }
 
-            var childConverter = (PipeConverter<T1, T2>)GetFromPipeConverter(typeof(T1), typeof(T2));
+            var childConverter = GetFromPipeConverter(typeof(T1), obj.GetType());
             if(childConverter != null)
             {
-                return childConverter.FromPipe<T1, T2>(obj);
+                return childConverter.ConvertFromPipe<T1, T2>(obj);
             }
 
             throw new PipeConversionException(typeof(T2), typeof(T1));
