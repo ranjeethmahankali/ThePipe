@@ -4,12 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using PipeDataModel.Exceptions;
+
 namespace PipeDataModel.Types
 {
     internal interface IPipeConverter
     {
         Type UserType { get; }
         Type PipeType { get; }
+        T1 ConvertFromPipe<T1, T2>(T2 pipeObj);
+        T2 ConvertToPipe<T1, T2>(T1 userObj);
     }
     public class PipeConverter<UserT, PipeT>:IPipeConverter
         where PipeT:IPipeMemberType
@@ -48,7 +52,7 @@ namespace PipeDataModel.Types
             where T1:UserT
             where T2:PipeT
         {
-            var matchingChild = GetChildConverter<T1, T2>();
+            var matchingChild = GetChildConverter(typeof(T1), typeof(T2));
             if(matchingChild != null)
             {
                 throw new InvalidCastException("This converter already contains a child converter with this signature!");
@@ -57,15 +61,37 @@ namespace PipeDataModel.Types
             return converter;
         }
 
-        private PipeConverter<uT, pT> GetChildConverter<uT,pT>()
-            where uT : UserT
-            where pT : PipeT
+        private IPipeConverter GetChildConverter(Type userT, Type pipeT)
         {
             foreach (var child in _childrenConverters)
             {
-                if (typeof(uT) == child.UserType && typeof(pT) == child.PipeType)
+                if (child.PipeType == pipeT && child.UserType == userT)
                 {
-                    return (PipeConverter<uT, pT>)child;
+                    return child;
+                }
+            }
+            return null;
+        }
+
+        private IPipeConverter GetToPipeConverter(Type userType, Type pipeType)
+        {
+            foreach (var child in _childrenConverters)
+            {
+                if (child.UserType.IsAssignableFrom(userType) && pipeType.IsAssignableFrom(child.PipeType))
+                {
+                    return child;
+                }
+            }
+            return null;
+        }
+
+        private IPipeConverter GetFromPipeConverter(Type userType, Type pipeType)
+        {
+            foreach (var child in _childrenConverters)
+            {
+                if (child.PipeType.IsAssignableFrom(pipeType) && userType.IsAssignableFrom(child.UserType))
+                {
+                    return child;
                 }
             }
             return null;
@@ -81,13 +107,31 @@ namespace PipeDataModel.Types
                 return (T2)_toPipeConversionDelegate.Invoke(obj);
             }
 
-            var childConverter = GetChildConverter<T1, T2>();
+            var childConverter = GetToPipeConverter(obj.GetType(), typeof(T2));
             if (childConverter != null)
             {
-                return childConverter.ToPipe<T1, T2>(obj);
+                return childConverter.ConvertToPipe<T1, T2>(obj);
             }
 
-            return default(PipeT);
+            throw new PipeConversionException(typeof(T1), typeof(T2));
+        }
+
+        public T2 ConvertToPipe<T1, T2>(T1 obj)
+        {
+            if(!(typeof(UserT).IsAssignableFrom(obj.GetType()) && typeof(T2).IsAssignableFrom(typeof(PipeT))))
+            {
+                throw new PipeConversionException(typeof(T1), typeof(T2));
+            }
+            return (T2)(object)ToPipe<UserT,PipeT>((UserT)(object)obj);
+        }
+
+        public T1 ConvertFromPipe<T1, T2>(T2 obj)
+        {
+            if (!(typeof(T1).IsAssignableFrom(typeof(UserT)) && typeof(PipeT).IsAssignableFrom(obj.GetType())))
+            {
+                throw new PipeConversionException(typeof(T1), typeof(T2));
+            }
+            return (T1)(object)FromPipe<UserT, PipeT>((PipeT)(object)obj);
         }
 
         public UserT FromPipe<T1, T2>(T2 obj)
@@ -100,13 +144,13 @@ namespace PipeDataModel.Types
                 return (T1)_fromPipeConversionDelegate.Invoke(obj);
             }
 
-            var childConverter = GetChildConverter<T1,T2>();
+            var childConverter = (PipeConverter<T1, T2>)GetFromPipeConverter(typeof(T1), typeof(T2));
             if(childConverter != null)
             {
                 return childConverter.FromPipe<T1, T2>(obj);
             }
 
-            return default(UserT);
+            throw new PipeConversionException(typeof(T2), typeof(T1));
         }
         #endregion
     }

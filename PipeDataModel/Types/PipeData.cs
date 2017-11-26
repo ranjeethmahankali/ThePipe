@@ -8,105 +8,38 @@ using PipeDataModel.Utils;
 
 namespace PipeDataModel.Types
 {
-    [Serializable]
-    public class PipeData
+    public abstract class PipeData<T> : IPipeMemberType
     {
-        #region-fields
-        private object _value;
-
-        private string _name;
-        private DataNode _containerNode;
-        private List<string> _tags;
-
-        private static readonly List<Type> _allowedValueTypes = new List<Type>
-        {
-            typeof(string),
-            typeof(double),
-            typeof(int),
-            typeof(float),
-            typeof(long),
-            typeof(uint),
-            typeof(ulong),
-        };
-        #endregion
-
-        #region-properties
-        #endregion
-
-        #region-constructors
-        internal PipeData() { }
-        public PipeData(object val)
-        {
-            Value = val;
-        }
-        public PipeData(string name, object val):this(val)
-        {
-            _name = name;
-        }
-        #endregion
-
-        #region-IPipeDataImplementation
-        public object Value
+        private T _value;
+        public T Value
         {
             get { return _value; }
-            set
-            {
-                if(value == null)
-                {
-                    _value = value;
-                    return;
-                }
-                else if (!IsAllowedType(value.GetType()))
-                {
-                    throw new InvalidCastException("The Pipe does not support this data type !");
-                }
-                _value = value;
-            }
+            set { _value = value; }
         }
+        public PipeData(T val)
+        {
+            _value = val;
+        }
+        public bool Equals(IPipeMemberType other)
+        {
+            if(other.GetType() != GetType()) { return false; }
+            PipeData<T> cast = (PipeData<T>)other;
+            return cast.Value.Equals(Value);
+        }
+    }
 
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
+    public class PipeInteger : PipeData<int>
+    {
+        public PipeInteger(int val) : base(val) { }
+    }
 
-        public bool Equals(PipeData other)
-        {
-            if(_name != other.Name) { return false; }
-            if(!Value.Equals(other.Value)) { return false; }
-            return PipeDataUtil.EqualIgnoreOrder(_tags, other.Tags);
-        }
+    public class PipeNumber : PipeData<double>
+    {
+        public PipeNumber(double val): base(val) { }
+    }
 
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
-        public DataNode ContainerNode
-        {
-            get { return _containerNode; }
-            set { _containerNode = value; }
-        }
-        public List<string> Tags
-        {
-            get
-            {
-                if ( _tags == null ) { _tags = new List<string>(); }
-                return _tags;
-            }
-        }
-        #endregion
-
-        #region-methods
-        private static bool IsAllowedType(Type type)
-        {
-            if (typeof(IPipeMemberType).IsAssignableFrom(type)) { return true; }
-            foreach(var t in _allowedValueTypes)
-            {
-                if (t.IsAssignableFrom(type)) { return true; }
-            }
-
-            return false;
-        }
-        #endregion
+    public class PipeString : PipeData<string>
+    {
+        public PipeString(string val) : base(val) { }
     }
 }

@@ -16,7 +16,8 @@ namespace PipeDataModel.DataTree
 
         private DataNode _parent;
         private Dictionary<string, DataNode> _children;
-        private PipeData _data;
+        private IPipeMemberType _data;
+        private string _name;
         #endregion
 
         #region-properties
@@ -34,7 +35,7 @@ namespace PipeDataModel.DataTree
         }
         public List<DataNode> ChildrenList { get { return ChildrenDict.Values.ToList(); } }
         public List<string> ChildrenNames { get { return ChildrenDict.Keys.ToList(); } }
-        public PipeData Data
+        public IPipeMemberType Data
         {
             get { return _data; }
             set { _data = value; }
@@ -49,8 +50,8 @@ namespace PipeDataModel.DataTree
         }
         public string Name
         {
-            get { return _data.Name; }
-            set { _data.Name = value; }
+            get { return _name; }
+            set { _name = value; }
         }
         public List<string> Address
         {
@@ -68,8 +69,8 @@ namespace PipeDataModel.DataTree
         #endregion
 
         #region-constructors
-        internal DataNode() { }
-        public DataNode(PipeData data)
+        public DataNode() :this(null){ }
+        public DataNode(IPipeMemberType data)
         {
             _data = data;
             EnsureValidNodeName();

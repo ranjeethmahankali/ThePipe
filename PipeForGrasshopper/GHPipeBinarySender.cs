@@ -19,6 +19,7 @@ namespace PipeForGrasshopper
         private LocalNamedPipe _localSenderPipe;
         private WebPipe _webPipe;
         private List<IGH_Goo> _pipeData;
+        private static GHPipeConverter _converter = new GHPipeConverter();
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
         /// constructor without any arguments.
@@ -158,10 +159,10 @@ namespace PipeForGrasshopper
 
         public DataNode CollectPipeData()
         {
-            DataNode node = new DataNode(new PipeData(null));
+            DataNode node = new DataNode();
             for (int i = 0; i < _pipeData.Count; i++)
             {
-                node.AddChild(new DataNode(ConvertToPipe.ConvertObject(_pipeData[i])));
+                node.AddChild(new DataNode(GHPipeConverter.ToPipe(_pipeData[i])));
             }
             return node;
         }

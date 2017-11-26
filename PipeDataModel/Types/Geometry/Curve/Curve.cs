@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PipeDataModel.Types.Geometry.Curve
 {
+    [Serializable]
     public abstract class Curve : IPipeMemberType
     {
         public abstract bool Equals(IPipeMemberType other);

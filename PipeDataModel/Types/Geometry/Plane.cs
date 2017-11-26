@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PipeDataModel.Types.Geometry
 {
+    [Serializable]
     public class Plane : IPipeMemberType
     {
         #region-fields

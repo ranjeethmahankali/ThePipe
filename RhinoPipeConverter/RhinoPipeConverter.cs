@@ -12,13 +12,16 @@ namespace RhinoPipeConverter
 {
     public class GeometryConverter:PipeConverter<rh.GeometryBase, IPipeMemberType>
     {
-        private Point3dConverter _pt3dConv;
+        private static Point3dConverter _pt3dConv = new Point3dConverter();
+        private static Vector3DConverter _vec3DConv = new Vector3DConverter();
+        private static ArcConverter _arcConv = new ArcConverter(_planeConv, _pt3dConv);
+        private static PlaneConverter _planeConv = new PlaneConverter(_vec3DConv, _pt3dConv);
+        private static LineConverter _lineConv = new LineConverter(_pt3dConv);
 
         public GeometryConverter()
         {
-            _pt3dConv = new Point3dConverter();
             var ptConv = AddConverter(new PointConverter(_pt3dConv));
-            AddConverter(new CurveConverter());
+            var curveConv = AddConverter(new CurveConverter(_pt3dConv, _arcConv, _lineConv));
         }
     }
 }

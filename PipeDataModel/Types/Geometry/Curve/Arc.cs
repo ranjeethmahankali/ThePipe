@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PipeDataModel.Types.Geometry.Curve
 {
+    [Serializable]
     public class Arc : Curve
     {
         #region-fields

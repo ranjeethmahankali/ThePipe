@@ -139,7 +139,7 @@ namespace PipeForGrasshopper
             _newData = new List<IGH_Goo>();
             foreach(var child in node.ChildrenList)
             {
-                _newData.Add(ConvertFromPipe.ConvertObject(child.Data));
+                _newData.Add(GHPipeConverter.FromPipe(child.Data));
             }
         }
 

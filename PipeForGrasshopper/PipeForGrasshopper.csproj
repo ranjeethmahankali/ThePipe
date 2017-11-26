@@ -64,10 +64,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConvertFromPipe.cs" />
-    <Compile Include="ConvertToPipe.cs" />
     <Compile Include="GHPipeBinaryReceiver.cs" />
     <Compile Include="GHPipeBinarySender.cs" />
+    <Compile Include="GHPipeConverter.cs" />
     <Compile Include="PipeForGrasshopperInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -75,6 +74,10 @@
     <ProjectReference Include="..\PipeDataModel\PipeDataModel.csproj">
       <Project>{7f5e7a00-5ef1-454c-bf0d-f2624434ad76}</Project>
       <Name>PipeDataModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RhinoPipeConverter\RhinoPipeConverter.csproj">
+      <Project>{3803a2e6-aa71-4d38-9c4f-3288fb5e4faa}</Project>
+      <Name>RhinoPipeConverter</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
