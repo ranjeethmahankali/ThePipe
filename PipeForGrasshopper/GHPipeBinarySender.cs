@@ -17,7 +17,7 @@ namespace PipeForGrasshopper
     public class GHPipeBinarySender : GH_Component, IPipeCollector
     {
         private LocalNamedPipe _localSenderPipe;
-        private WebPipe _webPipe;
+        private MyWebPipe _webPipe;
         private List<IGH_Goo> _pipeData;
         private static GHPipeConverter _converter = new GHPipeConverter();
         /// <summary>
@@ -151,7 +151,7 @@ namespace PipeForGrasshopper
             //now send the data to the webpipe
             if (_webPipe == null || (_webPipe != null && _webPipe.Url != pipeUrl))
             {
-                _webPipe = new WebPipe(pipeUrl, finishingDelegate);
+                _webPipe = new MyWebPipe(pipeUrl, finishingDelegate);
                 _webPipe.SetCollector(this);
             }
             _webPipe.Update();

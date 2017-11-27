@@ -12,7 +12,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace PipeDataModel.Pipe
 {
-    public class WebPipe : Pipe
+    public class MyWebPipe : Pipe
     {
         #region-fields
         private string _url;
@@ -21,8 +21,7 @@ namespace PipeDataModel.Pipe
         private bool _pullSuccessful = false;
 
         private static readonly string DATA_RECEIVED = "data_received_eea220ce-73d9-46c9-aa4e-664c8c47510a",
-            CLOSE_PIPE = "close_pipe_0decf8c3-4016-4cf7-a8db-40658b720da8",
-            PULL_FAILED = "pull_failed_9f8f31d8-ffc8-4d8d-93b3-7f5f2cffcd47";
+            CLOSE_PIPE = "close_pipe_0decf8c3-4016-4cf7-a8db-40658b720da8";
         #endregion
 
         #region-properties
@@ -41,11 +40,11 @@ namespace PipeDataModel.Pipe
         #endregion
 
         #region-constructors
-        public WebPipe(string url)
+        public MyWebPipe(string url)
         {
             _url = url;
         }
-        public WebPipe(string url, Action callBack):this(url)
+        public MyWebPipe(string url, Action callBack):this(url)
         {
             _callBack = callBack;
         }

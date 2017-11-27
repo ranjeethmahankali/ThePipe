@@ -17,7 +17,7 @@ namespace PipeForGrasshopper
     {
         private List<IGH_Goo> _oldData = null, _newData = null;
         private LocalNamedPipe _localReceiverPipe;
-        private WebPipe _webPipe;
+        private MyWebPipe _webPipe;
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
         /// constructor without any arguments.
@@ -127,7 +127,7 @@ namespace PipeForGrasshopper
         {
             if (_webPipe == null || (_webPipe != null && _webPipe.Url != pipeUrl))
             {
-                _webPipe = new WebPipe(pipeUrl);
+                _webPipe = new MyWebPipe(pipeUrl);
                 _webPipe.SetEmitter(this);
             }
             _webPipe.Update();
