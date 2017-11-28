@@ -14,8 +14,8 @@ namespace RhinoPipeConverter
     {
         private static Point3dConverter _pt3dConv = new Point3dConverter();
         private static Vector3DConverter _vec3DConv = new Vector3DConverter();
-        private static ArcConverter _arcConv = new ArcConverter(_planeConv, _pt3dConv);
         private static PlaneConverter _planeConv = new PlaneConverter(_vec3DConv, _pt3dConv);
+        private static ArcConverter _arcConv = new ArcConverter(_planeConv, _pt3dConv);
         private static LineConverter _lineConv = new LineConverter(_pt3dConv);
 
         public GeometryConverter()
