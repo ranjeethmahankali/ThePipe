@@ -8,36 +8,48 @@ using PipeDataModel.Utils;
 
 namespace PipeDataModel.Types
 {
-    public abstract class PipeData<T> : IPipeMemberType
+    [Serializable]
+    public class PipeInteger: IPipeMemberType
     {
-        private T _value;
-        public T Value
+        private int _value;
+        public int Value
         {
             get { return _value; }
             set { _value = value; }
         }
-        public PipeData(T val)
+        public PipeInteger(int val)
         {
             _value = val;
         }
+
         public bool Equals(IPipeMemberType other)
         {
-            if(other.GetType() != GetType()) { return false; }
-            PipeData<T> cast = (PipeData<T>)other;
+            if (other.GetType() != GetType()) { return false; }
+            PipeInteger cast = (PipeInteger)other;
             return cast.Value.Equals(Value);
         }
     }
 
     [Serializable]
-    public class PipeInteger : PipeData<int>
+    public class PipeNumber: IPipeMemberType
     {
-        public PipeInteger(int val) : base(val) { }
-    }
+        private double _value;
+        public double Value
+        {
+            get { return _value; }
+            set { _value = value; }
+        }
+        public PipeNumber(double val)
+        {
+            _value = val;
+        }
 
-    [Serializable]
-    public class PipeNumber : PipeData<double>
-    {
-        public PipeNumber(double val): base(val) { }
+        public bool Equals(IPipeMemberType other)
+        {
+            if (other.GetType() != GetType()) { return false; }
+            PipeNumber cast = (PipeNumber)other;
+            return cast.Value.Equals(Value);
+        }
     }
 
     [Serializable]
