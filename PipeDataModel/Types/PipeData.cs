@@ -28,18 +28,37 @@ namespace PipeDataModel.Types
         }
     }
 
+    [Serializable]
     public class PipeInteger : PipeData<int>
     {
         public PipeInteger(int val) : base(val) { }
     }
 
+    [Serializable]
     public class PipeNumber : PipeData<double>
     {
         public PipeNumber(double val): base(val) { }
     }
 
-    public class PipeString : PipeData<string>
+    [Serializable]
+    public class PipeString:IPipeMemberType
     {
-        public PipeString(string val) : base(val) { }
+        private string _value;
+        public string Value
+        {
+            get { return _value; }
+            set { _value = value; }
+        }
+        public PipeString(string val)
+        {
+            _value = val;
+        }
+
+        public bool Equals(IPipeMemberType other)
+        {
+            if (other.GetType() != GetType()) { return false; }
+            PipeString cast = (PipeString)other;
+            return cast.Value.Equals(Value);
+        }
     }
 }

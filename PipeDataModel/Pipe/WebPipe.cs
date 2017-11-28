@@ -106,32 +106,17 @@ namespace PipeDataModel.Pipe
                 bf.Serialize(ms, node);
                 arr = ms.ToArray();
             }
-
-            string byteStr = "";
-            for(int i = 0; i < arr.Length; i++)
-            {
-                byteStr += arr[i].ToString();
-                if(i < arr.Length - 1)
-                {
-                    byteStr += "-";
-                }
-            }
-
+            string[] strArr = arr.Select((b) => b.ToString()).ToArray();
+            string byteStr = String.Join("-",strArr);
             return byteStr;
         }
 
         private static DataNode Deserialize(string byteStr)
         {
-            List<byte> byteList = new List<byte>();
-            string[] bArr = byteStr.Split('-');
-            for (int i = 0; i < bArr.Length; i++)
-            {
-                byteList.Add(Convert.ToByte(bArr[i]));
-            }
-
-            byte[] arr = byteList.ToArray();
+            string[] strArr = byteStr.Split('-');
+            byte[] bArr = strArr.Select((b) => Convert.ToByte(b)).ToArray();
             BinaryFormatter bf = new BinaryFormatter();
-            using (MemoryStream ms = new MemoryStream(arr))
+            using (MemoryStream ms = new MemoryStream(bArr))
             {
                 object obj = bf.Deserialize(ms);
                 return (DataNode)obj;
