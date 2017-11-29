@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeForGrasshopper", "PipeF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RhinoPipeConverter", "RhinoPipeConverter\RhinoPipeConverter.csproj", "{3803A2E6-AA71-4D38-9C4F-3288FB5E4FAA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeForDynamo", "PipeForDynamo\PipeForDynamo.csproj", "{99B6FC41-B79C-40FF-AFEE-E2C51D194710}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,14 @@ Global
 		{3803A2E6-AA71-4D38-9C4F-3288FB5E4FAA}.Debug64|Any CPU.Build.0 = Debug|Any CPU
 		{3803A2E6-AA71-4D38-9C4F-3288FB5E4FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3803A2E6-AA71-4D38-9C4F-3288FB5E4FAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99B6FC41-B79C-40FF-AFEE-E2C51D194710}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99B6FC41-B79C-40FF-AFEE-E2C51D194710}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99B6FC41-B79C-40FF-AFEE-E2C51D194710}.Debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{99B6FC41-B79C-40FF-AFEE-E2C51D194710}.Debug32|Any CPU.Build.0 = Debug|Any CPU
+		{99B6FC41-B79C-40FF-AFEE-E2C51D194710}.Debug64|Any CPU.ActiveCfg = Debug|Any CPU
+		{99B6FC41-B79C-40FF-AFEE-E2C51D194710}.Debug64|Any CPU.Build.0 = Debug|Any CPU
+		{99B6FC41-B79C-40FF-AFEE-E2C51D194710}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99B6FC41-B79C-40FF-AFEE-E2C51D194710}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
