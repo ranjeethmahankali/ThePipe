@@ -25,8 +25,8 @@ namespace RhinoPipeConverter
                     (ppp) =>
                     {
                         rh.Point3d origin = ptConv.FromPipe<rh.Point3d, pp.Vec>(ppp.Origin);
-                        rh.Vector3d x = vecConv.FromPipe<rh.Vector3d, pp.Vec>(ppp.Y);
-                        rh.Vector3d y = vecConv.FromPipe<rh.Vector3d, pp.Vec>(ppp.Z);
+                        rh.Vector3d x = vecConv.FromPipe<rh.Vector3d, pp.Vec>(ppp.X);
+                        rh.Vector3d y = vecConv.FromPipe<rh.Vector3d, pp.Vec>(ppp.Y);
                         return new rh.Plane(origin, x, y);
                     }
                 ) { }
