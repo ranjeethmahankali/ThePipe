@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autodesk.DesignScript.Geometry;
+using PipeDataModel.DataTree;
 
 namespace PipeForDynamo
 {
@@ -15,7 +16,7 @@ namespace PipeForDynamo
             throw new NotImplementedException();
         }
 
-        public static object PushToPipe(string pipeIdentifier)
+        public static void PushToPipe(string pipeIdentifier, object data)
         {
             //incomplete
             throw new NotImplementedException();
