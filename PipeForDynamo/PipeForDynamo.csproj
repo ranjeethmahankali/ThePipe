@@ -46,6 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components.cs" />
+    <Compile Include="Converters\DynamoPipeConverter.cs" />
+    <Compile Include="DynamoPipeReceiver.cs" />
+    <Compile Include="DynamoPipeSender.cs" />
+    <Compile Include="DynamoPipeWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
