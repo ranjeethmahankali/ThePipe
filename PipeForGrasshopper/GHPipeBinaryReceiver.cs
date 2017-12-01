@@ -78,9 +78,7 @@ namespace PipeForGrasshopper
         {
             string pipeIdentifier = Params.Output[0].NickName;
 
-            Uri uriResult;
-            bool isWebUrl = Uri.TryCreate(pipeIdentifier, UriKind.Absolute, out uriResult)
-                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            bool isWebUrl = PipeDataModel.Utils.PipeDataUtil.IsValidUrl(pipeIdentifier);
             if (isWebUrl)
             {
                 PullFromWebPipe(pipeIdentifier);

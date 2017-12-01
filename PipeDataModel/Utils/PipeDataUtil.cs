@@ -17,5 +17,12 @@ namespace PipeDataModel.Utils
             }
             return true;
         }
+
+        public static bool IsValidUrl(string pipeIdentifier)
+        {
+            Uri uriResult;
+            return Uri.TryCreate(pipeIdentifier, UriKind.Absolute, out uriResult)
+                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        }
     }
 }
