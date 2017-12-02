@@ -57,6 +57,14 @@ namespace PipeDataModel.Types.Geometry
                 throw new ArgumentException("Cannot initialize a plane with non orthogonal system");
             }
         }
+        public Plane(Vec origin, Vec z)
+        {
+            //try constructing x and y
+            Vec Z = z;
+            X = Vec.Dot(Z, new Vec(1, 0, 0)) == 1 ? Vec.Cross(Z, new Vec(0, 1, 0)) :
+                Vec.Cross(Z, new Vec(1, 0, 0));
+            Y = Vec.Cross(Z, X);
+        }
         #endregion
 
         #region-methods
