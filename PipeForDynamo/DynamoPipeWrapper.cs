@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using PipeDataModel.Types;
 using PipeDataModel.Utils;
 using PipeDataModel.Pipe;
+using PipeForDynamo.Converters;
 
 namespace PipeForDynamo
 {
@@ -13,7 +14,7 @@ namespace PipeForDynamo
     {
         private object _data;
         protected Pipe _pipe;
-        protected Converters.DynamoPipeConverter _converter;
+        protected DynamoPipeConverter _converter;
 
         public object Data
         {
@@ -21,7 +22,7 @@ namespace PipeForDynamo
             set { _data = value; }
         }
 
-        public DynamoPipeWrapper(string pipeIdentifier, Converters.DynamoPipeConverter converter)
+        public DynamoPipeWrapper(string pipeIdentifier, DynamoPipeConverter converter)
         {
             Action finisher = () => {
                 _pipe.ClosePipe();

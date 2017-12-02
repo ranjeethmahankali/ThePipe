@@ -8,12 +8,13 @@ using PipeDataModel.DataTree;
 using PipeDataModel.Types;
 using PipeDataModel.Pipe;
 using Autodesk.DesignScript.Geometry;
+using PipeForDynamo.Converters;
 
 namespace PipeForDynamo
 {
     public class DynamoPipeComponents
     {
-        public static Converters.DynamoPipeConverter _converter = new Converters.DynamoPipeConverter();
+        public static DynamoPipeConverter _converter = new DynamoPipeConverter();
 
         public static object PullFromPipe(string pipeIdentifier)
         {
