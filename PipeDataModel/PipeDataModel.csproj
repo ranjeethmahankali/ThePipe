@@ -47,6 +47,7 @@
     <Compile Include="Types\Geometry\Curve\Arc.cs" />
     <Compile Include="Types\Geometry\Curve\Curve.cs" />
     <Compile Include="Types\Geometry\Curve\Line.cs" />
+    <Compile Include="Types\Geometry\Curve\PolyCurve.cs" />
     <Compile Include="Types\Geometry\Curve\Polyline.cs" />
     <Compile Include="Types\Geometry\Plane.cs" />
     <Compile Include="Types\Geometry\Vec.cs" />

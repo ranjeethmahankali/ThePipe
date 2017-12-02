@@ -24,5 +24,15 @@ namespace PipeDataModel.Utils
             return Uri.TryCreate(pipeIdentifier, UriKind.Absolute, out uriResult)
                 && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
         }
+
+        public static double RadiansToDegrees(double rads)
+        {
+            return (rads / Math.PI) * 180;
+        }
+
+        public static double DegreesToRadians(double degs)
+        {
+            return (degs/180)*Math.PI;
+        }
     }
 }

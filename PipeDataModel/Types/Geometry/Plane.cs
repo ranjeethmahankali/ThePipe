@@ -39,6 +39,7 @@ namespace PipeDataModel.Types.Geometry
         #region-constructors
         public Plane()
             :this(new Vec(0,0,0), new Vec(1,0,0), new Vec(0,1,0)) { }
+        public Plane(Vec origin): this(origin, new Vec(1, 0, 0), new Vec(0, 1, 0)) { }
         public Plane(Vec origin, Vec x, Vec y)
         {
             _origin = origin;
