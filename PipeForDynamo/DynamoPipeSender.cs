@@ -11,9 +11,9 @@ using PipeForDynamo.Converters;
 
 namespace PipeForDynamo
 {
-    public class DynamoPipeSender : DynamoPipeWrapper, IPipeCollector
+    internal class DynamoPipeSender : DynamoPipeWrapper, IPipeCollector
     {
-        public DynamoPipeSender(string pipeIdentifier, DynamoPipeConverter converter) : base(pipeIdentifier, converter)
+        internal DynamoPipeSender(string pipeIdentifier, DynamoPipeConverter converter) : base(pipeIdentifier, converter)
         {
             _pipe.SetCollector(this);
         }

@@ -14,7 +14,7 @@ namespace PipeForDynamo
 {
     public class DynamoPipeComponents
     {
-        public static DynamoPipeConverter _converter = new DynamoPipeConverter();
+        internal static DynamoPipeConverter _converter = new DynamoPipeConverter();
 
         public static object PullFromPipe(string pipeIdentifier)
         {

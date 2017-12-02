@@ -10,9 +10,9 @@ using Autodesk.DesignScript.Geometry;
 
 namespace PipeForDynamo.Converters
 {
-    public class DynamoPipeConverter:PipeConverter<object, IPipeMemberType>
+    internal class DynamoPipeConverter:PipeConverter<object, IPipeMemberType>
     {
-        public DynamoPipeConverter()
+        internal DynamoPipeConverter()
         {
             //conversion of strings
             AddConverter(new PipeConverter<string, PipeString>(
@@ -30,7 +30,7 @@ namespace PipeForDynamo.Converters
                     (pval) => { return pval.Value; }
                 ));
             //conversion of Lines
-            //AddConverter(new GeometryConverter());
+            AddConverter(new GeometryConverter());
         }
     }
 }

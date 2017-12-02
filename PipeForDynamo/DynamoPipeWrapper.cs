@@ -10,7 +10,7 @@ using PipeForDynamo.Converters;
 
 namespace PipeForDynamo
 {
-    public abstract class DynamoPipeWrapper
+    internal abstract class DynamoPipeWrapper
     {
         private object _data;
         protected Pipe _pipe;
@@ -22,7 +22,7 @@ namespace PipeForDynamo
             set { _data = value; }
         }
 
-        public DynamoPipeWrapper(string pipeIdentifier, DynamoPipeConverter converter)
+        internal DynamoPipeWrapper(string pipeIdentifier, DynamoPipeConverter converter)
         {
             Action finisher = () => {
                 _pipe.ClosePipe();

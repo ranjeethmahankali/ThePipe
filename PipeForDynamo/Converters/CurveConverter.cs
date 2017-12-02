@@ -10,30 +10,89 @@ using dg = Autodesk.DesignScript.Geometry;
 
 namespace PipeForDynamo.Converters
 {
-    //public class CurveConverter : PipeConverter<dg.Curve, ppc.Curve>
-    //{
-    //    public CurveConverter(PointConverter ptConv)
-    //    {
-    //        var lineConv = new LineConverter(ptConv);
-    //        AddConverter(lineConv);
-    //    }
-    //}
+    internal class CurveConverter : PipeConverter<dg.Curve, ppc.Curve>
+    {
+        internal CurveConverter(PointConverter ptConv)
+        {
+            var lineConv = new LineConverter(ptConv);
+            AddConverter(lineConv);
+            var plineConv = new PolylineConverter(ptConv);
+            AddConverter(plineConv);
+            var pcurveConv = new PolyCurveConverter(this);
+            AddConverter(pcurveConv);
+        }
+    }
 
-    //public class LineConverter : PipeConverter<dg.Line, ppc.Line>
-    //{
-    //    public LineConverter(PointConverter ptConv) :
-    //        base(
-    //                (ln) =>
-    //                {
-    //                    return new ppc.Line(ptConv.ToPipe<dg.Point, ppg.Vec>(ln.StartPoint),
-    //                        ptConv.ToPipe<dg.Point, ppg.Vec>(ln.EndPoint));
-    //                },
-    //                (pln) =>
-    //                {
-    //                    return dg.Line.ByStartPointEndPoint(ptConv.FromPipe<dg.Point, ppg.Vec>(pln.StartPoint),
-    //                        ptConv.FromPipe<dg.Point, ppg.Vec>(pln.EndPoint));
-    //                }
-    //            )
-    //    { }
-    //}
+    internal class LineConverter : PipeConverter<dg.Line, ppc.Line>
+    {
+        internal LineConverter(PointConverter ptConv) :
+            base(
+                    (ln) =>
+                    {
+                        return new ppc.Line(ptConv.ToPipe<dg.Point, ppg.Vec>(ln.StartPoint),
+                            ptConv.ToPipe<dg.Point, ppg.Vec>(ln.EndPoint));
+                    },
+                    (pln) =>
+                    {
+                        return dg.Line.ByStartPointEndPoint(ptConv.FromPipe<dg.Point, ppg.Vec>(pln.StartPoint),
+                            ptConv.FromPipe<dg.Point, ppg.Vec>(pln.EndPoint));
+                    }
+                )
+        { }
+    }
+
+    internal class PolylineConverter: PipeConverter<dg.PolyCurve, ppc.Polyline>
+    {
+        internal PolylineConverter(PointConverter ptConv):
+            base(
+                    (dpc) => {
+                        dg.Curve[] curs = dpc.Curves();
+                        List<ppg.Vec> pts = new List<ppg.Vec>();
+                        if (curs.Length == 0) { return new ppc.Polyline(pts); }
+
+                        pts.Add(ptConv.ToPipe<dg.Point, ppg.Vec>(curs[0].StartPoint));
+                        for(int i = 0; i < curs.Length; i++)
+                        {
+                            pts.Add(ptConv.ToPipe<dg.Point, ppg.Vec>(curs[i].EndPoint));
+                        }
+
+                        return new ppc.Polyline(pts);
+                    },
+                    (ppl) => {
+                        return dg.PolyCurve.ByPoints(ppl.Points.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)));
+                    }
+                )
+        { }
+    }
+
+    internal class ArcConverter: PipeConverter<dg.Arc, ppc.Arc>
+    {
+        internal ArcConverter(PointConverter ptConv, VectorConverter vecConv):
+            base(
+                    (dgarc) => {
+                        ppg.Plane pl = new ppg.Plane(ptConv.ToPipe<dg.Point, ppg.Vec>(dgarc.CenterPoint));
+                        return new ppc.Arc(pl, dgarc.Radius, dgarc.StartAngle, dgarc.StartAngle + dgarc.SweepAngle);
+                    },
+                    (pparc) => {
+                        return dg.Arc.ByCenterPointRadiusAngle(ptConv.FromPipe<dg.Point, ppg.Vec>(pparc.Plane.Origin), pparc.Radius, 
+                            pparc.StartAngle, pparc.EndAngle, vecConv.FromPipe<dg.Vector, ppg.Vec>(pparc.Plane.Z));
+                    }
+                )
+        { }
+    }
+
+    internal class PolyCurveConverter: PipeConverter<dg.PolyCurve, ppc.PolyCurve>
+    {
+        internal PolyCurveConverter(CurveConverter curConv): 
+            base(
+                    (dpc) => {
+                        dg.Curve[] curs = dpc.Curves();
+                        return new ppc.PolyCurve(curs.Select((c) => curConv.ToPipe<dg.Curve, ppc.Curve>(c)).ToList());
+                    },
+                    (ppc) => {
+                        return dg.PolyCurve.ByJoinedCurves(ppc.Segments.Select((s) => curConv.FromPipe<dg.Curve, ppc.Curve>(s)));
+                    }
+                )
+        { }
+    }
 }

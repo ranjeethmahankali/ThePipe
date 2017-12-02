@@ -9,9 +9,9 @@ using PipeForDynamo.Converters;
 
 namespace PipeForDynamo
 {
-    public class DynamoPipeReceiver : DynamoPipeWrapper, IPipeEmitter
+    internal class DynamoPipeReceiver : DynamoPipeWrapper, IPipeEmitter
     {
-        public DynamoPipeReceiver(string pipeIdentifier, DynamoPipeConverter converter) : base(pipeIdentifier, converter)
+        internal DynamoPipeReceiver(string pipeIdentifier, DynamoPipeConverter converter) : base(pipeIdentifier, converter)
         {
             _pipe.SetEmitter(this);
         }
