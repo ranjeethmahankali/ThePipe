@@ -17,7 +17,8 @@ namespace PipeForDynamo.Converters
         {
             var ptConv = new PointConverter();
             AddConverter(ptConv);
-            var curConv = new CurveConverter(ptConv);
+            var vecConv = new VectorConverter();
+            var curConv = new CurveConverter(ptConv, vecConv);
             AddConverter(curConv);
         }
     }

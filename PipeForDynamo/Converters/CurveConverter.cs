@@ -7,12 +7,13 @@ using PipeDataModel.Types;
 using ppg = PipeDataModel.Types.Geometry;
 using ppc = PipeDataModel.Types.Geometry.Curve;
 using dg = Autodesk.DesignScript.Geometry;
+using PipeDataModel.Utils;
 
 namespace PipeForDynamo.Converters
 {
     internal class CurveConverter : PipeConverter<dg.Curve, ppc.Curve>
     {
-        internal CurveConverter(PointConverter ptConv)
+        internal CurveConverter(PointConverter ptConv, VectorConverter vecConv)
         {
             var lineConv = new LineConverter(ptConv);
             AddConverter(lineConv);
@@ -20,6 +21,8 @@ namespace PipeForDynamo.Converters
             AddConverter(plineConv);
             var pcurveConv = new PolyCurveConverter(this);
             AddConverter(pcurveConv);
+            var arcConv = new ArcConverter(ptConv, vecConv);
+            AddConverter(arcConv);
         }
     }
 
@@ -75,7 +78,8 @@ namespace PipeForDynamo.Converters
                     },
                     (pparc) => {
                         return dg.Arc.ByCenterPointRadiusAngle(ptConv.FromPipe<dg.Point, ppg.Vec>(pparc.Plane.Origin), pparc.Radius, 
-                            pparc.StartAngle, pparc.EndAngle, vecConv.FromPipe<dg.Vector, ppg.Vec>(pparc.Plane.Z));
+                            PipeDataUtil.RadiansToDegrees(pparc.StartAngle), PipeDataUtil.RadiansToDegrees(pparc.EndAngle), 
+                            vecConv.FromPipe<dg.Vector, ppg.Vec>(pparc.Plane.Z));
                     }
                 )
         { }
