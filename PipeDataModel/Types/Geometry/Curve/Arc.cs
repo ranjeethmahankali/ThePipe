@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PipeDataModel.Utils;
 
 namespace PipeDataModel.Types.Geometry.Curve
 {
@@ -63,6 +64,29 @@ namespace PipeDataModel.Types.Geometry.Curve
             EndAngle = EndAngle - StartAngle;
             StartAngle = 0;
         }
+
+        public void TransformToPlane(Plane newPlane)
+        {
+            double eps = 1e-7;
+            if(!PipeDataUtil.Equals(Vec.Dot(newPlane.Z, Plane.Z), 1, eps))
+            {
+                throw new InvalidOperationException("Cannot transform arc to a new plane");
+            }
+            if(Vec.Difference(newPlane.Origin, Plane.Origin).Length > eps)
+            {
+                throw new InvalidOperationException("The origins of the planes do not match");
+            }
+
+            double angle = Vec.AngleBetween(Plane.X, newPlane.X);
+            if(angle < eps) { return; }
+            if(Vec.Dot(Vec.Cross(Plane.X, newPlane.X), Plane.Z) < 0) { angle *= -1; }
+
+            Plane = new Plane(Plane.Origin, Plane.X.RotateAbout(Plane.Z, angle),
+                Plane.Y.RotateAbout(Plane.Z, angle));
+            StartAngle -= angle;
+            EndAngle -= angle;
+        }
+
         public override bool Equals(IPipeMemberType other)
         {
             if(GetType() != other.GetType()) { return false; }

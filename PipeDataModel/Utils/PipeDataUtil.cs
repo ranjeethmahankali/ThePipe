@@ -34,5 +34,10 @@ namespace PipeDataModel.Utils
         {
             return (degs/180)*Math.PI;
         }
+
+        public static bool Equals(double val, double target, double tolerance = 0)
+        {
+            return Math.Abs(val - target) <= tolerance;
+        }
     }
 }

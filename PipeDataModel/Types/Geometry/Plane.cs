@@ -60,10 +60,10 @@ namespace PipeDataModel.Types.Geometry
         }
         public Plane(Vec origin, Vec z)
         {
+            _origin = origin;
             //try constructing x and y
-            Vec Z = z;
-            X = Vec.Dot(Z, new Vec(1, 0, 0)) == 1 ? Vec.Cross(Z, new Vec(0, 1, 0)) :
-                Vec.Cross(Z, new Vec(1, 0, 0));
+            Z = z;
+            X = Vec.Dot(Z, new Vec(1, 0, 0)) == 1 ? new Vec(0, 1, 0): new Vec(1, 0, 0);
             Y = Vec.Cross(Z, X);
         }
         #endregion

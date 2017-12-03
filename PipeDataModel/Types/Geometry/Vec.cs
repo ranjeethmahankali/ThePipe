@@ -89,6 +89,11 @@ namespace PipeDataModel.Types.Geometry
             return newVals;
         }
 
+        public static double AngleBetween(Vec x1, Vec x2)
+        {
+            return Math.Acos(Dot(x1, x2) / (x1.Length * x2.Length));
+        }
+
         public static List<T> ElementWise<T>(Vec a, Func<double, T> op)
         {
             int dim = a.Dimensions;

@@ -77,6 +77,7 @@ namespace PipeForDynamo.Converters
                         return new ppc.Arc(pl, dgarc.Radius, dgarc.StartAngle, dgarc.StartAngle + dgarc.SweepAngle);
                     },
                     (pparc) => {
+                        pparc.TransformToPlane(new ppg.Plane(pparc.Plane.Origin, pparc.Plane.Z));
                         return dg.Arc.ByCenterPointRadiusAngle(ptConv.FromPipe<dg.Point, ppg.Vec>(pparc.Plane.Origin), pparc.Radius, 
                             PipeDataUtil.RadiansToDegrees(pparc.StartAngle), PipeDataUtil.RadiansToDegrees(pparc.EndAngle), 
                             vecConv.FromPipe<dg.Vector, ppg.Vec>(pparc.Plane.Z));
