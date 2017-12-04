@@ -62,24 +62,19 @@ namespace PipeForRhino
                 pipeIdentifier = getter.StringResult();
             }
 
-            Action finisher = () =>
+            if (_pipe != null)
             {
                 _pipe.ClosePipe();
                 _pipe = null;
-            };
-
-            if (_pipe != null)
-            {
-                finisher.Invoke();
             }
 
             if (PipeDataUtil.IsValidUrl(pipeIdentifier))
             {
-                _pipe = new MyWebPipe(pipeIdentifier, finisher);
+                _pipe = new MyWebPipe(pipeIdentifier);
             }
             else
             {
-                _pipe = new LocalNamedPipe(pipeIdentifier, finisher);
+                _pipe = new LocalNamedPipe(pipeIdentifier);
             }
 
             _pipe.SetCollector(this);
