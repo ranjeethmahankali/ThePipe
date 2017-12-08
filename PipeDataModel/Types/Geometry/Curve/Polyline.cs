@@ -18,6 +18,16 @@ namespace PipeDataModel.Types.Geometry.Curve
         {
             get { return _points; }
         }
+
+        public override Vec StartPoint
+        {
+            get { return (_points == null || _points.Count == 0) ? null : _points.First(); }
+        }
+
+        public override Vec EndPoint
+        {
+            get { return (_points == null || _points.Count == 0) ? null : _points.Last(); }
+        }
         #endregion
 
         #region-constructors

@@ -37,6 +37,16 @@ namespace PipeDataModel.Types.Geometry.Curve
             get { return _endAngle; }
             set { _endAngle = value; }
         }
+
+        public override Vec StartPoint
+        {
+            get { return _plane.GlobalCoordinatesOf(StartAngle, Radius); }
+        }
+
+        public override Vec EndPoint
+        {
+            get { return _plane.GlobalCoordinatesOf(EndAngle, Radius); }
+        }
         #endregion
 
         #region-constructors

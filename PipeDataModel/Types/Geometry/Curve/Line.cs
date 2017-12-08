@@ -14,15 +14,13 @@ namespace PipeDataModel.Types.Geometry.Curve
         private Vec _endPt;
         #endregion
         #region-properties
-        public Vec StartPoint
+        public override Vec StartPoint
         {
             get { return _startPt; }
-            set { _startPt = value; }
         }
-        public Vec EndPoint
+        public override Vec EndPoint
         {
             get { return _endPt; }
-            set { _endPt = value; }
         }
         public double Length
         {

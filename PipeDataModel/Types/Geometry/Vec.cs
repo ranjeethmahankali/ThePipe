@@ -197,7 +197,10 @@ namespace PipeDataModel.Types.Geometry
         {
             return Rotate(this, axis, angle);
         }
-
+        public static Vec Multiply(Vec vec, double scalar)
+        {
+            return vec.Multiply(scalar);
+        }
         public bool Equals(IPipeMemberType other)
         {
             if (!GetType().IsAssignableFrom(other.GetType())) { return false; }

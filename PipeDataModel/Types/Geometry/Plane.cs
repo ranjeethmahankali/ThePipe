@@ -83,6 +83,22 @@ namespace PipeDataModel.Types.Geometry
             return Vec.Sum(fromOrigin, Origin);
         }
 
+        public Vec GlobalCoordinatesOf(Vec localCoords)
+        {
+            Vec local = Vec.Ensure3D(localCoords);
+            Vec xt = Vec.Multiply(_x, local.Coordinates[0]);
+            Vec yt = Vec.Multiply(_x, local.Coordinates[1]);
+            Vec zt = Vec.Multiply(_x, local.Coordinates[2]);
+
+            return Vec.Sum(_origin, xt, yt, zt);
+        }
+
+        public Vec GlobalCoordinatesOf(double angle, double radius)
+        {
+            Vec pt = new Vec(radius * Math.Cos(angle), radius * Math.Sin(angle), 0);
+            return GlobalCoordinatesOf(pt);
+        }
+
         public bool Equals(IPipeMemberType other)
         {
             if(GetType() != other.GetType()) { return false; }
