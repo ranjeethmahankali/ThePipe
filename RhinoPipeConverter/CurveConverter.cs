@@ -47,6 +47,38 @@ namespace RhinoPipeConverter
                         return new rh.PolylineCurve(ptList);
                     }
                 ));
+            //to convert nurbs curves
+            AddConverter(new PipeConverter<rh.NurbsCurve, pp.NurbsCurve>(
+                    (rhc) => {
+                        rh.NurbsCurve rhnc = (rh.NurbsCurve)rhc;
+                        return new pp.NurbsCurve(rhnc.Points.Select((pt) => ptConv.ToPipe<rh.Point3d, ppg.Vec>(pt.Location)).ToList(),
+                            rhnc.Degree);
+                    },
+                    (ppc) => {
+                        return (rh.NurbsCurve)rh.Curve.CreateControlPointCurve(ppc.ControlPoints.Select(
+                            (pt) => ptConv.FromPipe<rh.Point3d, ppg.Vec>(pt)), ppc.Degree);
+                    }
+                ));
+
+            //to convert polycurves
+            AddConverter(new PipeConverter<rh.PolyCurve, pp.PolyCurve>(
+                    (rhc) => {
+                        List<pp.Curve> curves = new List<pp.Curve>();
+                        for(int i = 0; i < rhc.SegmentCount; i++)
+                        {
+                            curves.Add(ToPipe<rh.Curve, pp.Curve>(rhc.SegmentCurve(i)));
+                        }
+                        return new pp.PolyCurve(curves);
+                    },
+                    (ppc) => {
+                        var curve = new rh.PolyCurve();
+                        foreach(var segment in ppc.Segments)
+                        {
+                            curve.Append(FromPipe<rh.Curve, pp.Curve>(segment));
+                        }
+                        return curve;
+                    }
+                ));
         }
     }
 
