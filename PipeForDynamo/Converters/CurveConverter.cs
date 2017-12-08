@@ -23,6 +23,18 @@ namespace PipeForDynamo.Converters
             AddConverter(pcurveConv);
             var arcConv = new ArcConverter(ptConv, vecConv);
             AddConverter(arcConv);
+
+            //to convert nurbs curves
+            AddConverter(new PipeConverter<dg.NurbsCurve, ppc.NurbsCurve>(
+                    (dc) => {
+                        List<dg.Point> pts = dc.ControlPoints().ToList();
+                        return new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(), dc.Degree);
+                    },
+                    (ppc) => {
+                        return dg.NurbsCurve.ByControlPoints(ppc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)), 
+                            ppc.Degree);
+                    }
+                ));
         }
     }
 
