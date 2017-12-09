@@ -12,10 +12,12 @@ namespace PipeForDynamo.Converters
 {
     internal class GeometryConverter : PipeConverter<dg.Geometry, IPipeMemberType>
     {
+        internal PointConverter ptConv;
+
         internal GeometryConverter() :
             base()
         {
-            var ptConv = new PointConverter();
+            ptConv = new PointConverter();
             AddConverter(ptConv);
             var vecConv = new VectorConverter();
             var curConv = new CurveConverter(ptConv, vecConv);
