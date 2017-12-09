@@ -18,6 +18,8 @@ namespace PipeForDynamo
 
         public void EmitPipeData(DataNode data)
         {
+            // bail out if nothing is received
+            if (data == null) { return; }
             List<object> objs = new List<object>();
             foreach (var child in data.ChildrenList)
             {
