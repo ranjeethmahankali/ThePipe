@@ -18,6 +18,20 @@ namespace PipeDataModel.Utils
             return true;
         }
 
+        public static bool Equal<T>(ICollection<T> a, ICollection<T> b, Func<T,T,bool> equalityComparer = null)
+        {
+            if(equalityComparer == null) { equalityComparer = (p, q) => p.Equals(q); }
+            int aCount = a.Count;
+            int bCount = b.Count;
+            if(aCount != bCount) { return false; }
+            for(int i = 0; i < aCount; i++)
+            {
+                if(!equalityComparer.Invoke(a.ElementAt(i),b.ElementAt(i))) { return false; }
+            }
+
+            return true;
+        }
+
         public static bool IsValidUrl(string pipeIdentifier)
         {
             Uri uriResult;
