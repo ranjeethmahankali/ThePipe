@@ -55,7 +55,7 @@ namespace PipeDataModel.Pipe
                 _pipeServer.Flush();
                 _pipeServer.Close();
                 _pipeServer.Dispose();
-                _callBack.Invoke();
+                if (_callBack != null) { _callBack.Invoke(); }
             }, _pipeServer);
             _isActive = true;
         }
