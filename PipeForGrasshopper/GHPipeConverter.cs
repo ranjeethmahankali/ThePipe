@@ -16,10 +16,12 @@ namespace PipeForGrasshopper
     {
         private static Point3dConverter _pt3dConv = new Point3dConverter();
         private static Vector3DConverter _vec3DConv = new Vector3DConverter();
+        private static Point3fConverter _pt3fConv = new Point3fConverter();
         private static PlaneConverter _planeConv = new PlaneConverter(_vec3DConv, _pt3dConv);
         private static ArcConverter _arcConv = new ArcConverter(_planeConv, _pt3dConv);
         private static LineConverter _lineConv = new LineConverter(_pt3dConv);
         private static CurveConverter _curveConv = new CurveConverter(_pt3dConv, _arcConv, _lineConv);
+        private static MeshConverter _meshConv = new MeshConverter(_pt3fConv);
 
         private static GHPipeConverter _converter = new GHPipeConverter();
         public GHPipeConverter()
@@ -43,6 +45,10 @@ namespace PipeForGrasshopper
             AddConverter(new PipeConverter<GH_Line, ppc.Line>(
                     (ghl) => { return _lineConv.ToPipe<rh.Line, ppc.Line>(ghl.Value); },
                     (ppl) => { return new GH_Line(_lineConv.FromPipe<rh.Line, ppc.Line>(ppl)); }
+                ));
+            AddConverter(new PipeConverter<GH_Mesh, ppg.Mesh>(
+                    (ghm) => { return _meshConv.ToPipe<rh.Mesh, ppg.Mesh>(ghm.Value); },
+                    (ppm) => { return new GH_Mesh(_meshConv.FromPipe<rh.Mesh, ppg.Mesh>(ppm)); }
                 ));
         }
 

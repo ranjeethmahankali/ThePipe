@@ -55,6 +55,12 @@ namespace PipeDataModel.Types.Geometry
         #endregion
 
         #region-methods
+        public static bool FaceIsTriangle(ulong[] face)
+        {
+            if(face.Length == 3) { return true; }
+            else if(face.Length == 4) { return false; }
+            else { throw new ArgumentException("Mesh face can only have either 3 or 4 vertices"); }
+        }
         public bool Equals(IPipeMemberType other)
         {
             if (GetType() != other.GetType()) { return false; }
