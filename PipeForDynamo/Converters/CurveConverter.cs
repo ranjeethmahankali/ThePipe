@@ -27,12 +27,34 @@ namespace PipeForDynamo.Converters
             //to convert nurbs curves
             AddConverter(new PipeConverter<dg.NurbsCurve, ppc.NurbsCurve>(
                     (dc) => {
+                        ppc.NurbsCurve cur;
                         List<dg.Point> pts = dc.ControlPoints().ToList();
-                        return new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(), dc.Degree);
+                        if (dc.IsRational)
+                        {
+                            cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(), 
+                                dc.Degree);
+                        }
+                        else
+                        {
+                            cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(),
+                                dc.Degree, dc.Weights().ToList(), dc.Knots().ToList());
+                        }
+                        return cur;
                     },
-                    (ppc) => {
-                        return dg.NurbsCurve.ByControlPoints(ppc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)), 
-                            ppc.Degree);
+                    (pnc) => {
+                        dg.NurbsCurve cur;
+                        if (pnc.IsRational)
+                        {
+                            cur = dg.NurbsCurve.ByControlPoints(
+                                pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)),pnc.Degree);
+                        }
+                        else
+                        {
+                            cur = dg.NurbsCurve.ByControlPointsWeightsKnots(
+                                pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)),
+                                pnc.Weights.ToArray(), pnc.Knots.ToArray(), pnc.Degree);
+                        }
+                        return cur;
                     }
                 ));
         }

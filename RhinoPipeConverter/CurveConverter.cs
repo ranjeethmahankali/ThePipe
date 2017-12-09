@@ -50,13 +50,34 @@ namespace RhinoPipeConverter
             //to convert nurbs curves
             AddConverter(new PipeConverter<rh.NurbsCurve, pp.NurbsCurve>(
                     (rhc) => {
-                        rh.NurbsCurve rhnc = (rh.NurbsCurve)rhc;
-                        return new pp.NurbsCurve(rhnc.Points.Select((pt) => ptConv.ToPipe<rh.Point3d, ppg.Vec>(pt.Location)).ToList(),
-                            rhnc.Degree);
+                        pp.NurbsCurve curve;
+                        if (rhc.IsRational)
+                        {
+                            curve = new pp.NurbsCurve(rhc.Points.Select((pt) => ptConv.ToPipe<rh.Point3d,
+                            ppg.Vec>(pt.Location)).ToList(), rhc.Degree);
+                        }
+                        else
+                        {
+                            curve = new pp.NurbsCurve(rhc.Points.Select((pt) => ptConv.ToPipe<rh.Point3d,
+                            ppg.Vec>(pt.Location)).ToList(), rhc.Degree, 
+                            rhc.Points.Select((pt) => pt.Weight).ToList(), rhc.Knots.ToList());
+                        }
+                        return curve;
                     },
                     (ppc) => {
-                        return (rh.NurbsCurve)rh.Curve.CreateControlPointCurve(ppc.ControlPoints.Select(
-                            (pt) => ptConv.FromPipe<rh.Point3d, ppg.Vec>(pt)), ppc.Degree);
+                        rh.NurbsCurve curve = (rh.NurbsCurve)rh.Curve.CreateControlPointCurve(
+                            ppc.ControlPoints.Select((pt) => ptConv.FromPipe<rh.Point3d, ppg.Vec>(pt)),
+                            ppc.Degree);
+                        if (!ppc.IsRational)
+                        {
+                            for(int i = 0; i < curve.Points.Count; i++)
+                            {
+                                var pt = curve.Points.ElementAt(i);
+                                var newPt = new rh.Point4d(pt.Location.X, pt.Location.Y, pt.Location.Z, pt.Weight);
+                                curve.Points.SetPoint(i, newPt);
+                            }
+                        }
+                        return curve;
                     }
                 ));
 

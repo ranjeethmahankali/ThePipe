@@ -12,6 +12,8 @@ namespace PipeDataModel.Types.Geometry.Curve
         #region-fields
         private List<Vec> _controlPoints;
         private int _degree = 3;
+        private List<double> _weights;
+        private List<double> _knots;
         #endregion
 
         #region-properties
@@ -33,6 +35,19 @@ namespace PipeDataModel.Types.Geometry.Curve
         {
             get { return (_controlPoints == null || _controlPoints.Count == 0) ? null : _controlPoints.Last(); }
         }
+
+        public List<double> Weights
+        {
+            get { return _weights; }
+        }
+        public List<double> Knots
+        {
+            get { return _knots; }
+        }
+        public bool IsRational
+        {
+            get { return _weights.All((w) => w == 1); }
+        }
         #endregion
 
         #region-constructors
@@ -40,6 +55,17 @@ namespace PipeDataModel.Types.Geometry.Curve
         {
             _controlPoints = controlPts;
             _degree = degree;
+            _weights = new List<double>();
+            for(int i = 0; i < _controlPoints.Count; i++)
+            {
+                _weights.Add(1);
+            }
+        }
+        public NurbsCurve(List<Vec> controlPts, int degree, List<double> weights, List<double> knots)
+            :this(controlPts, degree)
+        {
+            _weights = weights;
+            _knots = knots;
         }
         #endregion
 
