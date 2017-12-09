@@ -75,26 +75,36 @@ namespace PipeDataModel.Types
 
         private IPipeConverter GetToPipeConverter(Type userType, Type pipeType)
         {
+            IPipeConverter converter = null;
             foreach (var child in _childrenConverters)
             {
-                if (child.UserType.IsAssignableFrom(userType) && pipeType.IsAssignableFrom(child.PipeType))
+                if(child.UserType == userType && pipeType.IsAssignableFrom(child.PipeType))
                 {
                     return child;
                 }
+                if (child.UserType.IsAssignableFrom(userType) && pipeType.IsAssignableFrom(child.PipeType))
+                {
+                    if(converter == null) { converter = child; }
+                }
             }
-            return null;
+            return converter;
         }
 
         private IPipeConverter GetFromPipeConverter(Type userType, Type pipeType)
         {
+            IPipeConverter converter = null;
             foreach (var child in _childrenConverters)
             {
-                if (child.PipeType.IsAssignableFrom(pipeType) && userType.IsAssignableFrom(child.UserType))
+                if(child.PipeType == pipeType && userType.IsAssignableFrom(child.UserType))
                 {
                     return child;
                 }
+                if (child.PipeType.IsAssignableFrom(pipeType) && userType.IsAssignableFrom(child.UserType))
+                {
+                    if(converter == null){converter = child;}
+                }
             }
-            return null;
+            return converter;
         }
 
         public PipeT ToPipe<T1, T2>(T1 obj)
