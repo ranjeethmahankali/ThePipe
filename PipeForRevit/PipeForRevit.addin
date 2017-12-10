@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Assembly>
+      C:\PipeForRevit\PipeForRevit.dll
+    </Assembly>
+    <ClientId>36fec354-a2e8-4a88-b398-fd84f1b44916</ClientId>
+    <Publisher>Ranjeeth Mahankali</Publisher>
+    <FullClassName>PipeForRevit.PipeForRevit</FullClassName>
+    <Text>PipeForRevit</Text>
+    <Name>PipeForRevit</Name>
+    <VendorId>Ranjeeth Mahankali</VendorId>
+    <VendorDescription>MS Design Computing Student at University of Washington</VendorDescription>
+    <VisibilityMode>AlwaysVisible</VisibilityMode>
+  </AddIn>
+</RevitAddIns>

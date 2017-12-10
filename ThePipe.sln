@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeDataModel", "PipeDataModel\PipeDataModel.csproj", "{7F5E7A00-5EF1-454C-BF0D-F2624434AD76}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeForDynamo", "PipeForDynamo\PipeForDynamo.csproj", "{99B6FC41-B79C-40FF-AFEE-E2C51D194710}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeForRhino", "PipeForRhino\PipeForRhino.csproj", "{5E709ACC-9DEA-4409-968B-0D15547B1CD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeForRevit", "PipeForRevit\PipeForRevit.csproj", "{A0881202-E4E3-40D3-88E1-B85211618394}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,14 @@ Global
 		{5E709ACC-9DEA-4409-968B-0D15547B1CD2}.Debug64|Any CPU.Build.0 = Debug64|Any CPU
 		{5E709ACC-9DEA-4409-968B-0D15547B1CD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E709ACC-9DEA-4409-968B-0D15547B1CD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0881202-E4E3-40D3-88E1-B85211618394}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0881202-E4E3-40D3-88E1-B85211618394}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0881202-E4E3-40D3-88E1-B85211618394}.Debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0881202-E4E3-40D3-88E1-B85211618394}.Debug32|Any CPU.Build.0 = Debug|Any CPU
+		{A0881202-E4E3-40D3-88E1-B85211618394}.Debug64|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0881202-E4E3-40D3-88E1-B85211618394}.Debug64|Any CPU.Build.0 = Debug|Any CPU
+		{A0881202-E4E3-40D3-88E1-B85211618394}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0881202-E4E3-40D3-88E1-B85211618394}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
