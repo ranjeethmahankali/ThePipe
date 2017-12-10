@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\RevitPipeConverter.cs" />
     <Compile Include="PipeForRevit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RevitPipeReceiver.cs" />
@@ -54,6 +55,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PipeForRevit.addin" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PipeDataModel\PipeDataModel.csproj">
+      <Project>{7f5e7a00-5ef1-454c-bf0d-f2624434ad76}</Project>
+      <Name>PipeDataModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

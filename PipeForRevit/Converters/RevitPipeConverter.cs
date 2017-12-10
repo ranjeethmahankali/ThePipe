@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
+
+using PipeDataModel.Types;
 
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
@@ -14,15 +15,10 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB.IFC;
 using Autodesk.Revit.DB.ExternalService;
 
-namespace PipeForRevit
+namespace PipeForRevit.Converters
 {
-    [TransactionAttribute(TransactionMode.Manual)]
-    [RegenerationAttribute(RegenerationOption.Manual)]
-    public class RevitPipeReceiver : IExternalCommand
+    public class RevitPipeConverter: PipeConverter<GeometryObject, IPipeMemberType>
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
-        {
-            throw new NotImplementedException();
-        }
+        //incomplete
     }
 }

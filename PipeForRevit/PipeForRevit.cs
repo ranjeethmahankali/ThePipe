@@ -7,6 +7,9 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Media.Imaging;
 
+using PipeForRevit.Converters;
+using PipeDataModel.Types;
+
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.UI;
@@ -21,6 +24,7 @@ namespace PipeForRevit
         private static string _baseDir = @"C:\PipeForRevit";
         private static TextBoxData _txtBoxData;
         private static TextBox _textBox;
+        private static RevitPipeConverter _converter = new RevitPipeConverter();
 
         internal static string PipeIdentifier
         {
@@ -55,6 +59,15 @@ namespace PipeForRevit
             btn2.LargeImage = image2;
 
             return Result.Succeeded;
+        }
+
+        internal static GeometryObject ConvertFromPipe(IPipeMemberType obj)
+        {
+            return _converter.FromPipe<GeometryObject, IPipeMemberType>(obj);
+        }
+        internal static IPipeMemberType ConvertToPipe(GeometryObject obj)
+        {
+            return _converter.ToPipe<GeometryObject, IPipeMemberType>(obj);
         }
     }
 }
