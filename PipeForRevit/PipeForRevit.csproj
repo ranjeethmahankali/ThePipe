@@ -33,9 +33,11 @@
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
       <HintPath>C:\Program Files\Autodesk\Revit 2017\RevitAPI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
       <HintPath>C:\Program Files\Autodesk\Revit 2017\RevitAPIUI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,11 +49,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\CurveConverter.cs" />
     <Compile Include="Converters\RevitPipeConverter.cs" />
     <Compile Include="PipeForRevit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RevitPipeReceiver.cs" />
     <Compile Include="RevitPipeSender.cs" />
+    <Compile Include="Utils\RevitPipeUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="PipeForRevit.addin" />
@@ -65,7 +69,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /s /q /y "$(ProjectDir)PipeForRevit.addin" "C:\ProgramData\Autodesk\Revit\Addins\2017\"
-xcopy /s /q /y "$(TargetPath)" "C:\PipeForRevit\"</PostBuildEvent>
+xcopy /s /q /y "$(TargetDir)*.dll" "C:\PipeForRevit\"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>

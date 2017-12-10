@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using PipeDataModel.Types;
+using PipeDataModel.Utils;
+using PipeDataModel.Pipe;
+using PipeForRevit.Utils;
 
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
@@ -36,23 +39,39 @@ namespace PipeForRevit
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            string pipeId = PipeForRevit.PipeIdentifier;
             UIApplication uiApp = commandData.Application;
             Document doc = uiApp.ActiveUIDocument.Document;
             Selection sel = uiApp.ActiveUIDocument.Selection;
 
             List<Reference> picked = sel.PickObjects(ObjectType.Edge, "Select the curves to send through the pipe").ToList();
+            _selectedObjects = new List<GeometryObject>();
             foreach(var objRef in picked)
             {
                 Edge edge = (Edge)doc.GetElement(objRef).GetGeometryObjectFromReference(objRef);
-                Curve curve = edge.AsCurve();
+                _selectedObjects.Add(edge.AsCurve());
             }
 
-            string pipeId = PipeForRevit.PipeIdentifier;
-            TaskDialog box = new TaskDialog("title");
-            box.MainInstruction = "subject";
-            box.MainContent = pipeId;
-            box.Show();
-            throw new NotImplementedException();
+            Pipe pipe = null;
+            Action callBack = () => {
+                if(pipe != null)
+                {
+                    pipe.ClosePipe();
+                }
+                RevitPipeUtil.ShowMessage("Success", "Pushed data to the pipe.");
+            };
+            if (PipeDataUtil.IsValidUrl(pipeId))
+            {
+                pipe = new MyWebPipe(pipeId,callBack);
+            }
+            else
+            {
+                pipe = new LocalNamedPipe(pipeId, callBack);
+            }
+            pipe.SetCollector(this);
+            pipe.Update();
+
+            return Result.Succeeded;
         }
     }
 }

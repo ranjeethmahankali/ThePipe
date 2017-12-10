@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 
 using PipeForRevit.Converters;
 using PipeDataModel.Types;
+using PipeForRevit.Utils;
 
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
@@ -24,7 +25,7 @@ namespace PipeForRevit
         private static string _baseDir = @"C:\PipeForRevit";
         private static TextBoxData _txtBoxData;
         private static TextBox _textBox;
-        private static RevitPipeConverter _converter = new RevitPipeConverter();
+        private static RevitPipeConverter _converter;
 
         internal static string PipeIdentifier
         {
@@ -48,8 +49,10 @@ namespace PipeForRevit
             btn.LargeImage = image;
 
             _txtBoxData = new TextBoxData("Pipe Identifier");
-            _textBox.Width = 100;
             _textBox = panel.AddItem(_txtBoxData) as TextBox;
+            _textBox.Width = 100;
+            _textBox.Enabled = true;
+            _textBox.SelectTextOnFocus = true;
             _textBox.PromptText = "Pipe Identifier";
 
             PushButtonData btnData2 = new PushButtonData("PipePull", "Pipe-Pull", assemblyPath, "PipeForRevit.RevitPipeReceiver");
@@ -58,16 +61,20 @@ namespace PipeForRevit
             BitmapImage image2 = new BitmapImage(new Uri(Path.Combine(_baseDir, "PipeArrow.png")));
             btn2.LargeImage = image2;
 
+            _converter = new RevitPipeConverter();
+
+            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(RevitPipeUtil.MyResolveEventHandler);
+
             return Result.Succeeded;
         }
 
         internal static GeometryObject ConvertFromPipe(IPipeMemberType obj)
         {
-            return _converter.FromPipe<GeometryObject, IPipeMemberType>(obj);
+            return _converter == null ? null : _converter.FromPipe<GeometryObject, IPipeMemberType>(obj);
         }
         internal static IPipeMemberType ConvertToPipe(GeometryObject obj)
         {
-            return _converter.ToPipe<GeometryObject, IPipeMemberType>(obj);
+            return _converter == null ? null : _converter.ToPipe<GeometryObject, IPipeMemberType>(obj);
         }
     }
 }
