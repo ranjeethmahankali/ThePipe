@@ -7,7 +7,6 @@ using Autodesk.DesignScript.Geometry;
 using PipeDataModel.DataTree;
 using PipeDataModel.Types;
 using PipeDataModel.Pipe;
-using Autodesk.DesignScript.Geometry;
 using PipeForDynamo.Converters;
 
 namespace PipeForDynamo
