@@ -19,22 +19,40 @@ using Autodesk.Revit.DB.ExternalService;
 
 namespace PipeForRevit.Converters
 {
-    public class RevitPipeConverter: PipeConverter<rg.GeometryObject, IPipeMemberType>
+    public class RevitPipeConverter: PipeConverter<object, IPipeMemberType>
     {
-        private static PointConverter _ptConv = new PointConverter();
-
         public RevitPipeConverter()
         {
+            var ptConv = new PointConverter();
+            AddConverter(ptConv);
+            var planeConv = AddConverter(new PipeConverter<rg.Plane, ppg.Plane>(
+                (rpl) => {
+                    return new ppg.Plane(ptConv.ToPipe<rg.XYZ, ppg.Vec>(rpl.Origin), ptConv.ToPipe<rg.XYZ, ppg.Vec>(rpl.XVec),
+                        ptConv.ToPipe<rg.XYZ, ppg.Vec>(rpl.YVec), ptConv.ToPipe<rg.XYZ, ppg.Vec>(rpl.Normal));
+                },
+                (ppl) => {
+                    return rg.Plane.CreateByOriginAndBasis(ptConv.FromPipe<rg.XYZ, ppg.Vec>(ppl.Origin),
+                        ptConv.FromPipe<rg.XYZ, ppg.Vec>(ppl.X), ptConv.FromPipe<rg.XYZ, ppg.Vec>(ppl.Y));
+                }
+            ));
+            var geomConv = AddConverter(new GeometryConverter(ptConv, planeConv));
+        }
+    }
+
+    public class GeometryConverter: PipeConverter<rg.GeometryObject, IPipeMemberType>
+    {
+        public GeometryConverter(PointConverter ptConv, PipeConverter<rg.Plane, ppg.Plane> planeConv)
+        {
             //converting various types of curves
-            var curveConv = AddConverter(new CurveConverter(_ptConv));
+            var curveConv = AddConverter(new CurveConverter(ptConv, planeConv));
             //converting polylines: for some reasons polyline class doesn't inherit from curves in revit
             var polylineConv = AddConverter(new PipeConverter<rg.PolyLine, ppc.Polyline>(
                 (rpl) => {
                     List<rg.XYZ> pts = rpl.GetCoordinates().ToList();
-                    return new ppc.Polyline(pts.Select((pt) => _ptConv.ToPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
+                    return new ppc.Polyline(pts.Select((pt) => ptConv.ToPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
                 },
                 (ppl) => {
-                    return rg.PolyLine.Create(ppl.Points.Select((pt) => _ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
+                    return rg.PolyLine.Create(ppl.Points.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
                 }
             ));
         }

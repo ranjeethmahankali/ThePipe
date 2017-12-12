@@ -21,7 +21,7 @@ namespace PipeForRevit.Converters
 {
     public class CurveConverter: PipeConverter<rg.Curve, ppc.Curve>
     {
-        public CurveConverter(PointConverter ptConv)
+        public CurveConverter(PointConverter ptConv, PipeConverter<rg.Plane, ppg.Plane> planeConv)
         {
             //converting lines
             var lineConv = AddConverter(new PipeConverter<rg.Line, ppc.Line>(
@@ -32,6 +32,19 @@ namespace PipeForRevit.Converters
                 (ppl) => {
                     return rg.Line.CreateBound(ptConv.FromPipe<rg.XYZ, ppg.Vec>(ppl.StartPoint),
                         ptConv.FromPipe<rg.XYZ, ppg.Vec>(ppl.EndPoint));
+                }
+            ));
+            //converting arcs
+            var arcConv = AddConverter(new PipeConverter<rg.Arc, ppc.Arc>(
+                (rarc) => {
+                    ppg.Vec startPt = ptConv.ToPipe<rg.XYZ, ppg.Vec>(rarc.GetEndPoint(0));
+                    ppg.Vec endPt = ptConv.ToPipe<rg.XYZ, ppg.Vec>(rarc.GetEndPoint(1));
+                    ppg.Vec midPt = ptConv.ToPipe<rg.XYZ, ppg.Vec>(rarc.Evaluate(0.5, true));
+                    return new ppc.Arc(startPt, endPt, midPt);
+                },
+                (parc) => {
+                    return rg.Arc.Create(planeConv.FromPipe<rg.Plane, ppg.Plane>(parc.Plane), parc.Radius, 
+                        parc.StartAngle, parc.EndAngle);
                 }
             ));
         }
