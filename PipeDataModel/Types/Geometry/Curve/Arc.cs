@@ -63,6 +63,28 @@ namespace PipeDataModel.Types.Geometry.Curve
             _endAngle = endAng;
             EnsureAlignment();
         }
+        public Arc(Vec startPt, Vec endPt, Vec ptOnArc)
+        {
+            Vec midPt1 = Vec.Multiply(Vec.Sum(endPt, ptOnArc), 0.5);
+            Vec midPt2 = Vec.Multiply(Vec.Sum(startPt, ptOnArc), 0.5);
+
+            Vec seg1 = Vec.Difference(ptOnArc, startPt);
+            Vec seg2 = Vec.Difference(endPt, ptOnArc);
+
+            Vec planeZ = Vec.Cross(seg1, seg2);
+
+            Vec rad1 = Vec.Cross(planeZ, seg1);
+            Vec rad2 = Vec.Cross(planeZ, seg2);
+
+            Vec center = IntersectLines(midPt1, rad1, midPt2, rad2);
+            Vec planeX = Vec.Difference(startPt, center);
+            Vec planeY = Vec.Cross(planeZ, planeX);
+
+            _plane = new Plane(center, planeX, planeY, planeZ);
+            _radius = Vec.Difference(center, startPt).Length;
+            _startAngle = 0;
+            _endAngle = 2 * Vec.AngleBetween(rad1, rad2);
+        }
         #endregion
 
         #region-methods
@@ -74,7 +96,6 @@ namespace PipeDataModel.Types.Geometry.Curve
             EndAngle = EndAngle - StartAngle;
             StartAngle = 0;
         }
-
         public void TransformToPlane(Plane newPlane)
         {
             double eps = 1e-7;
@@ -103,6 +124,18 @@ namespace PipeDataModel.Types.Geometry.Curve
             Arc otherArc = (Arc)other;
             return _endAngle == otherArc.EndAngle && _startAngle == otherArc.StartAngle
                 && _radius == otherArc.Radius && _plane.Equals(otherArc.Plane);
+        }
+        // returns the intersection of line passing through pt1 parallel to v1 with the line through pt2 passing parallel to v2
+        // returns null if the lines don't intersect
+        public static Vec IntersectLines(Vec pt1, Vec v1, Vec pt2, Vec v2)
+        {
+            Vec dirCross = Vec.Cross(v1, v2);
+            if(dirCross.Length == 0) { return null; }
+
+            Vec numerator = Vec.Cross(Vec.Difference(pt2, pt1), v2);
+            double param1 = Vec.Dot(numerator, dirCross) * (numerator.Length / dirCross.Length);
+
+            return Vec.Sum(pt1, Vec.Multiply(v1, param1));
         }
         #endregion
     }
