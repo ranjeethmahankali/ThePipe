@@ -52,10 +52,12 @@ namespace PipeForRevit.Utils
             return Plane.CreateByNormalAndOrigin(normal, line.Origin);
         }
 
-        internal static void AddCurveToDocument(ref Document doc, Curve curve)
+        internal static ElementId AddCurveToDocument(ref Document doc, Curve curve, out Reference geomRef)
         {
             SketchPlane plane = SketchPlane.Create(doc, GetPlaneForCurve(curve));
-            doc.Create.NewModelCurve(curve, plane);
+            ModelCurve addedCurve = doc.Create.NewModelCurve(curve, plane);
+            geomRef = addedCurve.GeometryCurve.Reference;
+            return addedCurve.Id;
         }
 
         internal static void ShowMessage(string title, string instruction = "", string message = "")

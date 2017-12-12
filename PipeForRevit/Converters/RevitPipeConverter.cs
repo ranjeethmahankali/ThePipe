@@ -25,7 +25,18 @@ namespace PipeForRevit.Converters
 
         public RevitPipeConverter()
         {
+            //converting various types of curves
             var curveConv = AddConverter(new CurveConverter(_ptConv));
+            //converting polylines: for some reasons polyline class doesn't inherit from curves in revit
+            var polylineConv = AddConverter(new PipeConverter<rg.PolyLine, ppc.Polyline>(
+                (rpl) => {
+                    List<rg.XYZ> pts = rpl.GetCoordinates().ToList();
+                    return new ppc.Polyline(pts.Select((pt) => _ptConv.ToPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
+                },
+                (ppl) => {
+                    return rg.PolyLine.Create(ppl.Points.Select((pt) => _ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
+                }
+            ));
         }
     }
 
