@@ -32,12 +32,12 @@ namespace PipeForDynamo.Converters
                         if (dc.IsRational)
                         {
                             cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(), 
-                                dc.Degree);
+                                dc.Degree, dc.IsClosed);
                         }
                         else
                         {
                             cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(),
-                                dc.Degree, dc.Weights().ToList(), dc.Knots().ToList());
+                                dc.Degree, dc.Weights().ToList(), dc.Knots().ToList(), dc.IsClosed);
                         }
                         return cur;
                     },
@@ -46,7 +46,8 @@ namespace PipeForDynamo.Converters
                         if (pnc.IsRational)
                         {
                             cur = dg.NurbsCurve.ByControlPoints(
-                                pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)),pnc.Degree);
+                                pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)),pnc.Degree,
+                                pnc.IsClosed);
                         }
                         else
                         {

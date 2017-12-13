@@ -14,6 +14,7 @@ namespace PipeDataModel.Types.Geometry.Curve
         private int _degree = 3;
         private List<double> _weights;
         private List<double> _knots;
+        private bool _isClosed = false;
         #endregion
 
         #region-properties
@@ -48,6 +49,10 @@ namespace PipeDataModel.Types.Geometry.Curve
         {
             get { return _weights.All((w) => w == 1); }
         }
+        public bool IsClosed
+        {
+            get { return _isClosed; }
+        }
         #endregion
 
         #region-constructors
@@ -61,11 +66,21 @@ namespace PipeDataModel.Types.Geometry.Curve
                 _weights.Add(1);
             }
         }
+        public NurbsCurve(List<Vec> controlPts, int degree, bool isClosed)
+            :this(controlPts, degree)
+        {
+            _isClosed = isClosed;
+        }
         public NurbsCurve(List<Vec> controlPts, int degree, List<double> weights, List<double> knots)
             :this(controlPts, degree)
         {
             _weights = weights;
             _knots = knots;
+        }
+        public NurbsCurve(List<Vec> controlPts, int degree, List<double> weights, List<double> knots, bool isClosed)
+            :this(controlPts, degree, weights, knots)
+        {
+            _isClosed = isClosed;
         }
         #endregion
 

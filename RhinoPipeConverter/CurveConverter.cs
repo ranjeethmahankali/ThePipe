@@ -51,23 +51,37 @@ namespace RhinoPipeConverter
             AddConverter(new PipeConverter<rh.NurbsCurve, pp.NurbsCurve>(
                     (rhc) => {
                         pp.NurbsCurve curve;
+                        /*
+                         * if the curve is closed, the internal NurbsCurve datastructure stores too many points in the
+                         * array, in order to loop around to the next knot, we want to take a smaller list in that case
+                         */
+                        int controlPtsNum = rhc.IsClosed ? rhc.Points.Count - rhc.Degree : rhc.Points.Count;
+                        List<ppg.Vec> ptList = rhc.Points.Take(controlPtsNum).Select(
+                            (pt) => ptConv.ToPipe<rh.Point3d,ppg.Vec>(pt.Location)).ToList();
                         if (rhc.IsRational)
                         {
-                            curve = new pp.NurbsCurve(rhc.Points.Select((pt) => ptConv.ToPipe<rh.Point3d,
-                            ppg.Vec>(pt.Location)).ToList(), rhc.Degree);
+                            curve = new pp.NurbsCurve(ptList, rhc.Degree, rhc.IsClosed);
                         }
                         else
                         {
-                            curve = new pp.NurbsCurve(rhc.Points.Select((pt) => ptConv.ToPipe<rh.Point3d,
-                            ppg.Vec>(pt.Location)).ToList(), rhc.Degree, 
-                            rhc.Points.Select((pt) => pt.Weight).ToList(), rhc.Knots.ToList());
+                            curve = new pp.NurbsCurve(ptList, rhc.Degree, 
+                                rhc.Points.Select((pt) => pt.Weight).ToList(), rhc.Knots.ToList(), rhc.IsClosed);
                         }
                         return curve;
                     },
                     (ppc) => {
-                        rh.NurbsCurve curve = (rh.NurbsCurve)rh.Curve.CreateControlPointCurve(
-                            ppc.ControlPoints.Select((pt) => ptConv.FromPipe<rh.Point3d, ppg.Vec>(pt)),
-                            ppc.Degree);
+                        List<rh.Point3d> ptList = ppc.ControlPoints.Select(
+                            (pt) => ptConv.FromPipe<rh.Point3d, ppg.Vec>(pt)).ToList();
+                        /*
+                         * If the curve is closed, then rhino expects the first point to appear at the end of the 
+                         * control point list again, so we add it.
+                         */
+                        if (ppc.IsClosed) { ptList.Add(ptList.First()); }
+                        rh.NurbsCurve curve = (rh.NurbsCurve)rh.Curve.CreateControlPointCurve(ptList, ppc.Degree);
+                        if (ppc.IsClosed && ppc.ControlPoints.Count > 3)
+                        {
+                            curve.MakeClosed(1e-7);
+                        }
                         if (!ppc.IsRational)
                         {
                             for(int i = 0; i < curve.Points.Count; i++)
