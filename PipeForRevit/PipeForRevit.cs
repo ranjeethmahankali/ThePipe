@@ -68,7 +68,7 @@ namespace PipeForRevit
             return Result.Succeeded;
         }
 
-        internal static GeometryObject ConvertFromPipe(IPipeMemberType obj)
+        internal static object ConvertFromPipe(IPipeMemberType obj)
         {
             return _converter == null ? null : _converter.FromPipe<GeometryObject, IPipeMemberType>(obj);
         }

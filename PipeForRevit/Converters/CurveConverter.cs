@@ -47,6 +47,20 @@ namespace PipeForRevit.Converters
                         parc.StartAngle, parc.EndAngle);
                 }
             ));
+            //converting nurbs curves
+            var nurbsConv = AddConverter(new PipeConverter<rg.NurbSpline, ppc.NurbsCurve>(
+                (rnc) => {
+                    return new ppc.NurbsCurve(rnc.CtrlPoints.Select(
+                        (pt) => ptConv.ToPipe<rg.XYZ, ppg.Vec>(pt)).ToList(), rnc.Degree, rnc.Weights.Cast<double>().ToList(),
+                        rnc.Knots.Cast<double>().ToList(), rnc.isClosed);
+                },
+                (pnc) => {
+                    int ptNum = pnc.IsClosed ? pnc.ControlPoints.Count + 1 : pnc.ControlPoints.Count;
+                    var ptList = pnc.ControlPoints.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).Take(ptNum).ToList();
+                    if (pnc.IsClosed) { ptList.Add(ptList.First()); }
+                    return (rg.NurbSpline)rg.NurbSpline.CreateCurve(ptList, pnc.Weights.Take(ptNum).ToList());
+                }
+            ));
         }
     }
 }

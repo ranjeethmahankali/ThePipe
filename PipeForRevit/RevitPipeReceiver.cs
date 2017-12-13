@@ -26,14 +26,14 @@ namespace PipeForRevit
     [RegenerationAttribute(RegenerationOption.Manual)]
     public class RevitPipeReceiver : IExternalCommand, IPipeEmitter
     {
-        private static List<GeometryObject> _receivedObjects = new List<GeometryObject>();
+        private static List<object> _receivedObjects = new List<object>();
         private static List<ElementId> _previousIds = new List<ElementId>();
         private static List<Reference> _previousRefs = new List<Reference>();
         private static Document _document;
 
         public void EmitPipeData(DataNode data)
         {
-            _receivedObjects = new List<GeometryObject>();
+            _receivedObjects = new List<object>();
             if(data == null) { return; }
             foreach(var child in data.ChildrenList)
             {
@@ -109,6 +109,7 @@ namespace PipeForRevit
             for (int i = 0; i < _receivedObjects.Count; i++)
             {
                 Element oldElem = _document.GetElement(_previousIds[i]);
+                if(oldElem == null) { return false; }
                 GeometryObject oldGeom = oldElem.GetGeometryObjectFromReference(_previousRefs[i]);
                 if(oldGeom.GetType() != _receivedObjects[i].GetType()) { return false; }
             }
@@ -116,7 +117,7 @@ namespace PipeForRevit
             return true;
         }
 
-        private List<ElementId> AddObjectsToDocument(List<GeometryObject> objs, bool deleteExisting = false)
+        private List<ElementId> AddObjectsToDocument(List<object> objs, bool deleteExisting = false)
         {
             List<ElementId> elems = new List<ElementId>();
             _previousRefs = new List<Reference>();
@@ -135,13 +136,19 @@ namespace PipeForRevit
                     elems.Add(RevitPipeUtil.AddCurveToDocument(ref _document, (Curve)geom, out geomRef));
                     _previousRefs.Add(geomRef);
                 }
+                //if (typeof(PolyLine).IsAssignableFrom(geom.GetType()))
+                //{
+                //    Reference geomRef;
+                //    elems.Add(RevitPipeUtil.AddPolylineToDocument(ref _document, (PolyLine)geom, out geomRef));
+                //    _previousRefs.Add(geomRef);
+                //}
             }
             trans.Commit();
 
             return elems;
         }
 
-        private void UpdateGeometry(List<GeometryObject> geomObjs)
+        private void UpdateGeometry(List<object> geomObjs)
         {
             if(geomObjs.Count != _previousIds.Count || geomObjs.Count != _previousRefs.Count)
             {
