@@ -24,17 +24,14 @@ namespace PipeForDynamo
 
         internal DynamoPipeWrapper(string pipeIdentifier, DynamoPipeConverter converter)
         {
-            Action finisher = () => {
-                _pipe.ClosePipe();
-                _pipe = null;
-            };
             if (_pipe != null)
             {
-                finisher.Invoke();
+                _pipe.ClosePipe();
+                _pipe = null;
             }
 
-            if (PipeDataUtil.IsValidUrl(pipeIdentifier)) { _pipe = new MyWebPipe(pipeIdentifier, finisher); }
-            else { _pipe = new LocalNamedPipe(pipeIdentifier, finisher); }
+            if (PipeDataUtil.IsValidUrl(pipeIdentifier)) { _pipe = new MyWebPipe(pipeIdentifier); }
+            else { _pipe = new LocalNamedPipe(pipeIdentifier); }
 
             _converter = converter;
         }

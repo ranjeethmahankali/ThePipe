@@ -21,7 +21,10 @@ namespace PipeForDynamo
         public DataNode CollectPipeData()
         {
             //convert the _data object and return it
-            return Data == null ? null : new DataNode(_converter.ToPipe<object, IPipeMemberType>(Data));
+            if(Data == null) { return null; }
+            DataNode node = new DataNode();
+            node.AddChild(new DataNode(_converter.ToPipe<object, IPipeMemberType>(Data)));
+            return node;
         }
     }
 }
