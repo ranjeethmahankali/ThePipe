@@ -55,10 +55,16 @@ namespace PipeForRevit.Converters
                         rnc.Knots.Cast<double>().ToList(), rnc.isClosed);
                 },
                 (pnc) => {
-                    int ptNum = pnc.IsClosed ? pnc.ControlPoints.Count + 1 : pnc.ControlPoints.Count;
-                    var ptList = pnc.ControlPoints.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).Take(ptNum).ToList();
-                    if (pnc.IsClosed) { ptList.Add(ptList.First()); }
-                    return (rg.NurbSpline)rg.NurbSpline.CreateCurve(ptList, pnc.Weights.Take(ptNum).ToList());
+                    if (pnc.IsClosed)
+                    {
+                        //revit doesn't support closed nurbs curves
+                        Utils.RevitPipeUtil.ShowMessage("Conversion failed", "Closed NurbSplines are not supported",
+                            "Revit doesn't support closed Nurbs curves. Revit's website says you can instead close one" +
+                            "Nurbs curve with another.");
+                        return null;
+                    }
+                    var ptList = pnc.ControlPoints.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList();
+                    return (rg.NurbSpline)rg.NurbSpline.CreateCurve(ptList, pnc.Weights.ToList());
                 }
             ));
         }
