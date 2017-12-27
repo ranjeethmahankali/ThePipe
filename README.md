@@ -110,5 +110,4 @@ the "Pipe for Developers" video linked at the top of this document.
 
 This schematic explains how it all comes together to make the pipe work.
 
-![](media/image1.png){width="6.258333333333334in"
-height="1.8666666666666667in"}
+![Pipe Schematic](Schematic.png)
