@@ -19,6 +19,7 @@ namespace PipeForRhino
         private static string APP_KEY = "rhinoPipe_77e390dc-fbd8-487e-886d-5409d0128d7a";
         private List<GeometryBase> _objectsReceived;
         private Pipe _pipe;
+        private static string _prevPipeName = null;
 
         public PipePullCommand()
         {
@@ -54,6 +55,7 @@ namespace PipeForRhino
             using (GetString getter = new GetString())
             {
                 getter.SetCommandPrompt("Enter the name/url for the pipe");
+                if(_prevPipeName != null) { getter.SetDefaultString(_prevPipeName); }
                 if (getter.Get() != GetResult.String)
                 {
                     RhinoApp.WriteLine("Invalid Input");

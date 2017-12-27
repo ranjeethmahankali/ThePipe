@@ -18,6 +18,7 @@ namespace PipeForRhino
     {
         private List<RhinoObject> _objectsToSend;
         private Pipe _pipe;
+        private static string _prevPipeName = null;
 
         public PipePushCommand()
         {
@@ -54,12 +55,14 @@ namespace PipeForRhino
             using (GetString getter = new GetString())
             {
                 getter.SetCommandPrompt("Enter the name/url for the pipe");
+                if (_prevPipeName != null) { getter.SetDefaultString(_prevPipeName); }
                 if (getter.Get() != GetResult.String)
                 {
                     RhinoApp.WriteLine("Invalid Input");
                     return getter.CommandResult();
                 }
                 pipeIdentifier = getter.StringResult();
+                _prevPipeName = pipeIdentifier;
             }
 
             if (_pipe != null)
