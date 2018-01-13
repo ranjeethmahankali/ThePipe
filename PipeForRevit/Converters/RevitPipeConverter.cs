@@ -45,16 +45,21 @@ namespace PipeForRevit.Converters
         {
             //converting various types of curves
             var curveConv = AddConverter(new CurveConverter(ptConv, planeConv));
-            //converting polylines: for some reasons polyline class doesn't inherit from curves in revit
-            var polylineConv = AddConverter(new PipeConverter<rg.PolyLine, ppc.Polyline>(
-                (rpl) => {
-                    List<rg.XYZ> pts = rpl.GetCoordinates().ToList();
-                    return new ppc.Polyline(pts.Select((pt) => ptConv.ToPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
-                },
-                (ppl) => {
-                    return rg.PolyLine.Create(ppl.Points.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
-                }
-            ));
+            /*
+             * Commenting out the Revit Polyline conversion because revit does not treat polylines as geometry
+             * that means it has to be added as a set of lines, and that makes change tracking and updating 
+             * gemetry difficult so I am not supporting polylines until I can think of a better strategy.
+             */
+            ////converting polylines: for some reasons polyline class doesn't inherit from curves in revit
+            //var polylineConv = AddConverter(new PipeConverter<rg.PolyLine, ppc.Polyline>(
+            //    (rpl) => {
+            //        List<rg.XYZ> pts = rpl.GetCoordinates().ToList();
+            //        return new ppc.Polyline(pts.Select((pt) => ptConv.ToPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
+            //    },
+            //    (ppl) => {
+            //        return rg.PolyLine.Create(ppl.Points.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
+            //    }
+            //));
         }
     }
 

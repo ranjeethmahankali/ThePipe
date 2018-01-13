@@ -33,11 +33,18 @@ namespace PipeForRevit
 
         public void EmitPipeData(DataNode data)
         {
-            _receivedObjects = new List<object>();
-            if(data == null) { return; }
-            foreach(var child in data.ChildrenList)
+            try
             {
-                _receivedObjects.Add(PipeForRevit.ConvertFromPipe(child.Data));
+                _receivedObjects = new List<object>();
+                if (data == null) { return; }
+                foreach (var child in data.ChildrenList)
+                {
+                    _receivedObjects.Add(PipeForRevit.ConvertFromPipe(child.Data));
+                }
+            }
+            catch (PipeDataModel.Exceptions.PipeConversionException e)
+            {
+                RevitPipeUtil.ShowMessage("Pipe Pull Failed!", "Conversion Error - Unsupported Types", e.Message);
             }
         }
 
@@ -104,7 +111,8 @@ namespace PipeForRevit
 
         private bool GeometryTypeMatch()
         {
-            if(_receivedObjects.Count != _previousIds.Count) { return false; }
+            if (_receivedObjects.Count == 0) { return false; }
+            if (_receivedObjects.Count != _previousIds.Count) { return false; }
             if(_receivedObjects.Count != _previousRefs.Count) { return false; }
             for (int i = 0; i < _receivedObjects.Count; i++)
             {
@@ -136,12 +144,6 @@ namespace PipeForRevit
                     elems.Add(RevitPipeUtil.AddCurveToDocument(ref _document, (Curve)geom, out geomRef));
                     _previousRefs.Add(geomRef);
                 }
-                //if (typeof(PolyLine).IsAssignableFrom(geom.GetType()))
-                //{
-                //    Reference geomRef;
-                //    elems.Add(RevitPipeUtil.AddPolylineToDocument(ref _document, (PolyLine)geom, out geomRef));
-                //    _previousRefs.Add(geomRef);
-                //}
             }
             trans.Commit();
 

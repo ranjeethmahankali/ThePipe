@@ -123,14 +123,14 @@ namespace PipeDataModel.Types
                 return childConverter.ConvertToPipe<T1, T2>(obj);
             }
 
-            throw new PipeConversionException(typeof(T1), typeof(T2));
+            throw new PipeConversionException(obj.GetType(), typeof(T2));
         }
 
         public T2 ConvertToPipe<T1, T2>(T1 obj)
         {
             if(!(typeof(UserT).IsAssignableFrom(obj.GetType()) && typeof(T2).IsAssignableFrom(typeof(PipeT))))
             {
-                throw new PipeConversionException(typeof(T1), typeof(T2));
+                throw new PipeConversionException(typeof(T2), obj.GetType());
             }
             return (T2)(object)ToPipe<UserT,PipeT>((UserT)(object)obj);
         }
@@ -139,7 +139,7 @@ namespace PipeDataModel.Types
         {
             if (!(typeof(T1).IsAssignableFrom(typeof(UserT)) && typeof(PipeT).IsAssignableFrom(obj.GetType())))
             {
-                throw new PipeConversionException(typeof(T1), typeof(T2));
+                throw new PipeConversionException(typeof(T1), obj.GetType());
             }
             return (T1)(object)FromPipe<UserT, PipeT>((PipeT)(object)obj);
         }
@@ -160,7 +160,7 @@ namespace PipeDataModel.Types
                 return childConverter.ConvertFromPipe<T1, T2>(obj);
             }
 
-            throw new PipeConversionException(typeof(T2), typeof(T1));
+            throw new PipeConversionException(obj.GetType(), typeof(T1));
         }
         #endregion
     }

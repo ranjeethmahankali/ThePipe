@@ -34,6 +34,15 @@ namespace PipeForRevit.Utils
                 XYZ v1 = endPt.Subtract(startPt);
                 XYZ v2 = intPt.Subtract(startPt);
                 XYZ normal = v1.CrossProduct(v2);
+
+                Random rand = new Random();
+                while (normal.IsZeroLength())
+                {
+                    intPt = curve.Evaluate(rand.NextDouble(), true);
+                    v1 = endPt.Subtract(startPt);
+                    v2 = intPt.Subtract(startPt);
+                    normal = v1.CrossProduct(v2);
+                }
                 return Plane.CreateByNormalAndOrigin(normal, startPt);
             }
         }
@@ -51,6 +60,37 @@ namespace PipeForRevit.Utils
                 normal = line.Direction.CrossProduct(XYZ.BasisZ);
             }
             return Plane.CreateByNormalAndOrigin(normal, line.Origin);
+        }
+
+        internal static Plane GetPlaneForPolyLine(PolyLine pline)
+        {
+            double eps = 1e-7;
+            var ptList = pline.GetCoordinates().ToList();
+            var pt0 = ptList[0];
+            XYZ normal = null;
+            for(int i = 1; i < ptList.Count - 3; i++)
+            {
+                XYZ v1 = ptList[i + 1].Subtract(ptList[i]);
+                XYZ v2 = ptList[i + 2].Subtract(ptList[i]);
+                XYZ v3 = ptList[i + 3].Subtract(ptList[i]);
+
+                if(v1.DotProduct(v2.CrossProduct(v3)) > eps)
+                {
+                    throw new ArgumentException("The polyline is not planar, so it cannot be added to the Revit file");
+                }
+
+                normal = v1.CrossProduct(v2);
+                if (normal.IsZeroLength()) { normal = v2.CrossProduct(v3); }
+                if (normal.IsZeroLength()) { normal = v1.CrossProduct(v3); }
+                if (normal.IsZeroLength()) { normal = null; }
+            }
+
+            if(normal == null || normal.IsZeroLength())
+            {
+                return GetPlaneForLine(Line.CreateBound(ptList[0], ptList[2]));
+            }
+
+            return Plane.CreateByNormalAndOrigin(normal, ptList[0]);
         }
     }
 }

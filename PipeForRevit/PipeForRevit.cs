@@ -63,6 +63,7 @@ namespace PipeForRevit
 
             _converter = new RevitPipeConverter();
 
+            //Revit looks for DLLs in the Revit.exe directory, so we need to do this to make it work
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(RevitPipeUtil.MyResolveEventHandler);
 
             return Result.Succeeded;
