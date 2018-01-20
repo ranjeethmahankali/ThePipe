@@ -243,3 +243,6 @@ ModelManifest.xml
 /PipeForRevit/Resources
 
 Documentation/
+*.ai
+*.png
+*.db
