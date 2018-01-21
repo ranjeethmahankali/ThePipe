@@ -18,7 +18,7 @@ INSTALLATION INSTRUCTIONS
 	You have to load the library (PipeForDynamo.dll in C:\ProgramData\RanjeethMahankali\PipeForDynamo folder) through
 	File > Import Library in Dynamo.
 
---	If the installation fails fro some reason. Below are the instructions for manual installation.
+--	If the installation fails for any reason. Below are the instructions for manual installation.
 
 
 ==============================================
