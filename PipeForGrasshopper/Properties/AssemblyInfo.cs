@@ -8,9 +8,9 @@ using Rhino.PlugIns;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("PipeForGrasshopper")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("ThePipe plugin for Grasshopper")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Ranjeeth Mahankali")]
 [assembly: AssemblyProduct("PipeForGrasshopper")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
@@ -34,5 +34,5 @@ using Rhino.PlugIns;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("0.0.0.1")]
+[assembly: AssemblyFileVersion("0.0.0.1")]

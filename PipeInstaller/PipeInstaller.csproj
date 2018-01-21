@@ -77,4 +77,7 @@ xcopy /s /q /y "$(SolutionDir)PipeForRhino\bin\PipeForRhino.rhp" "$(TargetDir)Se
 
 </PreBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /q /y "$(ProjectDir)Instructions.txt" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
