@@ -100,6 +100,7 @@ namespace PipeInstaller
                 catch(Exception e)
                 {
                     Console.WriteLine(string.Format("ERROR: Installation failed - {0}\n\tAborting.", e.Message));
+                    app.Uninstall();
                 }
                 Console.WriteLine("================================");
             }
