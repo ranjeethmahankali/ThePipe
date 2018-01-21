@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeForRhino", "PipeForRhin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeForRevit", "PipeForRevit\PipeForRevit.csproj", "{A0881202-E4E3-40D3-88E1-B85211618394}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "PipeInstaller", "PipeInstaller\PipeInstaller.vdproj", "{6739AF02-9DF9-4620-BC05-1865FB3C560A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeInstaller", "PipeInstaller\PipeInstaller.csproj", "{FBDBEC81-4B83-4DD9-BDFC-7437C8C23A00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,10 +93,14 @@ Global
 		{A0881202-E4E3-40D3-88E1-B85211618394}.Debug64|Any CPU.Build.0 = Debug|Any CPU
 		{A0881202-E4E3-40D3-88E1-B85211618394}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0881202-E4E3-40D3-88E1-B85211618394}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6739AF02-9DF9-4620-BC05-1865FB3C560A}.Debug|Any CPU.ActiveCfg = Debug
-		{6739AF02-9DF9-4620-BC05-1865FB3C560A}.Debug32|Any CPU.ActiveCfg = Debug
-		{6739AF02-9DF9-4620-BC05-1865FB3C560A}.Debug64|Any CPU.ActiveCfg = Debug
-		{6739AF02-9DF9-4620-BC05-1865FB3C560A}.Release|Any CPU.ActiveCfg = Release
+		{FBDBEC81-4B83-4DD9-BDFC-7437C8C23A00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBDBEC81-4B83-4DD9-BDFC-7437C8C23A00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBDBEC81-4B83-4DD9-BDFC-7437C8C23A00}.Debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBDBEC81-4B83-4DD9-BDFC-7437C8C23A00}.Debug32|Any CPU.Build.0 = Debug|Any CPU
+		{FBDBEC81-4B83-4DD9-BDFC-7437C8C23A00}.Debug64|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBDBEC81-4B83-4DD9-BDFC-7437C8C23A00}.Debug64|Any CPU.Build.0 = Debug|Any CPU
+		{FBDBEC81-4B83-4DD9-BDFC-7437C8C23A00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBDBEC81-4B83-4DD9-BDFC-7437C8C23A00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

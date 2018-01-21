@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A0881202-E4E3-40D3-88E1-B85211618394}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PipeForRevit</RootNamespace>
-    <AssemblyName>PipeForRevit</AssemblyName>
+    <ProjectGuid>{FBDBEC81-4B83-4DD9-BDFC-7437C8C23A00}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>PipeInstaller</RootNamespace>
+    <AssemblyName>PipeInstaller</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -29,16 +31,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="RevitAPI">
-      <HintPath>C:\Program Files\Autodesk\Revit 2017\RevitAPI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="RevitAPIUI">
-      <HintPath>C:\Program Files\Autodesk\Revit 2017\RevitAPIUI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -49,32 +45,36 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Converters\CurveConverter.cs" />
-    <Compile Include="Converters\RevitPipeConverter.cs" />
-    <Compile Include="PipeForRevit.cs" />
+    <Compile Include="App.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RevitPipeReceiver.cs" />
-    <Compile Include="RevitPipeSender.cs" />
-    <Compile Include="Utils\RevitPipeUtil.cs" />
-    <Compile Include="Utils\SketchPlaneUtil.cs" />
+    <Compile Include="SetupFile.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="PipeForRevit.addin" />
+    <None Include="App.config" />
+    <None Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PipeDataModel\PipeDataModel.csproj">
-      <Project>{7f5e7a00-5ef1-454c-bf0d-f2624434ad76}</Project>
-      <Name>PipeDataModel</Name>
-    </ProjectReference>
+    <Content Include="Instructions.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /s /q /y "$(ProjectDir)PipeForRevit.addin" "C:\ProgramData\Autodesk\Revit\Addins\2017\"
-xcopy /s /q /y "$(TargetDir)*.dll" "C:\PipeForRevit\"</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>if not exist "C:\PipeForRevit\" mkdir "C:\PipeForRevit"
-del /q "C:\PipeForRevit\*"
-xcopy /y /q "$(ProjectDir)Resources\*.png" "C:\PipeForRevit"</PreBuildEvent>
+    <PreBuildEvent>del /s /q "$(TargetDir)\*"
+mkdir "$(TargetDir)\SetupFiles"
+
+xcopy /s /q /y "$(SolutionDir)PipeDataModel\bin\Release\*.dll" "$(TargetDir)SetupFiles\"
+xcopy /s /q /y "$(SolutionDir)RhinoPipeConverter\bin\Release\RhinoPipeConverter.dll" "$(TargetDir)SetupFiles\"
+
+xcopy /s /q /y "$(SolutionDir)PipeForRevit\bin\Release\PipeForRevit.dll" "$(TargetDir)SetupFiles\"
+xcopy /s /q /y "$(SolutionDir)PipeForRevit\Resources\*.png" "$(TargetDir)SetupFiles\"
+xcopy /s /q /y "$(SolutionDir)PipeForRevit\PipeForRevit.addin" "$(TargetDir)SetupFiles\"
+
+xcopy /s /q /y "$(SolutionDir)PipeForDynamo\bin\Release\PipeForDynamo.dll" "$(TargetDir)SetupFiles\"
+
+xcopy /s /q /y "$(SolutionDir)PipeForGrasshopper\bin\PipeForGrasshopper.gha" "$(TargetDir)SetupFiles\"
+
+xcopy /s /q /y "$(SolutionDir)PipeForRhino\bin\PipeForRhino.rhp" "$(TargetDir)SetupFiles\"
+
+</PreBuildEvent>
   </PropertyGroup>
 </Project>
