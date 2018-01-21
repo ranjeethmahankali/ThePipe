@@ -1,6 +1,42 @@
-﻿--	Run the PipeInstaller.exe.
+﻿==============================================
+INSTALLATION INSTRUCTIONS
+==============================================
+
+--	Run the PipeInstaller.exe.
 	This installer can install ThePipe plugins/extensions for Revit 2017, Dynamo 9x, Rhinoceros 5 and Grasshopper 5.
 	You can decide which of these extensions by responding to the command line prompts with a y/n response.
 
+--	For some of these applications, the setup files need to be copied to specific locations for them to work properly.
+	For example, the Grasshopper assembly and its dependencies must be placed in the Grasshopper Libraries folder and
+	the Addin manifest for the Revit addin must be in the correct folder. The Installer will show you these paths before
+	copying the files and ask for your confirmation. If the paths are correct, confirm by typing 'y' and pressing return.
+	If the paths are not correct for your machine, then type the correct path in each case and press return, the files
+	will be copied to those paths instead.
+
 --	NOTE: The Installer doesn't finish the installation of Rhinoceros plugin, you have to load the plugin from the
-	installation path, using Rhino's PluginManager to finish installation.
+	installation path, using Rhino's PluginManager to finish installation. And for the Dynamo Library for ThePipe,
+	You have to load the library (PipeForDynamo.dll in C:\ProgramData\RanjeethMahankali\PipeForDynamo folder) through
+	File > Import Library in Dynamo.
+
+--	If the installation fails fro some reason. Below are the instructions for manual installation.
+
+
+==============================================
+MANUAL INSTALLATION INSTRUCTIONS
+==============================================
+
+PipeForRevit - Revit Addin
+--	From the SetupFiles, copy PipeDataModel.dll, PipeArrow.png and PipeForRevit.dll to "C:\PipeForRevit\"
+--	From the SetupFiles, copy PipeForRevit.addin file to the Revit Addin manifests folder.
+
+PipeForDynamo - Dynamo Library
+--	From the SetupFiles, copy PipeDataModel.dll and PipeForDynamo.dll to any folder on your disk.
+--	To use it, load the PipeForDynamo.dll from within Dynamo by clicking File > Import Library.
+
+PipeForRhino - Rhino Plugin
+--	From the SetupFiles, copy PipeDataModel.dll, RhinoPipeConverter.dll and PipeForRhino.rhp to any folder on your disk.
+--	Open Rhino, open the PluginManager and load the RHP file.
+
+PipeForGrasshopper - Grasshopper Plugin
+--	From the SetupFiles, copy PipeDataModel.dll, RhinoPipeConverter.dll and PipeForGrasshopper.gha to the Grasshopper Libraries
+	folder, if copied right, Grasshopper should load the plugin automatically when it opens.
