@@ -45,6 +45,7 @@ namespace PipeForRevit.Converters
         {
             //converting various types of curves
             var curveConv = AddConverter(new CurveConverter(ptConv, planeConv));
+            var meshConv = AddConverter(new MeshConverter(ptConv));
             /*
              * Commenting out the Revit Polyline conversion because revit does not treat polylines as geometry
              * that means it has to be added as a set of lines, and that makes change tracking and updating 
@@ -76,5 +77,56 @@ namespace PipeForRevit.Converters
                     }
                 )
         { }
+    }
+
+    public class MeshConverter: PipeConverter<rg.Mesh, ppg.Mesh>
+    {
+        public MeshConverter(PointConverter ptConv):
+            base(
+                    (rm) => {
+                        ppg.Mesh pm = new ppg.Mesh();
+                        pm.Vertices.AddRange(rm.Vertices.Select(pt => ptConv.ToPipe<rg.XYZ, ppg.Vec>(pt)));
+                        for(int i = 0; i < rm.NumTriangles; i++)
+                        {
+                            rg.MeshTriangle tr = rm.get_Triangle(i);
+                            rg.XYZ A = tr.get_Vertex(0);
+                            rg.XYZ B = tr.get_Vertex(1);
+                            rg.XYZ C = tr.get_Vertex(2);
+                            pm.Faces.Add(new ulong[] {
+                                (ulong)rm.Vertices.IndexOf(A),
+                                (ulong)rm.Vertices.IndexOf(B),
+                                (ulong)rm.Vertices.IndexOf(C)
+                            });
+                        }
+
+                        return pm;
+                    },
+                    (ppm) => {
+                        rg.TessellatedShapeBuilder builder = new rg.TessellatedShapeBuilder();
+                        builder.OpenConnectedFaceSet(false);
+                        builder.Target = rg.TessellatedShapeBuilderTarget.Mesh;
+                        builder.Fallback = rg.TessellatedShapeBuilderFallback.Salvage;
+                        List<rg.XYZ> allVerts = ppm.Vertices.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList();
+                        foreach (var face in ppm.Faces)
+                        {
+                            List<rg.XYZ> faceVerts = new List<rg.XYZ>();
+                            foreach(ulong vertIndex in face)
+                            {
+                                faceVerts.Add(allVerts[(int)vertIndex]);
+                            }
+                            rg.TessellatedFace tface = new rg.TessellatedFace(faceVerts, rg.ElementId.InvalidElementId);
+                            if (!builder.DoesFaceHaveEnoughLoopsAndVertices(tface)) { continue; }
+                            builder.AddFace(tface);
+                        }
+                        builder.CloseConnectedFaceSet();
+                        builder.Build();
+                        rg.TessellatedShapeBuilderResult result = builder.GetBuildResult();
+                        List<rg.GeometryObject> geoms = result.GetGeometricalObjects().ToList();
+                        return (rg.Mesh)geoms.FirstOrDefault();
+                    }
+                )
+        {
+
+        }
     }
 }

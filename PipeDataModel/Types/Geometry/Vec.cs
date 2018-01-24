@@ -207,6 +207,21 @@ namespace PipeDataModel.Types.Geometry
             Vec otherVec = (Vec)other;
             return ElementWise(this, otherVec, (x1, x2) => { return x1 == x2; }).All(r => r == true);
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj.GetType() == GetType() && HasEqualState((Vec)obj);
+        }
+        private bool HasEqualState(Vec other)
+        {
+            if(other.Dimensions != Dimensions) { return false; }
+            for(int i = 0; i < Coordinates.Count; i++)
+            {
+                if(other.Coordinates[i] != _coords[i]) { return false; }
+            }
+
+            return true;
+        }
         #endregion
     }
 }
