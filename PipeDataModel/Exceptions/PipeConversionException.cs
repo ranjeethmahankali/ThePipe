@@ -9,7 +9,7 @@ namespace PipeDataModel.Exceptions
     public class PipeConversionException:Exception
     {
         public PipeConversionException(Type fromType, Type toType):
-            base(string.Format("Conversion from {0} to {1} is not supported. Aborting conversion.", fromType.Name, toType.Name))
+            base(string.Format("Conversion from {0} to {1} is not supported. Aborting conversion.", fromType.FullName, toType.FullName))
         { }
     }
 }
