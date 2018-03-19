@@ -39,7 +39,15 @@ namespace PipeForRevit
                 if (data == null) { return; }
                 foreach (var child in data.ChildrenList)
                 {
-                    _receivedObjects.Add(PipeForRevit.ConvertFromPipe(child.Data));
+                    var converted = PipeForRevit.ConvertFromPipe(child.Data);
+                    if(converted.GetType().IsArray)
+                    {
+                        foreach(var obj in (Array)converted)
+                        {
+                            _receivedObjects.Add(obj);
+                        }
+                    }
+                    else { _receivedObjects.Add(converted); }
                 }
             }
             catch (PipeDataModel.Exceptions.PipeConversionException e)
@@ -143,6 +151,11 @@ namespace PipeForRevit
                     Reference geomRef;
                     elems.Add(RevitPipeUtil.AddCurveToDocument(ref _document, (Curve)geom, out geomRef));
                     _previousRefs.Add(geomRef);
+                }
+                if (typeof(Mesh).IsAssignableFrom(geom.GetType()))
+                {
+                    //now add the mesh
+                    elems.Add(RevitPipeUtil.AddMeshToDocument(ref _document, (Mesh)geom));
                 }
             }
             trans.Commit();

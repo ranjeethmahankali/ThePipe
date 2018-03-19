@@ -36,6 +36,19 @@ namespace PipeForRevit.Converters
                 }
             ));
             var geomConv = AddConverter(new GeometryConverter(ptConv, planeConv));
+            var polylineListConv = AddConverter(new PipeConverter<rg.Line[], ppc.Polyline>(
+                (rlg) =>
+                {
+                    List<rg.XYZ> pts = rlg.Select((ln) => ln.GetEndPoint(0)).ToList();
+                    pts.Add(rlg.LastOrDefault().GetEndPoint(1));
+                    return new ppc.Polyline(pts.Select((pt) => ptConv.ToPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
+                },
+                (ppl) =>
+                {
+                    List<ppc.Line> lines = ppl.ExplodedLines();
+                    return lines.Select((ln) => (rg.Line)geomConv.FromPipe<rg.GeometryObject, IPipeMemberType>(ln)).ToArray();
+                }
+            ));
         }
     }
 
@@ -51,13 +64,15 @@ namespace PipeForRevit.Converters
              * that means it has to be added as a set of lines, and that makes change tracking and updating 
              * gemetry difficult so I am not supporting polylines until I can think of a better strategy.
              */
-            ////converting polylines: for some reasons polyline class doesn't inherit from curves in revit
+            //converting polylines: for some reasons polyline class doesn't inherit from curves in revit
             //var polylineConv = AddConverter(new PipeConverter<rg.PolyLine, ppc.Polyline>(
-            //    (rpl) => {
+            //    (rpl) =>
+            //    {
             //        List<rg.XYZ> pts = rpl.GetCoordinates().ToList();
             //        return new ppc.Polyline(pts.Select((pt) => ptConv.ToPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
             //    },
-            //    (ppl) => {
+            //    (ppl) =>
+            //    {
             //        return rg.PolyLine.Create(ppl.Points.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
             //    }
             //));
@@ -102,20 +117,26 @@ namespace PipeForRevit.Converters
                         return pm;
                     },
                     (ppm) => {
+                        //making sure to triangulate so that revit doesn't fail
+                        ppm.Triangulate();
+
                         rg.TessellatedShapeBuilder builder = new rg.TessellatedShapeBuilder();
-                        builder.OpenConnectedFaceSet(false);
+                        builder.OpenConnectedFaceSet(true);
                         builder.Target = rg.TessellatedShapeBuilderTarget.Mesh;
                         builder.Fallback = rg.TessellatedShapeBuilderFallback.Salvage;
                         List<rg.XYZ> allVerts = ppm.Vertices.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList();
+
                         foreach (var face in ppm.Faces)
                         {
                             List<rg.XYZ> faceVerts = new List<rg.XYZ>();
-                            foreach(ulong vertIndex in face)
+                            var faceReversed = face.Reverse().ToList();
+                            foreach(ulong vertIndex in faceReversed)
                             {
                                 faceVerts.Add(allVerts[(int)vertIndex]);
                             }
+
                             rg.TessellatedFace tface = new rg.TessellatedFace(faceVerts, rg.ElementId.InvalidElementId);
-                            if (!builder.DoesFaceHaveEnoughLoopsAndVertices(tface)) { continue; }
+                            //if (!builder.DoesFaceHaveEnoughLoopsAndVertices(tface)) { continue; }
                             builder.AddFace(tface);
                         }
                         builder.CloseConnectedFaceSet();
@@ -124,9 +145,6 @@ namespace PipeForRevit.Converters
                         List<rg.GeometryObject> geoms = result.GetGeometricalObjects().ToList();
                         return (rg.Mesh)geoms.FirstOrDefault();
                     }
-                )
-        {
-
-        }
+                ) { }
     }
 }

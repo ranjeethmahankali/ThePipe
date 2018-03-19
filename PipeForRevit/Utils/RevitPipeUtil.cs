@@ -26,6 +26,14 @@ namespace PipeForRevit.Utils
             return addedCurve.Id;
         }
 
+        internal static ElementId AddMeshToDocument(ref Document doc, Mesh mesh)
+        {
+            ElementId elemId = new ElementId(BuiltInCategory.OST_GenericModel);
+            DirectShape ds = DirectShape.CreateElement(doc, elemId);
+            ds.SetShape(new List<GeometryObject>{ mesh });
+            return elemId;
+        }
+
         internal static void ShowMessage(string title, string instruction = "", string message = "")
         {
             TaskDialog box = new TaskDialog(title);
@@ -38,6 +46,17 @@ namespace PipeForRevit.Utils
         {
             //resolving the type assemblies
             return typeof(IPipeMemberType).Assembly;
+        }
+
+        internal static bool ArePlanar(List<XYZ> points)
+        {
+            if(points.Count < 4) { return true; }
+            if(points.Count > 4) { throw new ArgumentException("too many points to test planarirty"); }
+            XYZ A = points[1] - points[0];
+            XYZ B = points[2] - points[0];
+            XYZ C = points[3] - points[0];
+
+            return A.CrossProduct(B).DotProduct(C) == 0;
         }
     }
 }

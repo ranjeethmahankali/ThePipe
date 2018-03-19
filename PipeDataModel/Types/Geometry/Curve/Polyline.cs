@@ -49,6 +49,16 @@ namespace PipeDataModel.Types.Geometry.Curve
             }
             return true;
         }
+
+        public List<Line> ExplodedLines()
+        {
+            List<Line> lines = new List<Line>();
+            for(int i = 1; i < _points.Count; i++)
+            {
+                lines.Add(new Line(_points[i - 1], _points[i]));
+            }
+            return lines;
+        }
         #endregion
     }
 }

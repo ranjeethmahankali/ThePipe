@@ -71,11 +71,11 @@ namespace PipeForRevit
 
         internal static object ConvertFromPipe(IPipeMemberType obj)
         {
-            return _converter == null ? null : _converter.FromPipe<GeometryObject, IPipeMemberType>(obj);
+            return _converter == null ? null : _converter.FromPipe<object, IPipeMemberType>(obj);
         }
-        internal static IPipeMemberType ConvertToPipe(GeometryObject obj)
+        internal static IPipeMemberType ConvertToPipe(object obj)
         {
-            return _converter == null ? null : _converter.ToPipe<GeometryObject, IPipeMemberType>(obj);
+            return _converter == null ? null : _converter.ToPipe<object, IPipeMemberType>(obj);
         }
     }
 }

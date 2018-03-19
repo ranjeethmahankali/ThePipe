@@ -55,6 +55,44 @@ namespace PipeDataModel.Types.Geometry
         #endregion
 
         #region-methods
+        public void Triangulate()
+        {
+            List<ulong[]> newFaces = new List<ulong[]>();
+            for(int i = 0; i < _faces.Count; i++)
+            {
+                if (FaceIsTriangle(_faces[i]) || FaceIsPlanar(_faces[i]))
+                {
+                    newFaces.Add(_faces[i]);
+                }
+                else
+                {
+                    newFaces.AddRange(TriangulateFace(_faces[i]));
+                }
+            }
+
+            _faces = newFaces;
+        }
+        public bool FaceIsPlanar(ulong[] face)
+        {
+            List<Vec> verts = new List<Vec>();
+            foreach(ulong vert in face)
+            {
+                int i = (int)vert;
+                verts.Add(_vertices[i]);
+            }
+            return FaceIsPlanar(verts);
+        }
+        public static bool FaceIsPlanar(List<Vec> faceVerts)
+        {
+            if(faceVerts.Count > 4) { throw new ArgumentException("Mesh face can only have either 3 or 4 vertices"); }
+            if(faceVerts.Count < 4) { return true; }
+
+            Vec A = Vec.Difference(faceVerts[1], faceVerts[0]);
+            Vec B = Vec.Difference(faceVerts[2], faceVerts[0]);
+            Vec C = Vec.Difference(faceVerts[3], faceVerts[0]);
+
+            return Vec.BoxProduct(A, B, C) == 0;
+        }
         public static bool FaceIsTriangle(ulong[] face)
         {
             if(face.Length == 3) { return true; }
@@ -67,6 +105,17 @@ namespace PipeDataModel.Types.Geometry
             Mesh otherMesh = (Mesh)other;
             return PipeDataUtil.EqualIgnoreOrder(_vertices, otherMesh.Vertices) &&
                 PipeDataUtil.Equal(_faces, otherMesh.Faces, (f1, f2) => PipeDataUtil.EqualIgnoreOrder(f1, f2));
+        }
+        public static List<ulong[]> TriangulateFace(ulong[] face)
+        {
+            if(face.Length < 3) { throw new ArgumentException("Too few points to define a face"); }
+            if(face.Length == 3) { return new List<ulong[]>() { face }; }
+            if(face.Length > 4) { throw new ArgumentException("Too many vertices in a single face."); }
+
+            List<ulong[]> faces = new List<ulong[]>();
+            faces.Add(new ulong[] { face[0], face[1], face[2] });
+            faces.Add(new ulong[] { face[0], face[2], face[3] });
+            return faces;
         }
         #endregion
     }
