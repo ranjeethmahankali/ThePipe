@@ -49,6 +49,7 @@
     <Compile Include="Converters\CurveConverter.cs" />
     <Compile Include="Converters\DynamoPipeConverter.cs" />
     <Compile Include="Converters\GeometryConverter.cs" />
+    <Compile Include="Converters\SurfaceConverter.cs" />
     <Compile Include="DynamoPipeReceiver.cs" />
     <Compile Include="DynamoPipeSender.cs" />
     <Compile Include="DynamoPipeWrapper.cs" />

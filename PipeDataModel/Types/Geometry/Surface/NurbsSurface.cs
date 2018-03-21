@@ -86,7 +86,6 @@ namespace PipeDataModel.Types.Geometry.Surface
             return 1;
         }
 
-
         public void SetWeight(double weight, int u, int v)
         {
             if (!ValidUVIndices(u, v)) { throw new InvalidOperationException("Invalid u, v indices"); }
