@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using PipeDataModel.Types;
 using rh = Rhino.Geometry;
 using pp = PipeDataModel.Types.Geometry;
+using pps = PipeDataModel.Types.Geometry.Surface;
+using ppc = PipeDataModel.Types.Geometry.Curve;
 
 
 namespace RhinoPipeConverter
@@ -23,8 +25,15 @@ namespace RhinoPipeConverter
         public GeometryConverter()
         {
             var ptConv = AddConverter(new PointConverter(_pt3dConv));
-            var curveConv = AddConverter(new CurveConverter(_pt3dConv, _arcConv, _lineConv));
+            var curveConv = new CurveConverter(_pt3dConv, _arcConv, _lineConv);
+            AddConverter(curveConv);
             var meshConv = AddConverter(new MeshConverter(_pt3fConv));
+
+            var surfaceConverter = new SurfaceConverter(curveConv, _vec3DConv, _pt3dConv);
+            AddConverter(surfaceConverter);
+
+            var brepConv = new BrepConverter(surfaceConverter, curveConv);
+            AddConverter(brepConv);
         }
     }
 
@@ -47,6 +56,30 @@ namespace RhinoPipeConverter
                                 new rh.MeshFace((int)f[0], (int)f[1], (int)f[2], (int)f[3])
                         ));
                         return mesh;
+                    }
+                )
+        { }
+    }
+
+    public class BrepConverter: PipeConverter<rh.Brep, pps.PolySurface>
+    {
+        public BrepConverter(SurfaceConverter surfConv, CurveConverter curveConv) : 
+            base(
+                    (rb) => {
+                        var brep = new pps.PolySurface(rb.Surfaces.Select((s) => surfConv.ToPipe<rh.Surface, pps.Surface>(s)).ToList(),
+                            rb.Edges.Select((e) => curveConv.ToPipe<rh.Curve, ppc.Curve>(e)).ToList());
+                        
+
+                        //incomplete - have to add brep edge classes to the data model
+                        return brep;
+                    },
+                    (pb) => {
+                        var brep = new rh.Brep();
+                        pb.Surfaces.ForEach((s) => brep.AddSurface(surfConv.FromPipe<rh.Surface, pps.Surface>(s)));
+                        pb.Edges.ForEach((s) => brep.AddEdgeCurve(curveConv.FromPipe<rh.Curve, ppc.Curve>(s)));
+
+                        //incomplete - have to add brep edge classes to the data model
+                        return brep;
                     }
                 )
         { }
