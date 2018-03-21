@@ -7,10 +7,12 @@ using PipeDataModel.Types.Geometry;
 
 namespace PipeDataModel.Types.Geometry.Surface
 {
+    [Serializable]
     public class Extrusion: Surface
     {
         #region fields
         private Curve.Curve _profile;
+        private List<Curve.Curve> _holes = new List<Curve.Curve>();
         private Vec _direction;
         private double _height;
         #endregion
@@ -19,6 +21,8 @@ namespace PipeDataModel.Types.Geometry.Surface
         public Curve.Curve ProfileCurve { get => _profile; set => _profile = value; }
         public Vec Direction { get => _direction; set => _direction = value.Unitized; }
         public double Height { get => _height; set => _height = value; }
+        public List<Curve.Curve> Holes { get => _holes; set => _holes = value; }
+        public Vec PathVector { get => Vec.Multiply(_direction, _height); }
         #endregion
 
         #region constructors

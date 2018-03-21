@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PipeDataModel.Types.Geometry.Surface
 {
+    [Serializable]
     public abstract class Surface : IPipeMemberType
     {
         public abstract bool Equals(IPipeMemberType other);
