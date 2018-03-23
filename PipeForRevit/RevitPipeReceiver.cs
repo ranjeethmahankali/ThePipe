@@ -61,6 +61,7 @@ namespace PipeForRevit
             string pipeId = PipeForRevit.PipeIdentifier;
             UIApplication uiApp = commandData.Application;
             _document = uiApp.ActiveUIDocument.Document;
+            PipeForRevit.ActiveDocument = uiApp.ActiveUIDocument.Document;
             Selection sel = uiApp.ActiveUIDocument.Selection;
 
             Pipe pipe = null;

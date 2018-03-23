@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using PipeDataModel.Types;
 using ppg = PipeDataModel.Types.Geometry;
 using ppc = PipeDataModel.Types.Geometry.Curve;
+using pps = PipeDataModel.Types.Geometry.Surface;
 
 using rg = Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
@@ -35,7 +36,10 @@ namespace PipeForRevit.Converters
                         ptConv.FromPipe<rg.XYZ, ppg.Vec>(ppl.X), ptConv.FromPipe<rg.XYZ, ppg.Vec>(ppl.Y));
                 }
             ));
-            var geomConv = AddConverter(new GeometryConverter(ptConv, planeConv));
+
+            var geomConv = new GeometryConverter(ptConv, planeConv);
+            AddConverter(geomConv);
+
             var polylineListConv = AddConverter(new PipeConverter<rg.Line[], ppc.Polyline>(
                 (rlg) =>
                 {
@@ -49,16 +53,67 @@ namespace PipeForRevit.Converters
                     return lines.Select((ln) => (rg.Line)geomConv.FromPipe<rg.GeometryObject, IPipeMemberType>(ln)).ToArray();
                 }
             ));
+
+            //extrusions
+            var extrConv = AddConverter(new PipeConverter<rg.Extrusion, pps.Extrusion>(
+                    (rext) => {
+                        rg.XYZ norm = rext.Sketch.SketchPlane.GetPlane().Normal.Normalize();
+                        var startNorm = norm.Multiply(rext.StartOffset);
+                        var endNorm = norm.Normalize().Multiply(rext.EndOffset);
+                        var depthVec = norm.Normalize().Multiply(rext.EndOffset - rext.StartOffset);
+
+                        List<ppc.Curve> curs = new List<ppc.Curve>();
+                        foreach (rg.Curve cur in rext.Sketch.Profile)
+                        {
+                            curs.Add(geomConv.CurveConverter.ToPipe<rg.Curve, ppc.Curve>(cur.CreateTransformed(
+                                rg.Transform.CreateTranslation(startNorm))));
+                        }
+
+                        return new pps.Extrusion(new ppc.PolyCurve(curs), ptConv.ToPipe<rg.XYZ, ppg.Vec>(depthVec),
+                            rext.EndOffset - rext.StartOffset);
+                    },
+                    (pe) => {
+                        rg.CurveArrArray profile = new rg.CurveArrArray();
+                        rg.CurveArray curs = new rg.CurveArray();
+                        List<ppc.Curve> pCurs = pe.ProfileCurve.FlattenedCurveList();
+                        rg.Plane plane = null;
+                        pCurs.ForEach((cur) => {
+                            rg.Curve revitCur = geomConv.CurveConverter.FromPipe<rg.Curve, ppc.Curve>(cur);
+                            curs.Append(revitCur);
+                            rg.Plane newPl = Utils.SketchPlaneUtil.GetPlaneForCurve(revitCur);
+
+                            double tolerance = 1e-3;
+                            if (plane == null) { plane = newPl; }
+                            else if (Math.Abs(plane.Normal.DotProduct(newPl.Normal) - 1) > tolerance)
+                            {
+                                //the two planes are not aligned so throw exception
+                                throw new InvalidOperationException("Cannot create a Revit Extrusion because the profile " +
+                                    "curves are not in the same plane");
+                            }
+                        });
+                        profile.Append(curs);
+                        return PipeForRevit.ActiveDocument.FamilyCreate.NewExtrusion(false, profile,
+                            rg.SketchPlane.Create(PipeForRevit.ActiveDocument, plane), pe.Height);
+                    }
+                ));
         }
     }
 
     public class GeometryConverter: PipeConverter<rg.GeometryObject, IPipeMemberType>
     {
+        private CurveConverter _curveConv;
+        private MeshConverter _meshConv;
+
+        public CurveConverter CurveConverter { get => _curveConv; }
+        public MeshConverter MeshConverter{ get => _meshConv; }
+
         public GeometryConverter(PointConverter ptConv, PipeConverter<rg.Plane, ppg.Plane> planeConv)
         {
             //converting various types of curves
-            var curveConv = AddConverter(new CurveConverter(ptConv, planeConv));
-            var meshConv = AddConverter(new MeshConverter(ptConv));
+            _curveConv = new CurveConverter(ptConv, planeConv);
+            AddConverter(_curveConv);
+            _meshConv = new MeshConverter(ptConv);
+            AddConverter(_meshConv);
             /*
              * Commenting out the Revit Polyline conversion because revit does not treat polylines as geometry
              * that means it has to be added as a set of lines, and that makes change tracking and updating 
@@ -76,6 +131,7 @@ namespace PipeForRevit.Converters
             //        return rg.PolyLine.Create(ppl.Points.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList());
             //    }
             //));
+
         }
     }
 
