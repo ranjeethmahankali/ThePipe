@@ -71,7 +71,6 @@ namespace RhinoPipeConverter
                         {
                             faces.Add(surfConv.ToPipe<rh.Surface, pps.Surface>(rb.Faces[i].ToNurbsSurface()));
                         }
-
                         var polySurf = new pps.PolySurface(faces);
 
                         return polySurf;
