@@ -24,7 +24,7 @@ namespace PipeForGrasshopper
         private static CurveConverter _curveConv = new CurveConverter(_pt3dConv, _arcConv, _lineConv);
         private static MeshConverter _meshConv = new MeshConverter(_pt3fConv);
         private static SurfaceConverter _surfConv = new SurfaceConverter(_curveConv, _vec3DConv, _pt3dConv);
-        private static BrepConverter _brepConv = new BrepConverter(_surfConv, _curveConv);
+        private static BrepConverter _brepConv = new BrepConverter(_surfConv, _curveConv, _pt3dConv);
 
         private static GHPipeConverter _converter = new GHPipeConverter();
         public GHPipeConverter()

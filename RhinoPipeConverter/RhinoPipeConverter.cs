@@ -81,57 +81,22 @@ namespace RhinoPipeConverter
                         {
                             polySurf.SetEdgeIndices(key, edgeMap[key]);
                         }
-                        //incomplete - have to add brep edge classes to the data model
+
                         return polySurf;
                     },
                     (pb) => {
-                        var brep = new rh.Brep();
-                        List<rh.Curve> curveList = new List<rh.Curve>();
-                        pb.Edges.ForEach((e) => {
-                            var curve = curveConv.FromPipe<rh.Curve, ppc.Curve>(e);
-                            curveList.Add(curve);
-                            var vertex1 = brep.Vertices.Add(ptConv.FromPipe<rh.Point3d, pp.Vec>(e.StartPoint), 
-                                Rhino.RhinoMath.ZeroTolerance);
-                            var vertex2 = brep.Vertices.Add(ptConv.FromPipe<rh.Point3d, pp.Vec>(e.EndPoint),
-                                Rhino.RhinoMath.ZeroTolerance);
-                            var edge = brep.Edges.Add(vertex1, vertex2, brep.AddEdgeCurve(curve), Rhino.RhinoMath.ZeroTolerance);
-                        });
-                        for(int i = 0; i < pb.Surfaces.Count; i++)
+                        if(pb.Surfaces.Count <= 0) { return null; }
+                        if(pb.Surfaces.Count == 1)
                         {
-                            var surf = surfConv.FromPipe<rh.Surface, pps.Surface>(pb.Surfaces[i]);
-                            var face = brep.Faces.Add(brep.AddSurface(surf));
-                            var loop = face.Loops.Add(rh.BrepLoopType.Outer);
-                            //var loop1 = face.Loops.Add(rh.BrepLoopType.Outer, face);
-                            
-                            List<int> edgeIndices = pb.GetEdgeIndices(i);
-                            foreach(int ei in edgeIndices)
-                            {
-                                var trim = loop.Trims.Add(brep.Edges[ei], false, loop, brep.AddTrimCurve(curveList[ei]));
-                                string msgTrim;
-                                if (!trim.IsValidWithLog(out msgTrim))
-                                {
-                                    System.Diagnostics.Debug.WriteLine(msgTrim);
-                                }
-                            }
-                            string msgLoop;
-                            if (!loop.IsValidWithLog(out msgLoop))
-                            {
-                                System.Diagnostics.Debug.WriteLine(msgLoop);
-                            }
-                            string msgFace;
-                            if (!face.IsValidWithLog(out msgFace))
-                            {
-                                System.Diagnostics.Debug.WriteLine(msgFace);
-                            }
+                            return rh.Brep.CreateFromSurface(surfConv.FromPipe<rh.Surface, pps.Surface>(
+                                pb.Surfaces.FirstOrDefault()));
                         }
-
-                        string msg;
-                        if (!brep.IsValidWithLog(out msg))
+                        else
                         {
-                            System.Diagnostics.Debug.WriteLine(msg);
+                            return rh.Brep.MergeBreps(pb.Surfaces.Select((s) =>
+                                rh.Brep.CreateFromSurface(surfConv.FromPipe<rh.Surface, pps.Surface>(s))),
+                                Rhino.RhinoMath.ZeroTolerance);
                         }
-                        //incomplete - have to add brep edge classes to the data model
-                        return brep;
                     }
                 )
         { }

@@ -30,10 +30,16 @@ namespace RhinoPipeConverter
                     return extr;
                 },
                 (ppE) => {
-                    rh.Extrusion extr = (rh.Extrusion)rh.Surface.CreateExtrusion(
-                        curveConv.FromPipe<rh.Curve, ppc.Curve>(ppE.ProfileCurve),
-                        vecConv.FromPipe<rh.Vector3d, pp.Vec>(ppE.PathVector));
-                    ppE.Holes.ForEach((h) => { extr.AddInnerProfile(curveConv.FromPipe<rh.Curve, ppc.Curve>(h)); });
+                    var profile = curveConv.FromPipe<rh.Curve, ppc.Curve>(ppE.ProfileCurve);
+                    rh.Extrusion extr = rh.Extrusion.Create(profile, ppE.Height, true);
+                    extr.SetOuterProfile(profile, false);
+                    //extr.SetPathAndUp(profile.PointAtStart, profile.PointAtStart + pathVec, pathVec);
+
+                    string msg;
+                    if(!extr.IsValidWithLog(out msg))
+                    {
+                        System.Diagnostics.Debug.WriteLine(msg);
+                    }
                     return extr;
                 }
             ));
@@ -58,7 +64,7 @@ namespace RhinoPipeConverter
                     return nurbs;
                 },
                 (pns) => {
-                    var nurbs = rh.NurbsSurface.Create(3, true, pns.UDegree, pns.VDegree, pns.UCount, pns.VCount);
+                    var nurbs = rh.NurbsSurface.Create(3, true, pns.UDegree + 1, pns.VDegree + 1, pns.UCount, pns.VCount);
 
                     for (int u = 0; u < pns.UCount; u++)
                     {
@@ -70,6 +76,13 @@ namespace RhinoPipeConverter
                         }
                     }
 
+                    nurbs.KnotsU.CreateUniformKnots(1);
+                    nurbs.KnotsV.CreateUniformKnots(1);
+                    string msg;
+                    if(!nurbs.IsValidWithLog(out msg))
+                    {
+                        System.Diagnostics.Debug.WriteLine(msg);
+                    }
                     return nurbs;
                 }
             ));

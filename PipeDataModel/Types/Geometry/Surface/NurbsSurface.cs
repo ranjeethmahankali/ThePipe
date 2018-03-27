@@ -16,6 +16,7 @@ namespace PipeDataModel.Types.Geometry.Surface
         private List<double> _uKnots, _vKnots = new List<double>();
         private int _uDegree, _vDegree;
         private int _uCount, _vCount;
+        private List<Curve.Curve> _trimCurves = new List<Curve.Curve>();
         #endregion
 
         #region properties
