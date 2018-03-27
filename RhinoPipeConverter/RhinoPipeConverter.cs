@@ -67,20 +67,12 @@ namespace RhinoPipeConverter
             base(
                     (rb) => {
                         List<pps.Surface> faces = new List<pps.Surface>();
-                        Dictionary<int, List<int>> edgeMap = new Dictionary<int, List<int>>();
                         for(int i = 0; i < rb.Faces.Count; i++)
                         {
                             faces.Add(surfConv.ToPipe<rh.Surface, pps.Surface>(rb.Faces[i].ToNurbsSurface()));
-                            edgeMap.Add(i, rb.Faces[i].AdjacentEdges().ToList());
                         }
 
-                        List<ppc.Curve> edges = rb.Edges.Select((e) => curveConv.ToPipe<rh.Curve, ppc.Curve>(e.ToNurbsCurve())).ToList();
-                        var polySurf = new pps.PolySurface(faces, edges,
-                            rb.Vertices.Select((v) => ptConv.ToPipe<rh.Point3d, pp.Vec>(v.Location)).ToList());
-                        foreach(int key in edgeMap.Keys)
-                        {
-                            polySurf.SetEdgeIndices(key, edgeMap[key]);
-                        }
+                        var polySurf = new pps.PolySurface(faces);
 
                         return polySurf;
                     },
