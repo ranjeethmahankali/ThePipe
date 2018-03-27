@@ -32,7 +32,7 @@ namespace RhinoPipeConverter
             var surfaceConverter = new SurfaceConverter(curveConv, _vec3DConv, _pt3dConv);
             AddConverter(surfaceConverter);
 
-            var brepConv = new BrepConverter(surfaceConverter, curveConv);
+            var brepConv = new BrepConverter(surfaceConverter, curveConv, _pt3dConv);
             AddConverter(brepConv);
         }
     }
@@ -63,21 +63,73 @@ namespace RhinoPipeConverter
 
     public class BrepConverter: PipeConverter<rh.Brep, pps.PolySurface>
     {
-        public BrepConverter(SurfaceConverter surfConv, CurveConverter curveConv) : 
+        public BrepConverter(SurfaceConverter surfConv, CurveConverter curveConv, Point3dConverter ptConv) : 
             base(
                     (rb) => {
-                        var brep = new pps.PolySurface(rb.Surfaces.Select((s) => surfConv.ToPipe<rh.Surface, pps.Surface>(s)).ToList(),
-                            rb.Edges.Select((e) => curveConv.ToPipe<rh.Curve, ppc.Curve>(e)).ToList());
-                        
+                        List<pps.Surface> faces = new List<pps.Surface>();
+                        Dictionary<int, List<int>> edgeMap = new Dictionary<int, List<int>>();
+                        for(int i = 0; i < rb.Faces.Count; i++)
+                        {
+                            faces.Add(surfConv.ToPipe<rh.Surface, pps.Surface>(rb.Faces[i].ToNurbsSurface()));
+                            edgeMap.Add(i, rb.Faces[i].AdjacentEdges().ToList());
+                        }
 
+                        List<ppc.Curve> edges = rb.Edges.Select((e) => curveConv.ToPipe<rh.Curve, ppc.Curve>(e.ToNurbsCurve())).ToList();
+                        var polySurf = new pps.PolySurface(faces, edges,
+                            rb.Vertices.Select((v) => ptConv.ToPipe<rh.Point3d, pp.Vec>(v.Location)).ToList());
+                        foreach(int key in edgeMap.Keys)
+                        {
+                            polySurf.SetEdgeIndices(key, edgeMap[key]);
+                        }
                         //incomplete - have to add brep edge classes to the data model
-                        return brep;
+                        return polySurf;
                     },
                     (pb) => {
                         var brep = new rh.Brep();
-                        pb.Surfaces.ForEach((s) => brep.AddSurface(surfConv.FromPipe<rh.Surface, pps.Surface>(s)));
-                        pb.Edges.ForEach((s) => brep.AddEdgeCurve(curveConv.FromPipe<rh.Curve, ppc.Curve>(s)));
+                        List<rh.Curve> curveList = new List<rh.Curve>();
+                        pb.Edges.ForEach((e) => {
+                            var curve = curveConv.FromPipe<rh.Curve, ppc.Curve>(e);
+                            curveList.Add(curve);
+                            var vertex1 = brep.Vertices.Add(ptConv.FromPipe<rh.Point3d, pp.Vec>(e.StartPoint), 
+                                Rhino.RhinoMath.ZeroTolerance);
+                            var vertex2 = brep.Vertices.Add(ptConv.FromPipe<rh.Point3d, pp.Vec>(e.EndPoint),
+                                Rhino.RhinoMath.ZeroTolerance);
+                            var edge = brep.Edges.Add(vertex1, vertex2, brep.AddEdgeCurve(curve), Rhino.RhinoMath.ZeroTolerance);
+                        });
+                        for(int i = 0; i < pb.Surfaces.Count; i++)
+                        {
+                            var surf = surfConv.FromPipe<rh.Surface, pps.Surface>(pb.Surfaces[i]);
+                            var face = brep.Faces.Add(brep.AddSurface(surf));
+                            var loop = face.Loops.Add(rh.BrepLoopType.Outer);
+                            //var loop1 = face.Loops.Add(rh.BrepLoopType.Outer, face);
+                            
+                            List<int> edgeIndices = pb.GetEdgeIndices(i);
+                            foreach(int ei in edgeIndices)
+                            {
+                                var trim = loop.Trims.Add(brep.Edges[ei], false, loop, brep.AddTrimCurve(curveList[ei]));
+                                string msgTrim;
+                                if (!trim.IsValidWithLog(out msgTrim))
+                                {
+                                    System.Diagnostics.Debug.WriteLine(msgTrim);
+                                }
+                            }
+                            string msgLoop;
+                            if (!loop.IsValidWithLog(out msgLoop))
+                            {
+                                System.Diagnostics.Debug.WriteLine(msgLoop);
+                            }
+                            string msgFace;
+                            if (!face.IsValidWithLog(out msgFace))
+                            {
+                                System.Diagnostics.Debug.WriteLine(msgFace);
+                            }
+                        }
 
+                        string msg;
+                        if (!brep.IsValidWithLog(out msg))
+                        {
+                            System.Diagnostics.Debug.WriteLine(msg);
+                        }
                         //incomplete - have to add brep edge classes to the data model
                         return brep;
                     }
