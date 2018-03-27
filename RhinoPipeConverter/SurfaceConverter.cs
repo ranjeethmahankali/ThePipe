@@ -30,9 +30,16 @@ namespace RhinoPipeConverter
                     return extr;
                 },
                 (ppE) => {
+                    if(1 - ppE.Direction.Dot(new pp.Vec(0, 0, 1)) > 1e-3)
+                    {
+                        //the extrusion is not vertical
+                        throw new InvalidOperationException("Cannot create this extrusion. " +
+                            "Try converting it into a polysurface and pushing it again");
+                    }
                     var profile = curveConv.FromPipe<rh.Curve, ppc.Curve>(ppE.ProfileCurve);
                     rh.Extrusion extr = rh.Extrusion.Create(profile, ppE.Height, true);
-                    extr.SetOuterProfile(profile, false);
+                    ppE.Holes.ForEach((h) => extr.AddInnerProfile(curveConv.FromPipe<rh.Curve, ppc.Curve>(h)));
+                    //extr.SetOuterProfile(profile, false);
                     //extr.SetPathAndUp(profile.PointAtStart, profile.PointAtStart + pathVec, pathVec);
 
                     string msg;
