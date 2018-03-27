@@ -53,8 +53,24 @@ namespace PipeForDynamo.Converters
                         weights.Add(wRow);
                     }
 
-                    return dg.NurbsSurface.ByControlPointsWeightsKnots(pts.Select((r) => r.ToArray()).ToArray(),
-                        weights.Select((r) => r.ToArray()).ToArray(), pns.UKnots.ToArray(), pns.VKnots.ToArray(), pns.UDegree, pns.VDegree);
+                    try
+                    {
+                        return dg.NurbsSurface.ByControlPointsWeightsKnots(pts.Select((r) => r.ToArray()).ToArray(),
+                            weights.Select((r) => r.ToArray()).ToArray(), pns.UKnots.ToArray(), pns.VKnots.ToArray(), pns.UDegree, pns.VDegree);
+                    }
+                    catch(Exception e)
+                    {
+                        return dg.NurbsSurface.ByControlPoints(pts.Select((r) => r.ToArray()).ToArray(), pns.UDegree, pns.VDegree);
+                    }
+                }
+            ));
+
+            AddConverter(new PipeConverter<dg.PolySurface, pps.PolySurface>(
+                (dps) => {
+                    return new pps.PolySurface(dps.Faces.Select((f) => ToPipe<dg.Surface, pps.Surface>(f.SurfaceGeometry())).ToList());
+                },
+                (ps) => {
+                    return dg.PolySurface.ByJoinedSurfaces(ps.Surfaces.Select((s) => FromPipe<dg.Surface, pps.Surface>(s)));
                 }
             ));
         }
