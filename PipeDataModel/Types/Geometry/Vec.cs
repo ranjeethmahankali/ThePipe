@@ -222,6 +222,18 @@ namespace PipeDataModel.Types.Geometry
 
             return true;
         }
+        public override string ToString()
+        {
+            string str = "[";
+            for(int i = 0; i < Dimensions; i++)
+            {
+                if (i > 0) { str += ", "; }
+                str += _coords[i];
+            }
+            str += "]";
+
+            return str;
+        }
         #endregion
     }
 }
