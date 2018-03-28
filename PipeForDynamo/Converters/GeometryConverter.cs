@@ -22,7 +22,7 @@ namespace PipeForDynamo.Converters
             var vecConv = new VectorConverter();
             var curConv = new CurveConverter(ptConv, vecConv);
             AddConverter(curConv);
-            var surfConv = new SurfaceConverter(ptConv);
+            var surfConv = new SurfaceConverter(ptConv, curConv);
             AddConverter(surfConv);
         }
     }

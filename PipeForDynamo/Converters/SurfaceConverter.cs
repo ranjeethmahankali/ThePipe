@@ -14,7 +14,7 @@ namespace PipeForDynamo.Converters
 {
     internal class SurfaceConverter: PipeConverter<dg.Surface, pps.Surface>
     {
-        internal SurfaceConverter(PointConverter ptConv)
+        internal SurfaceConverter(PointConverter ptConv, CurveConverter curveConv)
         {
             AddConverter(new PipeConverter<dg.NurbsSurface, pps.NurbsSurface>(
                 (dns) => {
@@ -73,6 +73,17 @@ namespace PipeForDynamo.Converters
                     return dg.PolySurface.ByJoinedSurfaces(ps.Surfaces.Select((s) => FromPipe<dg.Surface, pps.Surface>(s)));
                 }
             ));
+
+            //AddConverter(new PipeConverter<dg.Surface, pps.Extrusion>(
+            //    (ds) => {
+            //        throw new InvalidOperationException();
+            //    },
+            //    (pe) => {
+            //        var path = curveConv.FromPipe<dg.Curve, ppc.Curve>(new ppc.Line(pe.ProfileCurve.StartPoint, 
+            //            pp.Vec.Sum(pe.ProfileCurve.StartPoint, pp.Vec.Multiply(pe.Direction, pe.Height))));
+            //        return dg.Surface.BySweep(curveConv.FromPipe<dg.Curve, ppc.Curve>(pe.ProfileCurve), path);
+            //    }
+            //));
         }
     }
 }
