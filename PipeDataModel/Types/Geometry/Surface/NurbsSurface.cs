@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PipeDataModel.Types.Geometry.Surface
 {
     [Serializable]
-    public class NurbsSurface : Surface
+    public class NurbsSurface : Surface, IEquatable<NurbsSurface>
     {
         #region fields
         //the points are stored in a dictionary to make the u,v indexing easy. The key is a hashed integer of u and v
@@ -61,9 +61,12 @@ namespace PipeDataModel.Types.Geometry.Surface
         public override bool Equals(IPipeMemberType other)
         {
             if (!GetType().IsAssignableFrom(other.GetType()) || other == null) { return false; }
-            NurbsSurface surf = (NurbsSurface)other;
+            return Equals((NurbsSurface)other);
+        }
+        public bool Equals(NurbsSurface surf)
+        {
             return surf.UDegree == _uDegree && surf.VDegree == _vDegree && surf.UCount == _uCount && surf.VCount == _vCount
-                && Utils.PipeDataUtil.EqualCollections(_points, surf.Points) 
+                && Utils.PipeDataUtil.EqualCollections(_points, surf.Points)
                 && Utils.PipeDataUtil.EqualIgnoreOrder(_trimCurves, surf.TrimCurves);
         }
 

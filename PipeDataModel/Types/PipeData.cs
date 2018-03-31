@@ -9,7 +9,7 @@ using PipeDataModel.Utils;
 namespace PipeDataModel.Types
 {
     [Serializable]
-    public class PipeInteger: IPipeMemberType
+    public class PipeInteger: IPipeMemberType, IEquatable<PipeInteger>
     {
         private int _value;
         public int Value
@@ -25,13 +25,17 @@ namespace PipeDataModel.Types
         public bool Equals(IPipeMemberType other)
         {
             if (other.GetType() != GetType()) { return false; }
-            PipeInteger cast = (PipeInteger)other;
-            return cast.Value.Equals(Value);
+            return Equals((PipeInteger)other);
+        }
+
+        public bool Equals(PipeInteger other)
+        {
+            return other.Value.Equals(Value);
         }
     }
 
     [Serializable]
-    public class PipeNumber: IPipeMemberType
+    public class PipeNumber: IPipeMemberType, IEquatable<PipeNumber>
     {
         private double _value;
         public double Value
@@ -47,13 +51,18 @@ namespace PipeDataModel.Types
         public bool Equals(IPipeMemberType other)
         {
             if (other.GetType() != GetType()) { return false; }
-            PipeNumber cast = (PipeNumber)other;
-            return cast.Value.Equals(Value);
+            return Equals((PipeNumber)other);
+            
+        }
+
+        public bool Equals(PipeNumber other)
+        {
+            return other.Value.Equals(Value);
         }
     }
 
     [Serializable]
-    public class PipeString:IPipeMemberType
+    public class PipeString: IPipeMemberType, IEquatable<PipeString>
     {
         private string _value;
         public string Value
@@ -69,8 +78,13 @@ namespace PipeDataModel.Types
         public bool Equals(IPipeMemberType other)
         {
             if (other.GetType() != GetType()) { return false; }
-            PipeString cast = (PipeString)other;
-            return cast.Value.Equals(Value);
+            return Equals((PipeString)other);
+            
+        }
+
+        public bool Equals(PipeString other)
+        {
+            return other.Value.Equals(Value);
         }
     }
 }

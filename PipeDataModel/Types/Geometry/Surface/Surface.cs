@@ -7,8 +7,13 @@ using System.Threading.Tasks;
 namespace PipeDataModel.Types.Geometry.Surface
 {
     [Serializable]
-    public abstract class Surface : IPipeMemberType
+    public abstract class Surface : IPipeMemberType, IEquatable<Surface>
     {
         public abstract bool Equals(IPipeMemberType other);
+
+        public bool Equals(Surface other)
+        {
+            return Equals((IPipeMemberType)other);
+        }
     }
 }

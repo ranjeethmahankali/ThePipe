@@ -8,7 +8,7 @@ using PipeDataModel.Types.Geometry.Curve;
 namespace PipeDataModel.Types.Geometry.Surface
 {
     [Serializable]
-    public class PolySurface: Surface
+    public class PolySurface: Surface, IEquatable<PolySurface>
     {
         #region fields
         private List<Surface> _surfaces = new List<Surface>();
@@ -30,8 +30,11 @@ namespace PipeDataModel.Types.Geometry.Surface
         public override bool Equals(IPipeMemberType other)
         {
             if (!GetType().IsAssignableFrom(other.GetType())) { return false; }
-            PolySurface ops = (PolySurface)other;
-            return Utils.PipeDataUtil.EqualCollections(_surfaces, ops.Surfaces);
+            return Equals((PolySurface)other);
+        }
+        public bool Equals(PolySurface otherPolySurface)
+        {
+            return Utils.PipeDataUtil.EqualCollections(_surfaces, otherPolySurface.Surfaces);
         }
         #endregion
     }

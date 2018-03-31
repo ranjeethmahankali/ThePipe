@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PipeDataModel.Types.Geometry
 {
     [Serializable]
-    public class Vec:IPipeMemberType
+    public class Vec: IPipeMemberType, IEquatable<Vec>
     {
         #region-fields
         private List<double> _coords;
@@ -204,15 +204,10 @@ namespace PipeDataModel.Types.Geometry
         public bool Equals(IPipeMemberType other)
         {
             if (!GetType().IsAssignableFrom(other.GetType())) { return false; }
-            Vec otherVec = (Vec)other;
-            return ElementWise(this, otherVec, (x1, x2) => { return x1 == x2; }).All(r => r == true);
+            return Equals((Vec)other);
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj.GetType() == GetType() && HasEqualState((Vec)obj);
-        }
-        private bool HasEqualState(Vec other)
+        public bool Equals(Vec other)
         {
             if(other.Dimensions != Dimensions) { return false; }
             for(int i = 0; i < Coordinates.Count; i++)
@@ -222,6 +217,7 @@ namespace PipeDataModel.Types.Geometry
 
             return true;
         }
+
         public override string ToString()
         {
             string str = "[";
@@ -233,6 +229,19 @@ namespace PipeDataModel.Types.Geometry
             str += "]";
 
             return str;
+        }
+
+        // returns the intersection of line passing through pt1 parallel to v1 with the line through pt2 passing parallel to v2
+        // returns null if the lines don't intersect
+        public static Vec IntersectLines(Vec pt1, Vec v1, Vec pt2, Vec v2)
+        {
+            Vec dirCross = Vec.Cross(v1, v2);
+            if (dirCross.Length == 0) { return null; }
+
+            Vec numerator = Vec.Cross(Vec.Difference(pt2, pt1), v2);
+            double param1 = Vec.Dot(numerator, dirCross) * (numerator.Length / dirCross.Length);
+
+            return Vec.Sum(pt1, Vec.Multiply(v1, param1));
         }
         #endregion
     }

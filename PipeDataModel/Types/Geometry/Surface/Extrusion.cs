@@ -8,7 +8,7 @@ using PipeDataModel.Types.Geometry;
 namespace PipeDataModel.Types.Geometry.Surface
 {
     [Serializable]
-    public class Extrusion: Surface
+    public class Extrusion: Surface, IEquatable<Extrusion>
     {
         #region fields
         private Curve.Curve _profile;
@@ -38,7 +38,10 @@ namespace PipeDataModel.Types.Geometry.Surface
         public override bool Equals(IPipeMemberType other)
         {
             if (!GetType().IsAssignableFrom(other.GetType())) { return false; }
-            Extrusion otherExt = (Extrusion)other;
+            return Equals((Extrusion)other);
+        }
+        public bool Equals(Extrusion otherExt)
+        {
             return _profile.Equals(otherExt.ProfileCurve) && _direction.Equals(otherExt.Direction) && _height == otherExt.Height;
         }
         #endregion
