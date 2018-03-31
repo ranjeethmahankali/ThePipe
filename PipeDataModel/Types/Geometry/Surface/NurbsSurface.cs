@@ -16,6 +16,7 @@ namespace PipeDataModel.Types.Geometry.Surface
         private List<double> _uKnots, _vKnots = new List<double>();
         private int _uDegree, _vDegree;
         private int _uCount, _vCount;
+        private bool _isClosedInU, _isClosedInV;
         private List<Curve.Curve> _trimCurves = new List<Curve.Curve>();
         #endregion
 
@@ -27,6 +28,9 @@ namespace PipeDataModel.Types.Geometry.Surface
         public int VCount { get => _vCount; set => _vCount = value; }
         public List<double> UKnots { get => _uKnots; set => _uKnots = value; }
         public List<double> VKnots { get => _vKnots; set => _vKnots = value; }
+        public bool IsClosedInU { get => _isClosedInU; set => _isClosedInU = value; }
+        public bool IsClosedInV { get => _isClosedInV; set => _isClosedInV = value; }
+        public List<Curve.Curve> TrimCurves { get => _trimCurves; }
         #endregion
 
         #region constructors
@@ -59,7 +63,8 @@ namespace PipeDataModel.Types.Geometry.Surface
             if (!GetType().IsAssignableFrom(other.GetType()) || other == null) { return false; }
             NurbsSurface surf = (NurbsSurface)other;
             return surf.UDegree == _uDegree && surf.VDegree == _vDegree && surf.UCount == _uCount && surf.VCount == _vCount
-                && Utils.PipeDataUtil.EqualCollections(_points, surf.Points);
+                && Utils.PipeDataUtil.EqualCollections(_points, surf.Points) 
+                && Utils.PipeDataUtil.EqualIgnoreOrder(_trimCurves, surf.TrimCurves);
         }
 
         public Vec GetControlPointAt(int u, int v)
@@ -98,6 +103,31 @@ namespace PipeDataModel.Types.Geometry.Surface
         private bool ValidUVIndices(int u, int v)
         {
             return 0 <= u && u < _uCount && 0 <= v && v < _vCount;
+        }
+
+        public bool WrapPointsToCloseSurface(int direction)
+        {
+            if(direction == 0)
+            {
+                int u = _uCount++;
+                for(int v = 0; v < _vCount; v++)
+                {
+                    Vec pt = GetControlPointAt(0, v);
+                    SetControlPoint(pt, u, v);
+                }
+            }
+            else if(direction == 1)
+            {
+                int v = _vCount++;
+                for (int u = 0; u < _uCount; u++)
+                {
+                    Vec pt = GetControlPointAt(u, 0);
+                    SetControlPoint(pt, u, v);
+                }
+            }
+            else { return false; }
+
+            return true;
         }
         private static int HashIndices(int u, int v)
         {

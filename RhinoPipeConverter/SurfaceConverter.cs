@@ -65,14 +65,22 @@ namespace RhinoPipeConverter
                             nurbs.SetWeight(rns.Points.GetControlPoint(u, v).Weight, u, v);
                         }
                     }
+                    rh.Interval uDomain = rns.Domain(0);
+                    rh.Interval vDomain = rns.Domain(1);
+                    Func<double, rh.Interval, double> scaleKnot = (k, domain) => (k - domain.Min) / (domain.Length);
+                    nurbs.UKnots = rns.KnotsU.Select((k) => scaleKnot.Invoke(k, uDomain)).ToList();
+                    nurbs.VKnots = rns.KnotsV.Select((k) => scaleKnot.Invoke(k, vDomain)).ToList();
 
-                    nurbs.UKnots = rns.KnotsU.ToList();
-                    nurbs.VKnots = rns.KnotsV.ToList();
+                    nurbs.IsClosedInU = rns.IsClosed(0);
+                    nurbs.IsClosedInV = rns.IsClosed(1);
                     return nurbs;
                 },
                 (pns) => {
-                    var nurbs = rh.NurbsSurface.Create(3, true, pns.UDegree + 1, pns.VDegree + 1, pns.UCount, pns.VCount);
+                    if (pns.IsClosedInU) { pns.WrapPointsToCloseSurface(0); }
+                    if (pns.IsClosedInV) { pns.WrapPointsToCloseSurface(1); }
 
+                    var nurbs = rh.NurbsSurface.Create(3, true, pns.UDegree + 1, pns.VDegree + 1, pns.UCount, pns.VCount);
+                    
                     for (int u = 0; u < pns.UCount; u++)
                     {
                         for (int v = 0; v < pns.VCount; v++)
@@ -83,8 +91,24 @@ namespace RhinoPipeConverter
                         }
                     }
 
-                    nurbs.KnotsU.CreateUniformKnots(1);
-                    nurbs.KnotsV.CreateUniformKnots(1);
+                    rh.Interval uDomain = nurbs.Domain(0);
+                    rh.Interval vDomain = nurbs.Domain(1);
+                    Func<double, rh.Interval, double> scaleKnot = (k, domain) => k * (domain.Length) + domain.Min;
+                    if(nurbs.KnotsU.Count == pns.UKnots.Count)
+                    {
+                        for(int i = 0; i < nurbs.KnotsU.Count; i++)
+                        {
+                            nurbs.KnotsU[i] = scaleKnot.Invoke(pns.UKnots[i], uDomain);
+                        }
+                    }
+                    if (nurbs.KnotsV.Count == pns.VKnots.Count)
+                    {
+                        for (int i = 0; i < nurbs.KnotsV.Count; i++)
+                        {
+                            nurbs.KnotsV[i] = scaleKnot.Invoke(pns.VKnots[i], vDomain);
+                        }
+                    }
+
                     string msg;
                     if(!nurbs.IsValidWithLog(out msg))
                     {

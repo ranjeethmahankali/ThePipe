@@ -55,18 +55,17 @@ namespace RhinoPipeConverter
                          * if the curve is closed, the internal NurbsCurve datastructure stores too many points in the
                          * array, in order to loop around to the next knot, we want to take a smaller list in that case
                          */
-                        int controlPtsNum = rhc.IsClosed ? rhc.Points.Count - rhc.Degree : rhc.Points.Count;
+                        int controlPtsNum = rhc.IsClosed ? rhc.Points.Count - (rhc.IsPeriodic ? rhc.Degree : 1) 
+                            : rhc.Points.Count;
                         List<ppg.Vec> ptList = rhc.Points.Take(controlPtsNum).Select(
                             (pt) => ptConv.ToPipe<rh.Point3d,ppg.Vec>(pt.Location)).ToList();
-                        if (rhc.IsRational)
-                        {
-                            curve = new pp.NurbsCurve(ptList, rhc.Degree, rhc.IsClosed);
-                        }
-                        else
-                        {
-                            curve = new pp.NurbsCurve(ptList, rhc.Degree, 
-                                rhc.Points.Select((pt) => pt.Weight).ToList(), rhc.Knots.ToList(), rhc.IsClosed);
-                        }
+                        
+                        //normalizing the knots to be between 0 and 1
+                        List<double> knotList = rhc.Knots.Select((k) => (k - rhc.Domain.Min) / (rhc.Domain.Length)).ToList();
+                        curve = new pp.NurbsCurve(ptList, rhc.Degree,
+                                rhc.Points.Take(controlPtsNum).Select((pt) => pt.Weight).ToList(), knotList, rhc.IsClosed);
+                        curve.IsPeriodic = rhc.IsPeriodic;
+
                         return curve;
                     },
                     (ppc) => {
@@ -77,20 +76,30 @@ namespace RhinoPipeConverter
                          * control point list again, so we add it.
                          */
                         if (ppc.IsClosed) { ptList.Add(ptList.First()); }
-                        rh.NurbsCurve curve = (rh.NurbsCurve)rh.Curve.CreateControlPointCurve(ptList, ppc.Degree);
-                        if (ppc.IsClosed && ppc.ControlPoints.Count > 3)
+                        rh.NurbsCurve curve = rh.NurbsCurve.Create(ppc.IsPeriodic, ppc.Degree, ptList);
+                        if (ppc.IsClosed && ppc.ControlPoints.Count > 3 && !curve.IsClosed)
                         {
                             curve.MakeClosed(1e-7);
-                        }
+                        }                        
+
                         if (!ppc.IsRational)
                         {
                             for(int i = 0; i < curve.Points.Count; i++)
                             {
                                 var pt = curve.Points.ElementAt(i);
-                                var newPt = new rh.Point4d(pt.Location.X, pt.Location.Y, pt.Location.Z, pt.Weight);
+                                var newPt = new rh.Point4d(pt.Location.X, pt.Location.Y, pt.Location.Z, ppc.Weights[i % ppc.Weights.Count]);
                                 curve.Points.SetPoint(i, newPt);
                             }
                         }
+                        //setting knots after scaling them to the domain
+                        if(ppc.Knots.Count == curve.Knots.Count)
+                        {
+                            for (int i = 0; i < ppc.Knots.Count; i++)
+                            {
+                                curve.Knots[i] = ppc.Knots[i] * (curve.Domain.Length) + curve.Domain.Min;
+                            }
+                        }
+                        
                         return curve;
                     }
                 ));

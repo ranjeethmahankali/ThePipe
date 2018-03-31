@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PipeDataModel.Types.Geometry.Curve
 {
     [Serializable]
-    public class NurbsCurve : Curve
+    public class NurbsCurve : Curve, IEquatable<NurbsCurve>
     {
         #region-fields
         private List<Vec> _controlPoints;
@@ -15,6 +15,7 @@ namespace PipeDataModel.Types.Geometry.Curve
         private List<double> _weights;
         private List<double> _knots;
         private bool _isClosed = false;
+        private bool _isPeriodic = false;
         #endregion
 
         #region-properties
@@ -53,6 +54,7 @@ namespace PipeDataModel.Types.Geometry.Curve
         {
             get { return _isClosed; }
         }
+        public bool IsPeriodic { get => _isPeriodic; set => _isPeriodic = value; }
         #endregion
 
         #region-constructors
@@ -88,13 +90,15 @@ namespace PipeDataModel.Types.Geometry.Curve
         public override bool Equals(IPipeMemberType other)
         {
             if (!GetType().IsAssignableFrom(other.GetType())) { return false; }
-            NurbsCurve otherCurve = (NurbsCurve)other;
-            if(otherCurve.Degree != _degree) { return false; }
-            if (otherCurve.ControlPoints.Count != _controlPoints.Count) { return false; }
-            for (int i = 0; i < _controlPoints.Count; i++)
-            {
-                if (!_controlPoints[i].Equals(otherCurve.ControlPoints[i])) { return false; }
-            }
+            return Equals((NurbsCurve)other);
+        }
+
+        public bool Equals(NurbsCurve otherCurve)
+        {
+            if (otherCurve.Degree != _degree) { return false; }
+            if (IsPeriodic != otherCurve.IsPeriodic || IsClosed != otherCurve.IsClosed) { return false; }
+            if (!Utils.PipeDataUtil.EqualCollections(_controlPoints, otherCurve.ControlPoints) ||
+                !Utils.PipeDataUtil.EqualCollections(_weights, otherCurve.Weights)) { return false; }
             return true;
         }
         #endregion
