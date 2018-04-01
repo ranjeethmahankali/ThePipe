@@ -16,6 +16,7 @@ namespace PipeForDynamo.Converters
     {
         internal SurfaceConverter(PointConverter ptConv, CurveConverter curveConv)
         {
+            //NURBS surface
             AddConverter(new PipeConverter<dg.NurbsSurface, pps.NurbsSurface>(
                 (dns) => {
                     var nurbs = new pps.NurbsSurface(dns.NumControlPointsU, dns.NumControlPointsV, dns.DegreeU, dns.DegreeV);
@@ -53,24 +54,42 @@ namespace PipeForDynamo.Converters
                         weights.Add(wRow);
                     }
 
+                    dg.NurbsSurface nurbs;
                     try
                     {
-                        return dg.NurbsSurface.ByControlPointsWeightsKnots(pts.Select((r) => r.ToArray()).ToArray(),
+                        nurbs = dg.NurbsSurface.ByControlPointsWeightsKnots(pts.Select((r) => r.ToArray()).ToArray(),
                             weights.Select((r) => r.ToArray()).ToArray(), pns.UKnots.ToArray(), pns.VKnots.ToArray(), pns.UDegree, pns.VDegree);
                     }
                     catch(Exception e)
                     {
-                        return dg.NurbsSurface.ByControlPoints(pts.Select((r) => r.ToArray()).ToArray(), pns.UDegree, pns.VDegree);
+                        nurbs = dg.NurbsSurface.ByControlPoints(pts.Select((r) => r.ToArray()).ToArray(), pns.UDegree, pns.VDegree);
                     }
+
+                    return nurbs;
                 }
             ));
 
+            //Polysurfaces
             AddConverter(new PipeConverter<dg.PolySurface, pps.PolySurface>(
                 (dps) => {
-                    return new pps.PolySurface(dps.Faces.Select((f) => ToPipe<dg.Surface, pps.Surface>(f.SurfaceGeometry())).ToList());
+                    return new pps.PolySurface(dps.Faces.Select((f) => {
+                        var surf = ToPipe<dg.Surface, pps.Surface>(f.SurfaceGeometry());
+                        // add edges as trim curves
+                        //incomplete
+                        return surf;
+                    }).ToList());
                 },
                 (ps) => {
-                    return dg.PolySurface.ByJoinedSurfaces(ps.Surfaces.Select((s) => FromPipe<dg.Surface, pps.Surface>(s)));
+                    return dg.PolySurface.ByJoinedSurfaces(ps.Surfaces.Select((s) => {
+                        var surf = FromPipe<dg.Surface, pps.Surface>(s);
+                        if (typeof(pps.NurbsSurface).IsAssignableFrom(s.GetType())
+                            && ((pps.NurbsSurface)s).TrimCurves.Count > 0)
+                        {
+                            surf = surf.TrimWithEdgeLoops(((pps.NurbsSurface)s).TrimCurves.Select((c) =>
+                                (dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(c.AsPolyCurve())));
+                        }
+                        return surf;
+                    }));
                 }
             ));
 

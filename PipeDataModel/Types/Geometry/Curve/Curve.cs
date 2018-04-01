@@ -33,5 +33,11 @@ namespace PipeDataModel.Types.Geometry.Curve
 
             return curs;
         }
+
+        public PolyCurve AsPolyCurve()
+        {
+            if (typeof(PolyCurve).IsAssignableFrom(GetType())) { return (PolyCurve)this; }
+            else { return new PolyCurve(FlattenedCurveList()); }
+        }
     }
 }

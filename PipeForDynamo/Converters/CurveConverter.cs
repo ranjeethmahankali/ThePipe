@@ -29,16 +29,15 @@ namespace PipeForDynamo.Converters
                     (dc) => {
                         ppc.NurbsCurve cur;
                         List<dg.Point> pts = dc.ControlPoints().ToList();
-                        if (dc.IsRational)
-                        {
-                            cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(), 
-                                dc.Degree, dc.IsClosed);
-                        }
-                        else
-                        {
-                            cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(),
-                                dc.Degree, dc.Weights().ToList(), dc.Knots().ToList(), dc.IsClosed);
-                        }
+                        List<double> knots = dc.Knots().ToList();
+
+                        var startParam = dc.StartParameter();
+                        var endParam = dc.EndParameter();
+                        knots = knots.Select((k) => (k-startParam)/(endParam - startParam)).ToList();
+
+                        cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(),
+                                dc.Degree, dc.Weights().ToList(), knots, dc.IsClosed);
+
                         return cur;
                     },
                     (pnc) => {
