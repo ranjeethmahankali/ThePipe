@@ -17,14 +17,14 @@ namespace PipeForDynamo
 
         public static object PullFromPipe(string pipeIdentifier)
         {
-            DynamoPipeReceiver receiver = new DynamoPipeReceiver(pipeIdentifier, _converter);
+            DynamoPipeReceiver receiver = DynamoPipeReceiver.GetReceiver(pipeIdentifier, _converter);
             receiver.Update();
             return receiver.Data;
         }
 
         public static void PushToPipe(string pipeIdentifier, object data)
         {
-            DynamoPipeSender sender = new DynamoPipeSender(pipeIdentifier, _converter);
+            DynamoPipeSender sender = DynamoPipeSender.GetSender(pipeIdentifier, _converter);
             sender.Data = data;
             sender.Update();
         }
