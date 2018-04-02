@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using PipeDataModel.Types;
 using ppg = PipeDataModel.Types.Geometry;
-//using ppc = PipeDataModel.Types.Geometry.Curve;
+using ppc = PipeDataModel.Types.Geometry.Curve;
+using pps = PipeDataModel.Types.Geometry.Surface;
 using dg = Autodesk.DesignScript.Geometry;
 
 namespace PipeForDynamo.Converters
@@ -24,6 +25,19 @@ namespace PipeForDynamo.Converters
             AddConverter(curConv);
             var surfConv = new SurfaceConverter(ptConv, curConv);
             AddConverter(surfConv);
+
+            //solids - only one way mapping
+            AddConverter(new PipeConverter<dg.Solid, pps.PolySurface>(
+                (ds) => {
+                    return new pps.PolySurface(ds.Faces.Select((f) => {
+                        var surf = (pps.NurbsSurface)surfConv.ToPipe<dg.Surface, pps.Surface>(f.SurfaceGeometry().ToNurbsSurface());
+                        surf.TrimCurves.Clear();
+                        surf.TrimCurves.AddRange(f.Edges.Select((e) => curConv.ToPipe<dg.Curve, ppc.Curve>(e.CurveGeometry)));
+                        return (pps.Surface)surf;
+                    }).ToList());
+                },
+                null// null because of oneway mapping
+            ));
         }
     }
 

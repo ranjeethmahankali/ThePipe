@@ -31,12 +31,17 @@ namespace PipeForDynamo.Converters
                     List<dg.Point> pts = dc.ControlPoints().ToList();
                     List<double> knots = dc.Knots().ToList();
 
+                    //just to smooth out anything weird about this curve
+                    dc = dc.ToNurbsCurve();
                     var startParam = dc.StartParameter();
                     var endParam = dc.EndParameter();
                     knots = knots.Select((k) => (k - startParam) / (endParam - startParam)).ToList();
-
+                    //making sure all the weights are not zeros by setting them to 1 if they are
+                    double tolerance = 1e-3;
+                    List<double> weights = dc.Weights().ToList();
+                    if(weights.Any((w) => w <= tolerance)) { weights = weights.Select((w) => Math.Max(w, tolerance)).ToList(); }
                     cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(),
-                            dc.Degree, dc.Weights().ToList(), knots, dc.IsClosed);
+                            dc.Degree, weights, knots, dc.IsClosed);
 
                     return cur;
                 },

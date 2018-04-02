@@ -56,7 +56,9 @@ namespace RhinoPipeConverter
                          * array, in order to loop around to the next knot, we want to take a smaller list in that case
                          */
                         //rebuilding the curve just in case.. if there is something weird about the curve
-                        rhc = rhc.Rebuild(rhc.Points.Count, rhc.Degree, true);
+                        var rhc2 = rhc.Rebuild(rhc.Points.Count, rhc.Degree, true);
+                        rhc = rhc2 ?? rhc;
+
                         int controlPtsNum = rhc.IsClosed ? rhc.Points.Count - (rhc.IsPeriodic ? rhc.Degree : 1) 
                             : rhc.Points.Count;
                         List<ppg.Vec> ptList = rhc.Points.Take(controlPtsNum).Select(
@@ -101,7 +103,17 @@ namespace RhinoPipeConverter
                                 curve.Knots[i] = ppc.Knots[i] * (curve.Domain.Length) + curve.Domain.Min;
                             }
                         }
-                        
+
+                        string msg;
+                        if(!curve.IsValidWithLog(out msg))
+                        {
+                            System.Diagnostics.Debug.WriteLine(msg);
+                            if (curve.IsPeriodic) { curve.Knots.CreatePeriodicKnots(1); }
+                            else { curve.Knots.CreateUniformKnots(1); }
+                            if (!curve.IsValid) { throw new InvalidOperationException("Cannot create a valid curve with " +
+                                "received data because: \n" + msg); }
+                        }
+
                         return curve;
                     }
                 ));

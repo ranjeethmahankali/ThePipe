@@ -122,6 +122,14 @@ namespace RhinoPipeConverter
                                 return subrep;
                             }), Rhino.RhinoMath.ZeroTolerance);
                         }
+
+                        string msg;
+                        if(!brep.IsValidWithLog(out msg))
+                        {
+                            System.Diagnostics.Debug.WriteLine(msg);
+                            throw new InvalidOperationException("Failed to create a valid brep from " +
+                                "received data because: \n" + msg);
+                        }
                         return brep;
                     }
                 )

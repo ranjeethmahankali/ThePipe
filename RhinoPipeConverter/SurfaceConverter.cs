@@ -46,6 +46,7 @@ namespace RhinoPipeConverter
                     if(!extr.IsValidWithLog(out msg))
                     {
                         System.Diagnostics.Debug.WriteLine(msg);
+                        throw new InvalidOperationException("Cannot create a valid extrusion from the received data: \n" + msg);
                     }
                     return extr;
                 }
@@ -118,7 +119,7 @@ namespace RhinoPipeConverter
                         if (!nurbs.IsPeriodic(1)) { nurbs.KnotsV.CreateUniformKnots(1); }
                         else { nurbs.KnotsV.CreateUniformKnots(1); }
 
-                        if (!nurbs.IsValid) { throw new InvalidOperationException("Cannot create a valid NURBS surface"); }
+                        if (!nurbs.IsValid) { throw new InvalidOperationException("Cannot create a valid NURBS surface: \n" + msg); }
                     }
                     return nurbs;
                 }
