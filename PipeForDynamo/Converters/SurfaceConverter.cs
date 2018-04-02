@@ -17,6 +17,11 @@ namespace PipeForDynamo.Converters
         internal SurfaceConverter(PointConverter ptConv, CurveConverter curveConv)
         {
             //NURBS surface
+            /*
+             * Nurbs Surfaces from the pipe cannot be converted to dynamo nurbs because they could have trims.
+             * In Dynamo trimmed surfaces are instances of the Surface class. So it has to be another converter.
+             * This converter has to be a one way mapping, hence one of the conversion delegates is null
+             */
             var nurbsConv = new PipeConverter<dg.NurbsSurface, pps.NurbsSurface>(
                 (dns) => {
                     var nurbs = new pps.NurbsSurface(dns.NumControlPointsU, dns.NumControlPointsV, dns.DegreeU, dns.DegreeV);
@@ -37,6 +42,34 @@ namespace PipeForDynamo.Converters
 
                     return nurbs;
                 },
+                null
+            );
+            AddConverter(nurbsConv);
+
+            /*
+             * ThePipe Extrusions can be mapped to surfaces in dynamo but all surfaces should not be mapped to extrusions.
+             * So this mapping has to be one way, hence the first conversion delegate is null.
+             */
+            AddConverter(new PipeConverter<dg.Surface, pps.Extrusion>(
+                null, //null because of one way mapping
+                (pe) => {
+                    var path = curveConv.FromPipe<dg.Curve, ppc.Curve>(new ppc.Line(pe.ProfileCurve.StartPoint,
+                        pp.Vec.Sum(pe.ProfileCurve.StartPoint, pp.Vec.Multiply(pe.Direction, pe.Height))));
+                    return dg.Surface.BySweep(curveConv.FromPipe<dg.Curve, ppc.Curve>(pe.ProfileCurve), path);
+                }
+            ));
+
+            /*
+             * Surface is not an abstract class in dynamo, so there needs to be concrete conversion logic for them.
+             * They are being mapped to Pipe's NurbsSurface class.
+             */
+            AddConverter(new PipeConverter<dg.Surface, pps.NurbsSurface>(
+                (ds) => {
+                    var nurbs = nurbsConv.ToPipe<dg.NurbsSurface, pps.NurbsSurface>(ds.ToNurbsSurface());
+                    nurbs.TrimCurves.Clear();
+                    nurbs.TrimCurves.AddRange(ds.Edges.Select((edge) => curveConv.ToPipe<dg.Curve, ppc.Curve>(edge.CurveGeometry)));
+                    return nurbs;
+                },
                 (pns) => {
 
                     List<List<dg.Point>> pts = new List<List<dg.Point>>();
@@ -54,7 +87,7 @@ namespace PipeForDynamo.Converters
                         weights.Add(wRow);
                     }
 
-                    dg.NurbsSurface nurbs;
+                    dg.Surface nurbs;
                     try
                     {
                         nurbs = dg.NurbsSurface.ByControlPointsWeightsKnots(pts.Select((r) => r.ToArray()).ToArray(),
@@ -65,10 +98,14 @@ namespace PipeForDynamo.Converters
                         nurbs = dg.NurbsSurface.ByControlPoints(pts.Select((r) => r.ToArray()).ToArray(), pns.UDegree, pns.VDegree);
                     }
 
+                    if (pns.TrimCurves.Count > 0)
+                    {
+                        nurbs = nurbs.TrimWithEdgeLoops(pns.TrimCurves.Select((t) =>
+                            (dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(t.AsPolyCurve())));
+                    }
                     return nurbs;
                 }
-            );
-            AddConverter(nurbsConv);
+            ));
 
             //Polysurfaces
             AddConverter(new PipeConverter<dg.PolySurface, pps.PolySurface>(
@@ -95,20 +132,6 @@ namespace PipeForDynamo.Converters
                     }));
                 }
             ));
-
-            /*
-             * ThePipe Extrusions can be mapped to surfaces in dynamo but all surfaces should not be mapped to extrusions.
-             * So this mapping has to be one way, hence the first conversion delegate is null.
-             */
-            //AddConverter(new PipeConverter<dg.Surface, pps.Extrusion>(
-            //    null, //null because of one way mapping
-            //    (pe) =>
-            //    {
-            //        var path = curveConv.FromPipe<dg.Curve, ppc.Curve>(new ppc.Line(pe.ProfileCurve.StartPoint,
-            //            pp.Vec.Sum(pe.ProfileCurve.StartPoint, pp.Vec.Multiply(pe.Direction, pe.Height))));
-            //        return dg.Surface.BySweep(curveConv.FromPipe<dg.Curve, ppc.Curve>(pe.ProfileCurve), path);
-            //    }
-            //));
         }
     }
 }

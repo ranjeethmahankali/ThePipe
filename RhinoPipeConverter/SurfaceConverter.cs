@@ -113,6 +113,12 @@ namespace RhinoPipeConverter
                     if(!nurbs.IsValidWithLog(out msg))
                     {
                         System.Diagnostics.Debug.WriteLine(msg);
+                        if (!nurbs.IsPeriodic(0)) { nurbs.KnotsU.CreateUniformKnots(1); }
+                        else { nurbs.KnotsU.CreateUniformKnots(1); }
+                        if (!nurbs.IsPeriodic(1)) { nurbs.KnotsV.CreateUniformKnots(1); }
+                        else { nurbs.KnotsV.CreateUniformKnots(1); }
+
+                        if (!nurbs.IsValid) { throw new InvalidOperationException("Cannot create a valid NURBS surface"); }
                     }
                     return nurbs;
                 }
