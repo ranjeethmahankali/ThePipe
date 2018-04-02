@@ -9,7 +9,7 @@ using PipeDataModel.Utils;
 namespace PipeDataModel.Types.Geometry
 {
     [Serializable]
-    public class Mesh : IPipeMemberType
+    public class Mesh : IPipeMemberType, IEquatable<Mesh>
     {
         #region-fields
         private List<Vec> _vertices;
@@ -102,10 +102,14 @@ namespace PipeDataModel.Types.Geometry
         public bool Equals(IPipeMemberType other)
         {
             if (GetType() != other.GetType()) { return false; }
-            Mesh otherMesh = (Mesh)other;
+            return Equals((Mesh)other);
+        }
+        public bool Equals(Mesh otherMesh)
+        {
             return PipeDataUtil.EqualIgnoreOrder(_vertices, otherMesh.Vertices) &&
                 PipeDataUtil.Equal(_faces, otherMesh.Faces, (f1, f2) => PipeDataUtil.EqualIgnoreOrder(f1, f2));
         }
+
         public static List<ulong[]> TriangulateFace(ulong[] face)
         {
             if(face.Length < 3) { throw new ArgumentException("Too few points to define a face"); }

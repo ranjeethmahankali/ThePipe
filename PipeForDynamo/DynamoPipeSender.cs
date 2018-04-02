@@ -13,7 +13,9 @@ namespace PipeForDynamo
 {
     internal class DynamoPipeSender : DynamoPipeWrapper, IPipeCollector
     {
-        internal DynamoPipeSender(string pipeIdentifier, DynamoPipeConverter converter) : base(pipeIdentifier, converter)
+        internal static Dictionary<string, DynamoPipeSender> _senders = new Dictionary<string, DynamoPipeSender>();
+
+        private DynamoPipeSender(string pipeIdentifier, DynamoPipeConverter converter) : base(pipeIdentifier, converter)
         {
             _pipe.SetCollector(this);
         }
@@ -25,6 +27,17 @@ namespace PipeForDynamo
             DataNode node = new DataNode();
             node.AddChild(new DataNode(_converter.ToPipe<object, IPipeMemberType>(Data)));
             return node;
+        }
+
+        internal static DynamoPipeSender GetSender(string name, DynamoPipeConverter converter)
+        {
+            if (_senders.ContainsKey(name)) { return _senders[name]; }
+            else
+            {
+                var sender = new DynamoPipeSender(name, converter);
+                _senders.Add(name, sender);
+                return sender;
+            }
         }
     }
 }

@@ -40,5 +40,10 @@ namespace PipeForDynamo
         {
             _pipe.Update();
         }
+
+        public void Close()
+        {
+            _pipe.ClosePipe();
+        }
     }
 }

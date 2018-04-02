@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PipeDataModel.Types.Geometry.Curve
 {   
     [Serializable]
-    public class Line: Curve
+    public class Line: Curve, IEquatable<Line>
     {
         #region-fields
         private Vec _startPt;
@@ -34,16 +34,19 @@ namespace PipeDataModel.Types.Geometry.Curve
             _startPt = start;
             _endPt = end;
         }
-
-        public override bool Equals(IPipeMemberType other)
-        {
-            if (!GetType().IsAssignableFrom(other.GetType())) { return false; }
-            Line otherLine = (Line)other;
-            return _startPt.Equals(otherLine.StartPoint) && _endPt.Equals(otherLine.EndPoint);
-        }
         #endregion
 
         #region-methods
+        public override bool Equals(IPipeMemberType other)
+        {
+            if (!GetType().IsAssignableFrom(other.GetType())) { return false; }
+            return Equals((Line)other);
+            
+        }
+        public bool Equals(Line otherLine)
+        {
+            return _startPt.Equals(otherLine.StartPoint) && _endPt.Equals(otherLine.EndPoint);
+        }
         #endregion
     }
 }

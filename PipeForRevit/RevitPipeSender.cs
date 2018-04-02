@@ -42,6 +42,7 @@ namespace PipeForRevit
             string pipeId = PipeForRevit.PipeIdentifier;
             UIApplication uiApp = commandData.Application;
             Document doc = uiApp.ActiveUIDocument.Document;
+            PipeForRevit.ActiveDocument = uiApp.ActiveUIDocument.Document;
             Selection sel = uiApp.ActiveUIDocument.Selection;
 
             List<Reference> picked = sel.PickObjects(ObjectType.Edge, "Select the curves to send through the pipe").ToList();

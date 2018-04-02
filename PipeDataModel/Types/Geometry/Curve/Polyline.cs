@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PipeDataModel.Types.Geometry.Curve
 {
     [Serializable]
-    public class Polyline : Curve
+    public class Polyline : Curve, IEquatable<Polyline>
     {
         #region-fields
         private List<Vec> _points;
@@ -41,9 +41,12 @@ namespace PipeDataModel.Types.Geometry.Curve
         public override bool Equals(IPipeMemberType other)
         {
             if (!GetType().IsAssignableFrom(other.GetType())) { return false; }
-            Polyline otherLine = (Polyline)other;
-            if(otherLine.Points.Count != _points.Count) { return false; }
-            for(int i = 0; i<_points.Count; i++)
+            return Equals((Polyline)other);
+        }
+        public bool Equals(Polyline otherLine)
+        {
+            if (otherLine.Points.Count != _points.Count) { return false; }
+            for (int i = 0; i < _points.Count; i++)
             {
                 if (!_points[i].Equals(otherLine.Points[i])) { return false; }
             }

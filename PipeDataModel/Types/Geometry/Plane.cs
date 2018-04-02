@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PipeDataModel.Types.Geometry
 {
     [Serializable]
-    public class Plane : IPipeMemberType
+    public class Plane : IPipeMemberType, IEquatable<Plane>
     {
         #region-fields
         private Vec _origin, _x, _y, _z;
@@ -102,7 +102,12 @@ namespace PipeDataModel.Types.Geometry
         public bool Equals(IPipeMemberType other)
         {
             if(GetType() != other.GetType()) { return false; }
-            Plane otherPlane = (Plane)other;
+            return Equals((Plane)other);
+            
+        }
+
+        public bool Equals(Plane otherPlane)
+        {
             return X.Equals(otherPlane.X) && Y.Equals(otherPlane.Y) && Z.Equals(otherPlane.Z) && Origin.Equals(otherPlane.Origin);
         }
         #endregion

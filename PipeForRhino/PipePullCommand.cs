@@ -62,6 +62,7 @@ namespace PipeForRhino
                     return getter.CommandResult();
                 }
                 pipeIdentifier = getter.StringResult();
+                _prevPipeName = pipeIdentifier;
             }
 
             if (PipeDataUtil.IsValidUrl(pipeIdentifier))

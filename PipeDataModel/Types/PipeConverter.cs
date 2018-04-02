@@ -14,12 +14,16 @@ namespace PipeDataModel.Types
         Type PipeType { get; }
         T1 ConvertFromPipe<T1, T2>(T2 pipeObj);
         T2 ConvertToPipe<T1, T2>(T1 userObj);
+        bool CanConvert(Type fromType, Type toType, ConversionDirection direction);
     }
+
+    public enum ConversionDirection { ToPipe, FromPipe }
+
     public class PipeConverter<UserT, PipeT>:IPipeConverter
         where PipeT:IPipeMemberType
     {
         #region-fields
-        private List<IPipeConverter> _childrenConverters = null;
+        private List<IPipeConverter> _childrenConverters = new List<IPipeConverter>();
         private readonly Func<UserT, PipeT> _toPipeConversionDelegate = null;
         private readonly Func<PipeT, UserT> _fromPipeConversionDelegate = null;
         #endregion
@@ -80,7 +84,10 @@ namespace PipeDataModel.Types
             {
                 if(child.UserType == userType && pipeType.IsAssignableFrom(child.PipeType))
                 {
-                    return child;
+                    if(child.CanConvert(userType, pipeType, ConversionDirection.ToPipe))
+                    {
+                        return child;
+                    }
                 }
                 if (child.UserType.IsAssignableFrom(userType) && pipeType.IsAssignableFrom(child.PipeType))
                 {
@@ -97,7 +104,10 @@ namespace PipeDataModel.Types
             {
                 if(child.PipeType == pipeType && userType.IsAssignableFrom(child.UserType))
                 {
-                    return child;
+                    if(child.CanConvert(pipeType, userType, ConversionDirection.FromPipe))
+                    {
+                        return child;
+                    }
                 }
                 if (child.PipeType.IsAssignableFrom(pipeType) && userType.IsAssignableFrom(child.UserType))
                 {
@@ -105,6 +115,15 @@ namespace PipeDataModel.Types
                 }
             }
             return converter;
+        }
+
+        public T2 ConvertToPipe<T1, T2>(T1 obj)
+        {
+            if (!(typeof(UserT).IsAssignableFrom(obj.GetType()) && typeof(T2).IsAssignableFrom(typeof(PipeT))))
+            {
+                throw new PipeConversionException(typeof(T2), obj.GetType());
+            }
+            return (T2)(object)ToPipe<UserT, PipeT>((UserT)(object)obj);
         }
 
         public PipeT ToPipe<T1, T2>(T1 obj)
@@ -124,15 +143,6 @@ namespace PipeDataModel.Types
             }
 
             throw new PipeConversionException(obj.GetType(), typeof(T2));
-        }
-
-        public T2 ConvertToPipe<T1, T2>(T1 obj)
-        {
-            if(!(typeof(UserT).IsAssignableFrom(obj.GetType()) && typeof(T2).IsAssignableFrom(typeof(PipeT))))
-            {
-                throw new PipeConversionException(typeof(T2), obj.GetType());
-            }
-            return (T2)(object)ToPipe<UserT,PipeT>((UserT)(object)obj);
         }
 
         public T1 ConvertFromPipe<T1, T2>(T2 obj)
@@ -161,6 +171,26 @@ namespace PipeDataModel.Types
             }
 
             throw new PipeConversionException(obj.GetType(), typeof(T1));
+        }
+
+        public bool CanConvert(Type fromType, Type toType, ConversionDirection direction)
+        {
+            IPipeConverter childConv;
+            bool hasConversionDelegate;
+            if(direction == ConversionDirection.ToPipe)
+            {
+                childConv = GetToPipeConverter(fromType, toType);
+                hasConversionDelegate = _toPipeConversionDelegate != null;
+            }
+            else if(direction == ConversionDirection.FromPipe)
+            {
+                childConv = GetFromPipeConverter(fromType, toType);
+                hasConversionDelegate = _fromPipeConversionDelegate != null;
+            }
+            else { return false; }
+
+            bool hasValidChild = childConv != null && childConv.CanConvert(fromType, toType, direction);
+            return hasValidChild || hasConversionDelegate;
         }
         #endregion
     }

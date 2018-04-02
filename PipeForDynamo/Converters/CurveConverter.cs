@@ -25,39 +25,47 @@ namespace PipeForDynamo.Converters
             AddConverter(arcConv);
 
             //to convert nurbs curves
-            AddConverter(new PipeConverter<dg.NurbsCurve, ppc.NurbsCurve>(
-                    (dc) => {
-                        ppc.NurbsCurve cur;
-                        List<dg.Point> pts = dc.ControlPoints().ToList();
-                        if (dc.IsRational)
-                        {
-                            cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(), 
-                                dc.Degree, dc.IsClosed);
-                        }
-                        else
-                        {
-                            cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(),
-                                dc.Degree, dc.Weights().ToList(), dc.Knots().ToList(), dc.IsClosed);
-                        }
-                        return cur;
-                    },
-                    (pnc) => {
-                        dg.NurbsCurve cur;
-                        if (pnc.IsRational)
-                        {
-                            cur = dg.NurbsCurve.ByControlPoints(
-                                pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)),pnc.Degree,
-                                pnc.IsClosed);
-                        }
-                        else
-                        {
-                            cur = dg.NurbsCurve.ByControlPointsWeightsKnots(
-                                pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)),
-                                pnc.Weights.ToArray(), pnc.Knots.ToArray(), pnc.Degree);
-                        }
-                        return cur;
+            var nurbsConv = new PipeConverter<dg.NurbsCurve, ppc.NurbsCurve>(
+                (dc) => {
+                    ppc.NurbsCurve cur;
+                    List<dg.Point> pts = dc.ControlPoints().ToList();
+                    List<double> knots = dc.Knots().ToList();
+
+                    var startParam = dc.StartParameter();
+                    var endParam = dc.EndParameter();
+                    knots = knots.Select((k) => (k - startParam) / (endParam - startParam)).ToList();
+
+                    cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(),
+                            dc.Degree, dc.Weights().ToList(), knots, dc.IsClosed);
+
+                    return cur;
+                },
+                (pnc) => {
+                    dg.NurbsCurve cur;
+                    if (pnc.IsRational)
+                    {
+                        cur = dg.NurbsCurve.ByControlPoints(
+                            pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)), pnc.Degree,
+                            pnc.IsClosed);
                     }
-                ));
+                    else
+                    {
+                        cur = dg.NurbsCurve.ByControlPointsWeightsKnots(
+                            pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)),
+                            pnc.Weights.ToArray(), pnc.Knots.ToArray(), pnc.Degree);
+                    }
+                    return cur;
+                }
+            );
+            AddConverter(nurbsConv);
+
+            //generic curves - one way conversion, hence one of the conversion delegates is null
+            AddConverter(new PipeConverter<dg.Curve, ppc.Curve>(
+                (dc) => {
+                    return nurbsConv.ToPipe<dg.NurbsCurve, ppc.NurbsCurve>(dc.ToNurbsCurve());
+                },
+                null
+            ));
         }
     }
 

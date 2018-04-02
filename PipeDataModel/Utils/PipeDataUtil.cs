@@ -18,6 +18,18 @@ namespace PipeDataModel.Utils
             return true;
         }
 
+        public static bool EqualCollections<T>(ICollection<T> a, ICollection<T> b)
+        {
+            if(a.Count != b.Count) { return false; }
+            var ia = a.GetEnumerator();
+            var ib = b.GetEnumerator();
+            while(ia.MoveNext() && ib.MoveNext())
+            {
+                if(!ia.Current.Equals(ib.Current)) { return false; }
+            }
+            return true;
+        }
+
         public static bool Equal<T>(ICollection<T> a, ICollection<T> b, Func<T,T,bool> equalityComparer = null)
         {
             if(equalityComparer == null) { equalityComparer = (p, q) => p.Equals(q); }

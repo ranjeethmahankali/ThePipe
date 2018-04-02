@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PipeDataModel.Types.Geometry.Curve
 {
     [Serializable]
-    public class PolyCurve : Curve
+    public class PolyCurve : Curve, IEquatable<PolyCurve>
     {
         #region-fields
         private List<Curve> _segments;
@@ -45,9 +45,12 @@ namespace PipeDataModel.Types.Geometry.Curve
         public override bool Equals(IPipeMemberType other)
         {
             if (!GetType().IsAssignableFrom(other.GetType())) { return false; }
-            PolyCurve opc = (PolyCurve)other;
-            if(opc.Segments.Count != Segments.Count) { return false; }
-            for(int i = 0; i < Segments.Count; i++)
+            return Equals((PolyCurve)other);
+        }
+        public bool Equals(PolyCurve opc)
+        {
+            if (opc.Segments.Count != Segments.Count) { return false; }
+            for (int i = 0; i < Segments.Count; i++)
             {
                 if (!Segments[i].Equals(opc.Segments[i])) { return false; }
             }
@@ -58,11 +61,11 @@ namespace PipeDataModel.Types.Geometry.Curve
         {
             double tolerance = 1e-7;
             int count = segs.Count;
-            if(count < 2) { return true; }
-            for(int i = 0; i < count-1; i++)
+            if (count < 2) { return true; }
+            for (int i = 0; i < count - 1; i++)
             {
                 double dist = Vec.Difference(segs[i].EndPoint, segs[i + 1].StartPoint).Length;
-                if(dist > tolerance)
+                if (dist > tolerance)
                 {
                     return false;
                 }

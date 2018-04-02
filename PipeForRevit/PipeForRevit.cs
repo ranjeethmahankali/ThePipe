@@ -26,6 +26,9 @@ namespace PipeForRevit
         private static TextBoxData _txtBoxData;
         private static TextBox _textBox;
         private static RevitPipeConverter _converter;
+        private static Document _document = null;
+
+        internal static Document ActiveDocument { get => _document; set => _document = value; }
 
         internal static string PipeIdentifier
         {

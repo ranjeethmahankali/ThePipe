@@ -52,6 +52,10 @@
     <Compile Include="Types\Geometry\Curve\Polyline.cs" />
     <Compile Include="Types\Geometry\Mesh.cs" />
     <Compile Include="Types\Geometry\Plane.cs" />
+    <Compile Include="Types\Geometry\Surface\Extrusion.cs" />
+    <Compile Include="Types\Geometry\Surface\NurbsSurface.cs" />
+    <Compile Include="Types\Geometry\Surface\PolySurface.cs" />
+    <Compile Include="Types\Geometry\Surface\Surface.cs" />
     <Compile Include="Types\Geometry\Vec.cs" />
     <Compile Include="Types\IPipeCollector.cs" />
     <Compile Include="Types\IPipeEmitter.cs" />

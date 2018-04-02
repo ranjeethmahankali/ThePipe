@@ -8,6 +8,7 @@ using Grasshopper.Kernel.Types;
 using PipeDataModel.Types;
 using ppg = PipeDataModel.Types.Geometry;
 using ppc = PipeDataModel.Types.Geometry.Curve;
+using pps = PipeDataModel.Types.Geometry.Surface;
 using rh = Rhino.Geometry;
 
 namespace PipeForGrasshopper
@@ -22,6 +23,8 @@ namespace PipeForGrasshopper
         private static LineConverter _lineConv = new LineConverter(_pt3dConv);
         private static CurveConverter _curveConv = new CurveConverter(_pt3dConv, _arcConv, _lineConv);
         private static MeshConverter _meshConv = new MeshConverter(_pt3fConv);
+        private static SurfaceConverter _surfConv = new SurfaceConverter(_curveConv, _vec3DConv, _pt3dConv);
+        private static BrepConverter _brepConv = new BrepConverter(_surfConv, _curveConv, _pt3dConv);
 
         private static GHPipeConverter _converter = new GHPipeConverter();
         public GHPipeConverter()
@@ -49,6 +52,14 @@ namespace PipeForGrasshopper
             AddConverter(new PipeConverter<GH_Mesh, ppg.Mesh>(
                     (ghm) => { return _meshConv.ToPipe<rh.Mesh, ppg.Mesh>(ghm.Value); },
                     (ppm) => { return new GH_Mesh(_meshConv.FromPipe<rh.Mesh, ppg.Mesh>(ppm)); }
+                ));
+            AddConverter(new PipeConverter<GH_Surface, pps.Surface>(
+                    (ghs) => { return _surfConv.ToPipe<rh.Surface, pps.Surface>(ghs.Value.Surfaces.FirstOrDefault()); },
+                    (pps) => { return new GH_Surface(_surfConv.FromPipe<rh.Surface, pps.Surface>(pps)); }
+                ));
+            AddConverter(new PipeConverter<GH_Brep, pps.PolySurface>(
+                    (ghs) => { return _brepConv.ToPipe<rh.Brep, pps.PolySurface>(ghs.Value); },
+                    (pps) => { return new GH_Brep(_brepConv.FromPipe<rh.Brep, pps.PolySurface>(pps)); }
                 ));
         }
 
