@@ -75,8 +75,15 @@ namespace PipeForRhino
             }
 
             _pipe.SetEmitter(this);
+            try
+            {
+                _pipe.Update();
+            }
+            catch(Exception e)
+            {
+                Rhino.UI.Dialogs.ShowMessageBox(e.Message, "Error");
+            }
 
-            _pipe.Update();
             if(_objectsReceived.Count > 0)
             {
                 DeletePulledObjects(pipeIdentifier, ref doc);
