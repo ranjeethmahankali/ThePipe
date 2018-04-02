@@ -55,6 +55,8 @@ namespace RhinoPipeConverter
                          * if the curve is closed, the internal NurbsCurve datastructure stores too many points in the
                          * array, in order to loop around to the next knot, we want to take a smaller list in that case
                          */
+                        //rebuilding the curve just in case.. if there is something weird about the curve
+                        rhc = rhc.Rebuild(rhc.Points.Count, rhc.Degree, true);
                         int controlPtsNum = rhc.IsClosed ? rhc.Points.Count - (rhc.IsPeriodic ? rhc.Degree : 1) 
                             : rhc.Points.Count;
                         List<ppg.Vec> ptList = rhc.Points.Take(controlPtsNum).Select(
