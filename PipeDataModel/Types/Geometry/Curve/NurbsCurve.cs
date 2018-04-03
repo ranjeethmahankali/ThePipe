@@ -45,6 +45,7 @@ namespace PipeDataModel.Types.Geometry.Curve
         public List<double> Knots
         {
             get { return _knots; }
+            set { _knots = NormalizedKnots(value); }
         }
         public bool IsRational
         {
@@ -77,7 +78,7 @@ namespace PipeDataModel.Types.Geometry.Curve
             :this(controlPts, degree)
         {
             _weights = weights;
-            _knots = knots;
+            _knots = NormalizedKnots(knots);
         }
         public NurbsCurve(List<Vec> controlPts, int degree, List<double> weights, List<double> knots, bool isClosed)
             :this(controlPts, degree, weights, knots)
@@ -100,6 +101,19 @@ namespace PipeDataModel.Types.Geometry.Curve
             if (!Utils.PipeDataUtil.EqualCollections(_controlPoints, otherCurve.ControlPoints) ||
                 !Utils.PipeDataUtil.EqualCollections(_weights, otherCurve.Weights)) { return false; }
             return true;
+        }
+
+        private static List<double> NormalizedKnots(List<double> knots)
+        {
+            double min = double.MaxValue, max = double.MinValue;
+            foreach(var knot in knots)
+            {
+                if(knot > max) { max = knot; }
+                if(knot < min) { min = knot; }
+            }
+
+            if(min == max) { throw new InvalidOperationException("Cannot normalize knots."); }
+            return knots.Select((k) => (k - min) / (max - min)).ToList();
         }
         #endregion
     }
