@@ -23,7 +23,7 @@ namespace PipeForDynamo.Converters
             var vecConv = new VectorConverter();
             var curConv = new CurveConverter(ptConv, vecConv);
             AddConverter(curConv);
-            var surfConv = new SurfaceConverter(ptConv, curConv);
+            var surfConv = new SurfaceConverter(vecConv, ptConv, curConv);
             AddConverter(surfConv);
 
             //solids - only one way mapping

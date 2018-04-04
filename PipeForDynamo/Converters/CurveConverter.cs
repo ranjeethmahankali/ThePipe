@@ -47,26 +47,17 @@ namespace PipeForDynamo.Converters
                 },
                 (pnc) => {
                     dg.NurbsCurve cur;
-                    if (pnc.IsRational)
+                    try
+                    {
+                        cur = dg.NurbsCurve.ByControlPointsWeightsKnots(
+                            pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)),
+                            pnc.Weights.ToArray(), pnc.Knots.ToArray(), pnc.Degree);
+                    }
+                    catch (Exception e)
                     {
                         cur = dg.NurbsCurve.ByControlPoints(
                             pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)), pnc.Degree,
                             pnc.IsClosed);
-                    }
-                    else
-                    {
-                        try
-                        {
-                            cur = dg.NurbsCurve.ByControlPointsWeightsKnots(
-                                pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)),
-                                pnc.Weights.ToArray(), pnc.Knots.ToArray(), pnc.Degree);
-                        }
-                        catch(Exception e)
-                        {
-                            cur = dg.NurbsCurve.ByControlPoints(
-                                pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)), pnc.Degree,
-                                pnc.IsClosed);
-                        }
                     }
                     return cur;
                 }
