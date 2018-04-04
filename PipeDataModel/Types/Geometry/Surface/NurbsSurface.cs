@@ -26,8 +26,8 @@ namespace PipeDataModel.Types.Geometry.Surface
         public int VDegree { get => _vDegree; set => _vDegree = value; }
         public int UCount { get => _uCount; set => _uCount = value; }
         public int VCount { get => _vCount; set => _vCount = value; }
-        public List<double> UKnots { get => _uKnots; set => _uKnots = value; }
-        public List<double> VKnots { get => _vKnots; set => _vKnots = value; }
+        public List<double> UKnots { get => _uKnots; set => _uKnots = Utils.GeometryUtil.NormalizedKnots(value); }
+        public List<double> VKnots { get => _vKnots; set => _vKnots = Utils.GeometryUtil.NormalizedKnots(value); }
         public bool IsClosedInU { get => _isClosedInU; set => _isClosedInU = value; }
         public bool IsClosedInV { get => _isClosedInV; set => _isClosedInV = value; }
         public List<Curve.Curve> TrimCurves { get => _trimCurves; }
