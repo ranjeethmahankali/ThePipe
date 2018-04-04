@@ -14,7 +14,7 @@ namespace PipeForDynamo.Converters
 {
     internal class SurfaceConverter: PipeConverter<dg.Surface, pps.Surface>
     {
-        internal SurfaceConverter(PointConverter ptConv, CurveConverter curveConv)
+        internal SurfaceConverter(VectorConverter vecConv, PointConverter ptConv, CurveConverter curveConv)
         {
             //NURBS surface
             /*
@@ -53,9 +53,20 @@ namespace PipeForDynamo.Converters
             AddConverter(new PipeConverter<dg.Surface, pps.Extrusion>(
                 null, //null because of one way mapping
                 (pe) => {
+                    var extrVec = pp.Vec.Multiply(pe.Direction, pe.Height);
                     var path = curveConv.FromPipe<dg.Curve, ppc.Curve>(new ppc.Line(pe.ProfileCurve.StartPoint,
-                        pp.Vec.Sum(pe.ProfileCurve.StartPoint, pp.Vec.Multiply(pe.Direction, pe.Height))));
-                    return dg.Surface.BySweep(curveConv.FromPipe<dg.Curve, ppc.Curve>(pe.ProfileCurve), path);
+                        pp.Vec.Sum(pe.ProfileCurve.StartPoint, extrVec)));
+                    var profile = curveConv.FromPipe<dg.Curve, ppc.Curve>(pe.ProfileCurve);
+
+                    var extr = dg.Surface.BySweep(profile, path);
+                    if (!profile.IsClosed) { return extr; }
+
+                    var cap1 = dg.Surface.ByPatch(profile);
+                    var cap2 = dg.Surface.ByPatch((dg.Curve)profile.Translate(vecConv.FromPipe<dg.Vector, pp.Vec>(extrVec)));
+
+                    if (pe.CappedAtStart) { extr = dg.PolySurface.ByJoinedSurfaces(new List<dg.Surface>() { extr, cap1 }); }
+                    if (pe.CappedAtEnd) { extr = dg.PolySurface.ByJoinedSurfaces(new List<dg.Surface>() { extr, cap2 }); }
+                    return extr;
                 }
             ));
 

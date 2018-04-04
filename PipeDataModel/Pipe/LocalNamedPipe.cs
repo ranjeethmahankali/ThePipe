@@ -44,6 +44,7 @@ namespace PipeDataModel.Pipe
         #region-base class implementation
         protected override void PushData(DataNode data)
         {
+            if(data == null) { return; }
             InterceptData();
             _pipeServer = new NamedPipeServerStream(_name, PipeDirection.Out, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
             _result = _pipeServer.BeginWaitForConnection(ar => {

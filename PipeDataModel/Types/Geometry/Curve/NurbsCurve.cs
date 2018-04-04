@@ -45,6 +45,7 @@ namespace PipeDataModel.Types.Geometry.Curve
         public List<double> Knots
         {
             get { return _knots; }
+            set { _knots = Utils.GeometryUtil.NormalizedKnots(value); }
         }
         public bool IsRational
         {
@@ -77,7 +78,7 @@ namespace PipeDataModel.Types.Geometry.Curve
             :this(controlPts, degree)
         {
             _weights = weights;
-            _knots = knots;
+            _knots = Utils.GeometryUtil.NormalizedKnots(knots);
         }
         public NurbsCurve(List<Vec> controlPts, int degree, List<double> weights, List<double> knots, bool isClosed)
             :this(controlPts, degree, weights, knots)

@@ -27,6 +27,9 @@ namespace RhinoPipeConverter
                     {
                         extr.Holes.Add(curveConv.ConvertToPipe<rh.Curve, ppc.Curve>(rhE.Profile3d(i, 0)));
                     }
+
+                    extr.CappedAtStart = rhE.IsCappedAtBottom;
+                    extr.CappedAtEnd = rhE.IsCappedAtTop;
                     return extr;
                 },
                 (ppE) => {
@@ -37,7 +40,7 @@ namespace RhinoPipeConverter
                             "Try converting it into a polysurface and pushing it again");
                     }
                     var profile = curveConv.FromPipe<rh.Curve, ppc.Curve>(ppE.ProfileCurve);
-                    rh.Extrusion extr = rh.Extrusion.Create(profile, ppE.Height, true);
+                    rh.Extrusion extr = rh.Extrusion.Create(profile, ppE.Height, ppE.CappedAtEnd||ppE.CappedAtStart);
                     ppE.Holes.ForEach((h) => extr.AddInnerProfile(curveConv.FromPipe<rh.Curve, ppc.Curve>(h)));
                     //extr.SetOuterProfile(profile, false);
                     //extr.SetPathAndUp(profile.PointAtStart, profile.PointAtStart + pathVec, pathVec);
@@ -46,7 +49,9 @@ namespace RhinoPipeConverter
                     if(!extr.IsValidWithLog(out msg))
                     {
                         System.Diagnostics.Debug.WriteLine(msg);
+                        throw new InvalidOperationException("Cannot create a valid extrusion from the received data: \n" + msg);
                     }
+                    
                     return extr;
                 }
             ));
@@ -113,12 +118,12 @@ namespace RhinoPipeConverter
                     if(!nurbs.IsValidWithLog(out msg))
                     {
                         System.Diagnostics.Debug.WriteLine(msg);
-                        if (!nurbs.IsPeriodic(0)) { nurbs.KnotsU.CreateUniformKnots(1); }
-                        else { nurbs.KnotsU.CreateUniformKnots(1); }
-                        if (!nurbs.IsPeriodic(1)) { nurbs.KnotsV.CreateUniformKnots(1); }
-                        else { nurbs.KnotsV.CreateUniformKnots(1); }
+                        if (!nurbs.IsPeriodic(0)) { nurbs.KnotsU.CreateUniformKnots(1.0 / (nurbs.Points.CountU)); }
+                        else { nurbs.KnotsU.CreatePeriodicKnots(1.0 / (nurbs.Points.CountU)); }
+                        if (!nurbs.IsPeriodic(1)) { nurbs.KnotsV.CreateUniformKnots(1.0 / (nurbs.Points.CountV)); }
+                        else { nurbs.KnotsV.CreatePeriodicKnots(1.0 / (nurbs.Points.CountV)); }
 
-                        if (!nurbs.IsValid) { throw new InvalidOperationException("Cannot create a valid NURBS surface"); }
+                        if (!nurbs.IsValid) { throw new InvalidOperationException("Cannot create a valid NURBS surface: \n" + msg); }
                     }
                     return nurbs;
                 }

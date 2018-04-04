@@ -15,6 +15,7 @@ namespace PipeDataModel.Types.Geometry.Surface
         private List<Curve.Curve> _holes = new List<Curve.Curve>();
         private Vec _direction;
         private double _height;
+        private bool _cappedAtStart, _cappedAtEnd;
         #endregion
 
         #region properties
@@ -23,6 +24,8 @@ namespace PipeDataModel.Types.Geometry.Surface
         public double Height { get => _height; set => _height = value; }
         public List<Curve.Curve> Holes { get => _holes; set => _holes = value; }
         public Vec PathVector { get => Vec.Multiply(_direction, _height); }
+        public bool CappedAtStart { get => _cappedAtStart; set => _cappedAtStart = value; }
+        public bool CappedAtEnd { get => _cappedAtEnd; set => _cappedAtEnd = value; }
         #endregion
 
         #region constructors

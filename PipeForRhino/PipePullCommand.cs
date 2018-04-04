@@ -43,6 +43,11 @@ namespace PipeForRhino
         public void EmitPipeData(DataNode data)
         {
             _objectsReceived = new List<GeometryBase>();
+            if(data == null)
+            {
+                Rhino.UI.Dialogs.ShowMessageBox("Did not receive any data.", "Pipe pull");
+                return;
+            }
             foreach(var child in data.ChildrenList)
             {
                 _objectsReceived.Add(PipeConverter.FromPipe(child.Data));
@@ -75,8 +80,15 @@ namespace PipeForRhino
             }
 
             _pipe.SetEmitter(this);
+            try
+            {
+                _pipe.Update();
+            }
+            catch(Exception e)
+            {
+                Rhino.UI.Dialogs.ShowMessageBox(e.Message, "Error");
+            }
 
-            _pipe.Update();
             if(_objectsReceived.Count > 0)
             {
                 DeletePulledObjects(pipeIdentifier, ref doc);

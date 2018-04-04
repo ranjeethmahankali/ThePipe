@@ -97,7 +97,15 @@ namespace PipeForRhino
                 }
             }
 
-            _pipe.Update();
+            try
+            {
+                _pipe.Update();
+            }
+            catch (Exception e)
+            {
+                Rhino.UI.Dialogs.ShowMessageBox(e.Message, "Error");
+            }
+
             doc.Views.Redraw();
             return Result.Success;
         }
