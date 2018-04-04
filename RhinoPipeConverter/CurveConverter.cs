@@ -108,8 +108,8 @@ namespace RhinoPipeConverter
                         if(!curve.IsValidWithLog(out msg))
                         {
                             System.Diagnostics.Debug.WriteLine(msg);
-                            if (curve.IsPeriodic) { curve.Knots.CreatePeriodicKnots(1); }
-                            else { curve.Knots.CreateUniformKnots(1); }
+                            if (curve.IsPeriodic) { curve.Knots.CreatePeriodicKnots(1.0 / (curve.Points.Count)); }
+                            else { curve.Knots.CreateUniformKnots(1.0/(curve.Points.Count)); }
                             if (!curve.IsValid) { throw new InvalidOperationException("Cannot create a valid curve with " +
                                 "received data because: \n" + msg); }
                         }

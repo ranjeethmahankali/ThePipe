@@ -43,6 +43,11 @@ namespace PipeForRhino
         public void EmitPipeData(DataNode data)
         {
             _objectsReceived = new List<GeometryBase>();
+            if(data == null)
+            {
+                Rhino.UI.Dialogs.ShowMessageBox("Did not receive any data.", "Pipe pull");
+                return;
+            }
             foreach(var child in data.ChildrenList)
             {
                 _objectsReceived.Add(PipeConverter.FromPipe(child.Data));

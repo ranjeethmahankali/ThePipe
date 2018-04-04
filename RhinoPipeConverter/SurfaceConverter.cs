@@ -95,13 +95,16 @@ namespace RhinoPipeConverter
                     rh.Interval uDomain = nurbs.Domain(0);
                     rh.Interval vDomain = nurbs.Domain(1);
                     Func<double, rh.Interval, double> scaleKnot = (k, domain) => k * (domain.Length) + domain.Min;
-                    if(nurbs.KnotsU.Count == pns.UKnots.Count)
+
+                    if(nurbs.KnotsU.Count != pns.UKnots.Count)
                     {
-                        for(int i = 0; i < nurbs.KnotsU.Count; i++)
-                        {
-                            nurbs.KnotsU[i] = scaleKnot.Invoke(pns.UKnots[i], uDomain);
-                        }
+                        //nurbs.KnotsU.Re
                     }
+                    for (int i = 0; i < nurbs.KnotsU.Count; i++)
+                    {
+                        nurbs.KnotsU[i] = scaleKnot.Invoke(pns.UKnots[i], uDomain);
+                    }
+
                     if (nurbs.KnotsV.Count == pns.VKnots.Count)
                     {
                         for (int i = 0; i < nurbs.KnotsV.Count; i++)
@@ -114,10 +117,10 @@ namespace RhinoPipeConverter
                     if(!nurbs.IsValidWithLog(out msg))
                     {
                         System.Diagnostics.Debug.WriteLine(msg);
-                        if (!nurbs.IsPeriodic(0)) { nurbs.KnotsU.CreateUniformKnots(1); }
-                        else { nurbs.KnotsU.CreateUniformKnots(1); }
-                        if (!nurbs.IsPeriodic(1)) { nurbs.KnotsV.CreateUniformKnots(1); }
-                        else { nurbs.KnotsV.CreateUniformKnots(1); }
+                        if (!nurbs.IsPeriodic(0)) { nurbs.KnotsU.CreateUniformKnots(1.0 / (nurbs.Points.CountU)); }
+                        else { nurbs.KnotsU.CreatePeriodicKnots(1.0 / (nurbs.Points.CountU)); }
+                        if (!nurbs.IsPeriodic(1)) { nurbs.KnotsV.CreateUniformKnots(1.0 / (nurbs.Points.CountV)); }
+                        else { nurbs.KnotsV.CreatePeriodicKnots(1.0 / (nurbs.Points.CountV)); }
 
                         if (!nurbs.IsValid) { throw new InvalidOperationException("Cannot create a valid NURBS surface: \n" + msg); }
                     }

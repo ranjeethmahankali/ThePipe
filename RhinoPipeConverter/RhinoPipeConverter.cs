@@ -85,7 +85,8 @@ namespace RhinoPipeConverter
                         if(pb.Surfaces.Count == 1)
                         {
                             var surf = pb.Surfaces.FirstOrDefault();
-                            brep = rh.Brep.CreateFromSurface(surfConv.FromPipe<rh.Surface, pps.Surface>(surf));
+                            var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(surf);
+                            brep = rh.Brep.CreateFromSurface(rhSurf);
                             if (typeof(pps.NurbsSurface).IsAssignableFrom(surf.GetType())
                                     && ((pps.NurbsSurface)surf).TrimCurves.Count > 0)
                             {
@@ -97,14 +98,15 @@ namespace RhinoPipeConverter
                                 {
                                     var brep2 = brep.Faces.First().Split(trims.Select((c) => 
                                         curveConv.FromPipe<rh.Curve, ppc.Curve>(c)).ToList(), Rhino.RhinoMath.ZeroTolerance);
-                                    if (brep2 != null) { brep = brep2.Faces.Last().DuplicateFace(false); }
+                                    if (brep2 != null && brep2.IsValid) { brep = brep2.Faces.Last().DuplicateFace(false); }
                                 }
                             }
                         }
                         else
                         {
                             brep = rh.Brep.MergeBreps(pb.Surfaces.Select((s) => {
-                                var subrep = rh.Brep.CreateFromSurface(surfConv.FromPipe<rh.Surface, pps.Surface>(s));
+                                var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(s);
+                                var subrep = rh.Brep.CreateFromSurface(rhSurf);
                                 if(typeof(pps.NurbsSurface).IsAssignableFrom(s.GetType()) 
                                     && ((pps.NurbsSurface)s).TrimCurves.Count > 0)
                                 {
@@ -116,7 +118,7 @@ namespace RhinoPipeConverter
                                     {
                                         var brep2 = subrep.Faces.First().Split(trims.Select((c) =>
                                             curveConv.FromPipe<rh.Curve, ppc.Curve>(c)).ToList(), Rhino.RhinoMath.ZeroTolerance);
-                                        if (brep2 != null) { brep = brep2.Faces.Last().DuplicateFace(false); }
+                                        if (brep2 != null && brep2.IsValid) { brep = brep2.Faces.Last().DuplicateFace(false); }
                                     }
                                 }
                                 return subrep;
