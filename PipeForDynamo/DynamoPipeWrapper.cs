@@ -7,6 +7,7 @@ using PipeDataModel.Types;
 using PipeDataModel.Utils;
 using PipeDataModel.Pipe;
 using PipeForDynamo.Converters;
+using dg = Autodesk.DesignScript.Geometry;
 
 namespace PipeForDynamo
 {
@@ -36,9 +37,17 @@ namespace PipeForDynamo
             _converter = converter;
         }
 
-        public void Update()
+        public bool Update()
         {
-            _pipe.Update();
+            try
+            {
+                _pipe.Update();
+                return true;
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
         }
 
         public void Close()
