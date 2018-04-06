@@ -59,13 +59,27 @@ namespace PipeForDynamo.Converters
                     var profile = curveConv.FromPipe<dg.Curve, ppc.Curve>(pe.ProfileCurve);
 
                     var extr = dg.Surface.BySweep(profile, path);
-                    if (!profile.IsClosed) { return extr; }
+                    if (!profile.IsClosed)
+                    {
+                        var cutPt = profile.PointAtDistance(1e-4);
+                        profile = profile.ParameterTrim(0, profile.ParameterAtPoint(cutPt));
+                        var profile2 = dg.PolyCurve.ByJoinedCurves(new List<dg.Curve>() { profile }).CloseWithLine();
+                        if (!profile2.IsClosed) { return extr; }
+                        profile = profile2;
+                    }
 
-                    var cap1 = dg.Surface.ByPatch(profile);
-                    var cap2 = dg.Surface.ByPatch((dg.Curve)profile.Translate(vecConv.FromPipe<dg.Vector, pp.Vec>(extrVec)));
+                    try
+                    {
+                        var cap1 = dg.Surface.ByPatch(profile);
+                        var cap2 = dg.Surface.ByPatch((dg.Curve)profile.Translate(vecConv.FromPipe<dg.Vector, pp.Vec>(extrVec)));
+                        if (pe.CappedAtStart) { extr = dg.PolySurface.ByJoinedSurfaces(new List<dg.Surface>() { extr, cap1 }); }
+                        if (pe.CappedAtEnd) { extr = dg.PolySurface.ByJoinedSurfaces(new List<dg.Surface>() { extr, cap2 }); }
+                    }
+                    catch(Exception e)
+                    {
+                        //do nothing
+                    }
 
-                    if (pe.CappedAtStart) { extr = dg.PolySurface.ByJoinedSurfaces(new List<dg.Surface>() { extr, cap1 }); }
-                    if (pe.CappedAtEnd) { extr = dg.PolySurface.ByJoinedSurfaces(new List<dg.Surface>() { extr, cap2 }); }
                     return extr;
                 }
             ));
