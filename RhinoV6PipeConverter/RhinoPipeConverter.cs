@@ -98,6 +98,7 @@ namespace RhinoV6PipeConverter
                                 {
                                     var brep2 = brep.Faces.First().Split(trims.Select((c) =>
                                         curveConv.FromPipe<rh.Curve, ppc.Curve>(c)).ToList(), Rhino.RhinoMath.ZeroTolerance);
+                                    if(brep2 != null && !brep2.IsValid) { brep2.Repair(Rhino.RhinoMath.ZeroTolerance); }
                                     if (brep2 != null && brep2.IsValid) { brep = brep2.Faces.Last().DuplicateFace(false); }
                                 }
                             }
@@ -118,7 +119,8 @@ namespace RhinoV6PipeConverter
                                     {
                                         var brep2 = subrep.Faces.First().Split(trims.Select((c) =>
                                             curveConv.FromPipe<rh.Curve, ppc.Curve>(c)).ToList(), Rhino.RhinoMath.ZeroTolerance);
-                                        if (brep2 != null && brep2.IsValid) { brep = brep2.Faces.Last().DuplicateFace(false); }
+                                        if (brep2 != null && !brep2.IsValid) { brep2.Repair(Rhino.RhinoMath.ZeroTolerance); }
+                                        if (brep2 != null && brep2.IsValid) { subrep = brep2.Faces.Last().DuplicateFace(false); }
                                     }
                                 }
                                 return subrep;
