@@ -39,5 +39,8 @@ namespace PipeDataModel.Types.Geometry.Curve
             if (typeof(PolyCurve).IsAssignableFrom(GetType())) { return (PolyCurve)this; }
             else { return new PolyCurve(FlattenedCurveList()); }
         }
+
+        public abstract List<Vec> Vertices();
+        public abstract Curve Translated(Vec transVec);
     }
 }

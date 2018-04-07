@@ -15,5 +15,8 @@ namespace PipeDataModel.Types.Geometry.Surface
         {
             return Equals((IPipeMemberType)other);
         }
+
+        public abstract List<Vec> Vertices();
+        public abstract List<Curve.Curve> Edges();
     }
 }

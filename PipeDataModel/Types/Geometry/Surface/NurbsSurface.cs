@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PipeDataModel.Types.Geometry.Curve;
+using PipeDataModel.Utils;
 
 namespace PipeDataModel.Types.Geometry.Surface
 {
@@ -140,6 +142,64 @@ namespace PipeDataModel.Types.Geometry.Surface
             hash = hash * 17 + v;
             return hash;
         }
+
+        public override List<Vec> Vertices()
+        {
+            if (_trimCurves.Count == 0)
+            {
+                return new List<Vec>() {
+                    GetControlPointAt(0, 0),
+                    GetControlPointAt(_uCount-1, 0),
+                    GetControlPointAt(_uCount-1, _vCount-1),
+                    GetControlPointAt(0, _vCount-1),
+                };
+            }
+            var verts = new List<Vec>();
+            foreach(var curve in _trimCurves)
+            {
+                var curPts = curve.Vertices();
+                foreach(var curPt in curPts)
+                {
+                    if (!GeometryUtil.ListContainsCoincidentPoint(verts, curPt))
+                    {
+                        verts.Add(curPt);
+                    }
+                }
+            }
+
+            return verts;
+        }
+
+        public override List<Curve.Curve> Edges()
+        {
+            if (_trimCurves.Count == 0)
+            {
+                Curve.Curve a, b, c, d;
+                List<Vec> apts = new List<Vec>(), cpts = new List<Vec>();
+                for(int u = 0; u < _uCount; u++)
+                {
+                    apts.Add(GetControlPointAt(u, 0));
+                    cpts.Add(GetControlPointAt(u, _vCount - 1));
+                }
+
+                List<Vec> bpts = new List<Vec>(), dpts = new List<Vec>();
+                for (int v = 0; v < _vCount; v++)
+                {
+                    bpts.Add(GetControlPointAt(0, v));
+                    dpts.Add(GetControlPointAt(_uCount - 1, v));
+                }
+
+                a = new NurbsCurve(apts, _uDegree, _isClosedInU);
+                b = new NurbsCurve(bpts, _vDegree, _isClosedInV);
+                c = new NurbsCurve(cpts, _uDegree, _isClosedInU);
+                d = new NurbsCurve(dpts, _vDegree, _isClosedInV);
+
+                return new List<Curve.Curve>() { a, b, c, d };
+            }
+
+            return _trimCurves;
+        }
+
         #endregion
     }
 }
