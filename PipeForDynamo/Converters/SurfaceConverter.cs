@@ -39,6 +39,7 @@ namespace PipeForDynamo.Converters
 
                     nurbs.UKnots = dns.UKnots().ToList();
                     nurbs.VKnots = dns.VKnots().ToList();
+                    nurbs.SurfaceNormal = vecConv.ToPipe<dg.Vector, pp.Vec>(dns.NormalAtParameter(0.5, 0.5));
 
                     return nurbs;
                 },
@@ -80,6 +81,11 @@ namespace PipeForDynamo.Converters
                         //do nothing
                     }
 
+                    if (extr.NormalAtParameter(0.5, 0.5).Dot(vecConv.FromPipe<dg.Vector, pp.Vec>(pe.SurfaceNormal)) < 0)
+                    {
+                        extr.FlipNormalDirection();
+                    }
+
                     return extr;
                 }
             ));
@@ -102,6 +108,7 @@ namespace PipeForDynamo.Converters
                         //do nothing
                         //nurbs.OuterTrims.AddRange(ds.Edges.Select((edge) => curveConv.ToPipe<dg.Curve, ppc.Curve>(edge.CurveGeometry)));
                     }
+                    nurbs.SurfaceNormal = vecConv.ToPipe<dg.Vector, pp.Vec>(ds.NormalAtParameter(0.5, 0.5));
                     return nurbs;
                 },
                 (pns) => {
@@ -134,8 +141,21 @@ namespace PipeForDynamo.Converters
 
                     if (pns.OuterTrims.Count > 0)
                     {
-                        nurbs = nurbs.TrimWithEdgeLoops(pns.OuterTrims.Select((t) =>
-                            (dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(t.AsPolyCurve())));
+                        var trims = pns.OuterTrims.Select((t) =>
+                            ((dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(t.AsPolyCurve())).CloseWithLine()).ToList();
+                        try
+                        {
+                            nurbs = nurbs.TrimWithEdgeLoops(trims);
+                        }
+                        catch(Exception e)
+                        {
+                            //do nothing
+                        }
+                    }
+
+                    if(nurbs.NormalAtParameter(0.5, 0.5).Dot(vecConv.FromPipe<dg.Vector, pp.Vec>(pns.SurfaceNormal)) < 0)
+                    {
+                        nurbs.FlipNormalDirection();
                     }
                     return nurbs;
                 }
@@ -165,12 +185,12 @@ namespace PipeForDynamo.Converters
                 (ps) => {
                     return dg.PolySurface.ByJoinedSurfaces(ps.Surfaces.Select((s) => {
                         var surf = FromPipe<dg.Surface, pps.Surface>(s);
-                        if (typeof(pps.NurbsSurface).IsAssignableFrom(s.GetType())
-                            && ((pps.NurbsSurface)s).OuterTrims.Count > 0)
-                        {
-                            surf = surf.TrimWithEdgeLoops(((pps.NurbsSurface)s).OuterTrims.Select((c) =>
-                                (dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(c.AsPolyCurve())));
-                        }
+                        //if (typeof(pps.NurbsSurface).IsAssignableFrom(s.GetType())
+                        //    && ((pps.NurbsSurface)s).OuterTrims.Count > 0)
+                        //{
+                        //    surf = surf.TrimWithEdgeLoops(((pps.NurbsSurface)s).OuterTrims.Select((c) =>
+                        //        (dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(c.AsPolyCurve())));
+                        //}
                         return surf;
                     }));
                 }

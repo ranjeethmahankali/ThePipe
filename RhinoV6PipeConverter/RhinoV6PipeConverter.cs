@@ -88,59 +88,97 @@ namespace RhinoV6PipeConverter
                     },
                     (pb) => {
                         if (pb.Surfaces.Count <= 0) { return null; }
-                        rh.Brep brep;
-                        if (pb.Surfaces.Count == 1)
+                        rh.Brep brep = new rh.Brep();
+                        int attempts = 0;
+                        while(attempts < 15)
                         {
-                            var surf = pb.Surfaces.FirstOrDefault();
-                            var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(surf);
-                            brep = rh.Brep.CreateFromSurface(rhSurf);
-                            if (!brep.IsValid) { brep.Repair(Rhino.RhinoMath.ZeroTolerance); }
-                            if (typeof(pps.NurbsSurface).IsAssignableFrom(surf.GetType())
-                                    && ((pps.NurbsSurface)surf).OuterTrims.Count > 0)
+                            var ptCloud = new rh.PointCloud(pb.Vertices().Select((p) => ptConv.FromPipe<rh.Point3d, pp.Vec>(p)));
+                            var ptList = ptCloud.GetPoints().ToList();
+                            ptList.ForEach((p) => brep.Vertices.Add(p, Rhino.RhinoMath.ZeroTolerance));
+
+                            var ppEdges = pb.Edges();
+                            foreach (var ppCur in ppEdges)
                             {
-                                List<ppc.Curve> trims = ((pps.NurbsSurface)surf).OuterTrims;
-                                List<ppc.Curve> loops = brep.Faces.First().Loops.Select((l) =>
-                                    curveConv.ToPipe<rh.Curve, ppc.Curve>(l.To3dCurve())).ToList();
-
-                                if (!PipeDataUtil.EqualIgnoreOrder(loops, trims))
-                                {
-                                    var brep2 = brep.Faces.First().Split(trims.Select((c) =>
-                                        curveConv.FromPipe<rh.Curve, ppc.Curve>(c)).ToList(), Rhino.RhinoMath.ZeroTolerance);
-                                    if(brep2 != null && !brep2.IsValid) { brep2.Repair(Rhino.RhinoMath.ZeroTolerance); }
-                                    if (brep2 != null && brep2.IsValid) { brep = brep2.Faces.Last().DuplicateFace(false); }
-                                }
+                                var rhCurve = curveConv.FromPipe<rh.Curve, ppc.Curve>(ppCur);
+                                int curveIndex = brep.Curves3D.Add(rhCurve);
+                                int startIndex = ptCloud.ClosestPoint(rhCurve.PointAtStart);
+                                int endIndex = ptCloud.ClosestPoint(rhCurve.PointAtEnd);
+                                var edge = brep.Edges.Add(startIndex, endIndex, curveIndex, Rhino.RhinoMath.ZeroTolerance);
                             }
-                        }
-                        else
-                        {
-                            brep = rh.Brep.MergeBreps(pb.Surfaces.Select((s) => {
-                                var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(s);
-                                var subrep = rh.Brep.CreateFromSurface(rhSurf);
-                                if (!subrep.IsValid) { subrep.Repair(Rhino.RhinoMath.ZeroTolerance); }
-                                if (typeof(pps.NurbsSurface).IsAssignableFrom(s.GetType())
-                                    && ((pps.NurbsSurface)s).OuterTrims.Count > 0)
-                                {
-                                    List<ppc.Curve> trims = ((pps.NurbsSurface)s).OuterTrims;
-                                    List<ppc.Curve> loops = subrep.Faces.First().Loops.Select((l) =>
-                                        curveConv.ToPipe<rh.Curve, ppc.Curve>(l.To3dCurve())).ToList();
 
-                                    if (!PipeDataUtil.EqualIgnoreOrder(loops, trims))
-                                    {
-                                        var brep2 = subrep.Faces.First().Split(trims.Select((c) =>
-                                            curveConv.FromPipe<rh.Curve, ppc.Curve>(c)).ToList(), Rhino.RhinoMath.ZeroTolerance);
-                                        if (brep2 != null && !brep2.IsValid) { brep2.Repair(Rhino.RhinoMath.ZeroTolerance); }
-                                        if (brep2 != null && brep2.IsValid) { subrep = brep2.Faces.Last().DuplicateFace(false); }
-                                    }
+                            foreach (var ppSurf in pb.Surfaces)
+                            {
+                                var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(ppSurf);
+                                var surfIndex = brep.AddSurface(rhSurf);
+                                var face = brep.Faces.Add(surfIndex);
+                                var loop = brep.Loops.Add(rh.BrepLoopType.Outer, face);
+
+                                var surfEdges = ppSurf.Edges();
+                                int loopCount = 0;
+                                foreach (var ppLoop in surfEdges)
+                                {
+                                    var rhCurve = curveConv.FromPipe<rh.Curve, ppc.Curve>(ppLoop);
+                                    var curve2d = rhSurf.Pullback(rhCurve, Rhino.RhinoMath.ZeroTolerance);
+                                    if (curve2d == null) { continue; }
+                                    loopCount += 1;
+
+                                    int c2i = brep.Curves2D.Add(curve2d);
+                                    int c3i = ppEdges.IndexOf(ppLoop);
+                                    if (c3i == -1) { c3i = brep.Curves3D.Add(rhCurve); }
+
+                                    int startIndex = ptCloud.ClosestPoint(rhCurve.PointAtStart);
+                                    int endIndex = ptCloud.ClosestPoint(rhCurve.PointAtEnd);
+                                    var trim = brep.Trims.Add(brep.Edges[c3i], false, loop, c2i);
+                                    trim.IsoStatus = rh.IsoStatus.None;
+                                    trim.TrimType = rh.BrepTrimType.Boundary;
+                                    trim.SetTolerances(0.0, 0.0);
                                 }
-                                return subrep;
-                            }), Rhino.RhinoMath.ZeroTolerance);
+                                if (loopCount == 0)
+                                {
+                                    var curve2d = Util.Get2dEdgeLoop(rhSurf);
+                                    int c2i = brep.Curves2D.Add(curve2d);
+                                    var curve3d = rhSurf.Pushup(curve2d, Rhino.RhinoMath.ZeroTolerance);
+                                    int c3i = brep.Curves3D.Add(curve3d);
+                                    int startIndex = ptCloud.ClosestPoint(curve3d.PointAtStart);
+                                    int endIndex = ptCloud.ClosestPoint(curve3d.PointAtEnd);
+                                    var edge = brep.Edges.Add(startIndex, endIndex, c3i, Rhino.RhinoMath.ZeroTolerance);
+                                    var trim = brep.Trims.Add(brep.Edges[c3i], false, loop, c2i);
+                                    trim.IsoStatus = rh.IsoStatus.None;
+                                    trim.TrimType = rh.BrepTrimType.Boundary;
+                                    trim.SetTolerances(0.0, 0.0);
+                                }
+
+                                //var uSurfDom = rhSurf.Domain(0);
+                                //var vSurfDom = rhSurf.Domain(1);
+                                //var ufaceDom = face.Domain(0);
+                                //var vfaceDom = face.Domain(1);
+                                //var surfNorm = rhSurf.NormalAt(uSurfDom.Mid, vSurfDom.Mid);
+                                //var faceNorm = face.NormalAt(ufaceDom.Mid, vfaceDom.Mid);
+                                //face.OrientationIsReversed = rh.Vector3d.Multiply(surfNorm, faceNorm) < 0;
+                                face.OrientationIsReversed = false;
+                            }
+                            //updating attempts and breaking if succeeded
+                            attempts += 1;
+                            if (brep.IsValid) { break; }
                         }
 
                         string msg;
                         if (!brep.IsValidWithLog(out msg))
                         {
                             System.Diagnostics.Debug.WriteLine(msg);
-                            if(!brep.Repair(Rhino.RhinoMath.ZeroTolerance) && !brep.IsValid)
+                            brep.Repair(Rhino.RhinoMath.ZeroTolerance);
+                            if (brep.IsValid) { return brep; }
+
+                            int attempt = 0;
+                            while(!brep.IsValid && attempt < 15)
+                            {
+                                brep = rh.Brep.MergeBreps(pb.Surfaces.Select((s) =>
+                                    rh.Brep.CreateFromSurface(surfConv.FromPipe<rh.Surface, pps.Surface>(s))),
+                                    Rhino.RhinoMath.ZeroTolerance);
+                                attempt += 1;
+                            }
+
+                            if (!brep.IsValid)
                             {
                                 throw new InvalidOperationException("Failed to create a valid brep from " +
                                     "received data because: \n" + msg);

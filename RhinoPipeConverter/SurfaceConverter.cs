@@ -30,6 +30,8 @@ namespace RhinoPipeConverter
 
                     extr.CappedAtStart = rhE.IsCappedAtBottom;
                     extr.CappedAtEnd = rhE.IsCappedAtTop;
+                    extr.SurfaceNormal = vecConv.ToPipe<rh.Vector3d, pp.Vec>(rhE.NormalAt(rhE.Domain(0).Mid, rhE.Domain(1).Mid));
+
                     return extr;
                 },
                 (ppE) => {
@@ -51,7 +53,13 @@ namespace RhinoPipeConverter
                         System.Diagnostics.Debug.WriteLine(msg);
                         throw new InvalidOperationException("Cannot create a valid extrusion from the received data: \n" + msg);
                     }
-                    
+
+                    var rhNorm = extr.NormalAt(extr.Domain(0).Mid, extr.Domain(1).Mid);
+                    if(rh.Vector3d.Multiply(rhNorm, vecConv.FromPipe<rh.Vector3d, pp.Vec>(ppE.SurfaceNormal)) < 0)
+                    {
+                        //extrusions don't need to be flipped;
+                    }
+
                     return extr;
                 }
             ));
@@ -78,6 +86,9 @@ namespace RhinoPipeConverter
 
                     nurbs.IsClosedInU = rns.IsClosed(0);
                     nurbs.IsClosedInV = rns.IsClosed(1);
+
+                    nurbs.SurfaceNormal = vecConv.ToPipe<rh.Vector3d, pp.Vec>(rns.NormalAt(rns.Domain(0).Mid, rns.Domain(1).Mid));
+
                     return nurbs;
                 },
                 (pns) => {
@@ -125,6 +136,13 @@ namespace RhinoPipeConverter
 
                         if (!nurbs.IsValid) { throw new InvalidOperationException("Cannot create a valid NURBS surface: \n" + msg); }
                     }
+
+                    var rhNorm = nurbs.NormalAt(nurbs.Domain(0).Mid, nurbs.Domain(1).Mid);
+                    if (rh.Vector3d.Multiply(rhNorm, vecConv.FromPipe<rh.Vector3d, pp.Vec>(pns.SurfaceNormal)) < 0)
+                    {
+                        //need not flip rhino surfaces
+                    }
+
                     return nurbs;
                 }
             ));

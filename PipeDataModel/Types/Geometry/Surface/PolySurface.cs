@@ -17,6 +17,8 @@ namespace PipeDataModel.Types.Geometry.Surface
 
         #region properties
         public List<Surface> Surfaces { get => _surfaces; }
+        //normal does not make sense for a polysurface
+        public override Vec SurfaceNormal { get => null; set { } }
         #endregion
 
         #region constructors

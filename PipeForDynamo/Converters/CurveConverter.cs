@@ -52,6 +52,12 @@ namespace PipeForDynamo.Converters
                         cur = dg.NurbsCurve.ByControlPointsWeightsKnots(
                             pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)),
                             pnc.Weights.ToArray(), pnc.Knots.ToArray(), pnc.Degree);
+                        if(pnc.IsClosed != cur.IsClosed)
+                        {
+                            cur = dg.NurbsCurve.ByControlPoints(
+                            pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)), pnc.Degree,
+                            pnc.IsClosed);
+                        }
                     }
                     catch (Exception e)
                     {
