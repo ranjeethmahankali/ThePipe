@@ -88,10 +88,18 @@ namespace RhinoV6PipeConverter
                     },
                     (pb) => {
                         if (pb.Surfaces.Count <= 0) { return null; }
-                        rh.Brep brep = new rh.Brep();
+                        rh.Brep brep;
+                        //trying to create a trimmed brep with built in methods
+                        if (Util.TryCreateBrepWithBuiltInMethods(pb, out brep, surfConv, curveConv))
+                        {
+                            return brep;
+                        }
+
+                        //attemping to build it from scratch - 15 attempts
                         int attempts = 0;
                         while(attempts < 15)
                         {
+                            brep = new rh.Brep();
                             var ptCloud = new rh.PointCloud(pb.Vertices().Select((p) => ptConv.FromPipe<rh.Point3d, pp.Vec>(p)));
                             var ptList = ptCloud.GetPoints().ToList();
                             ptList.ForEach((p) => brep.Vertices.Add(p, Rhino.RhinoMath.ZeroTolerance));
@@ -169,6 +177,7 @@ namespace RhinoV6PipeConverter
                             brep.Repair(Rhino.RhinoMath.ZeroTolerance);
                             if (brep.IsValid) { return brep; }
 
+                            //finally attemping to create an untrimmed brep
                             int attempt = 0;
                             while(!brep.IsValid && attempt < 15)
                             {
