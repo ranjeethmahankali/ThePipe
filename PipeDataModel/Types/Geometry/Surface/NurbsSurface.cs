@@ -20,6 +20,7 @@ namespace PipeDataModel.Types.Geometry.Surface
         private int _uCount, _vCount;
         private bool _isClosedInU, _isClosedInV;
         private List<Curve.Curve> _trimCurves = new List<Curve.Curve>();
+        private List<Curve.Curve> _innerTrims = new List<Curve.Curve>();
         #endregion
 
         #region properties
@@ -32,7 +33,18 @@ namespace PipeDataModel.Types.Geometry.Surface
         public List<double> VKnots { get => _vKnots; set => _vKnots = Utils.GeometryUtil.NormalizedKnots(value); }
         public bool IsClosedInU { get => _isClosedInU; set => _isClosedInU = value; }
         public bool IsClosedInV { get => _isClosedInV; set => _isClosedInV = value; }
-        public List<Curve.Curve> TrimCurves { get => _trimCurves; }
+        public List<Curve.Curve> OuterTrims { get => _trimCurves; }
+        public List<Curve.Curve> InnerTrims { get => _innerTrims; }
+        public List<Curve.Curve> TrimCurves
+        {
+            get
+            {
+                List<Curve.Curve> trims = new List<Curve.Curve>();
+                trims.AddRange(_trimCurves);
+                trims.AddRange(_innerTrims);
+                return trims;
+            }
+        }
         #endregion
 
         #region constructors
@@ -69,7 +81,7 @@ namespace PipeDataModel.Types.Geometry.Surface
         {
             return surf.UDegree == _uDegree && surf.VDegree == _vDegree && surf.UCount == _uCount && surf.VCount == _vCount
                 && Utils.PipeDataUtil.EqualCollections(_points, surf.Points)
-                && Utils.PipeDataUtil.EqualIgnoreOrder(_trimCurves, surf.TrimCurves);
+                && Utils.PipeDataUtil.EqualIgnoreOrder(_trimCurves, surf.OuterTrims);
         }
 
         public Vec GetControlPointAt(int u, int v)
