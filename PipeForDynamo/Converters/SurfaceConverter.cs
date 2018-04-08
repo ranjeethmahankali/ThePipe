@@ -91,8 +91,17 @@ namespace PipeForDynamo.Converters
             AddConverter(new PipeConverter<dg.Surface, pps.NurbsSurface>(
                 (ds) => {
                     var nurbs = nurbsConv.ToPipe<dg.NurbsSurface, pps.NurbsSurface>(ds.ToNurbsSurface());
-                    nurbs.TrimCurves.Clear();
-                    nurbs.TrimCurves.AddRange(ds.Edges.Select((edge) => curveConv.ToPipe<dg.Curve, ppc.Curve>(edge.CurveGeometry)));
+                    nurbs.OuterTrims.Clear();
+                    try
+                    {
+                        var closedTrim = dg.PolyCurve.ByJoinedCurves(ds.Edges.Select((e) => e.CurveGeometry));
+                        nurbs.OuterTrims.Add(curveConv.ToPipe<dg.Curve, ppc.Curve>(closedTrim));
+                    }
+                    catch(Exception e)
+                    {
+                        //do nothing
+                        //nurbs.OuterTrims.AddRange(ds.Edges.Select((edge) => curveConv.ToPipe<dg.Curve, ppc.Curve>(edge.CurveGeometry)));
+                    }
                     return nurbs;
                 },
                 (pns) => {
@@ -123,9 +132,9 @@ namespace PipeForDynamo.Converters
                         nurbs = dg.NurbsSurface.ByControlPoints(pts.Select((r) => r.ToArray()).ToArray(), pns.UDegree, pns.VDegree);
                     }
 
-                    if (pns.TrimCurves.Count > 0)
+                    if (pns.OuterTrims.Count > 0)
                     {
-                        nurbs = nurbs.TrimWithEdgeLoops(pns.TrimCurves.Select((t) =>
+                        nurbs = nurbs.TrimWithEdgeLoops(pns.OuterTrims.Select((t) =>
                             (dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(t.AsPolyCurve())));
                     }
                     return nurbs;
@@ -139,8 +148,17 @@ namespace PipeForDynamo.Converters
                         var dgSurf = f.SurfaceGeometry().ToNurbsSurface();
                         var surf = nurbsConv.ToPipe<dg.NurbsSurface, pps.NurbsSurface>(dgSurf);
                         // add edges as trim curves
-                        surf.TrimCurves.Clear();
-                        surf.TrimCurves.AddRange(f.Edges.Select((edge) => curveConv.ToPipe<dg.Curve, ppc.Curve>(edge.CurveGeometry)));
+                        surf.OuterTrims.Clear();
+                        try
+                        {
+                            var closedTrim = dg.PolyCurve.ByJoinedCurves(f.Edges.Select((e) => e.CurveGeometry));
+                            surf.OuterTrims.Add(curveConv.ToPipe<dg.Curve, ppc.Curve>(closedTrim));
+                        }
+                        catch (Exception e)
+                        {
+                            //do nothing
+                            //surf.OuterTrims.AddRange(f.Edges.Select((edge) => curveConv.ToPipe<dg.Curve, ppc.Curve>(edge.CurveGeometry)));
+                        }
                         return (pps.Surface)surf;
                     }).ToList());
                 },
@@ -148,9 +166,9 @@ namespace PipeForDynamo.Converters
                     return dg.PolySurface.ByJoinedSurfaces(ps.Surfaces.Select((s) => {
                         var surf = FromPipe<dg.Surface, pps.Surface>(s);
                         if (typeof(pps.NurbsSurface).IsAssignableFrom(s.GetType())
-                            && ((pps.NurbsSurface)s).TrimCurves.Count > 0)
+                            && ((pps.NurbsSurface)s).OuterTrims.Count > 0)
                         {
-                            surf = surf.TrimWithEdgeLoops(((pps.NurbsSurface)s).TrimCurves.Select((c) =>
+                            surf = surf.TrimWithEdgeLoops(((pps.NurbsSurface)s).OuterTrims.Select((c) =>
                                 (dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(c.AsPolyCurve())));
                         }
                         return surf;

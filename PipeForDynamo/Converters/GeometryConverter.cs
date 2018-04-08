@@ -31,8 +31,17 @@ namespace PipeForDynamo.Converters
                 (ds) => {
                     return new pps.PolySurface(ds.Faces.Select((f) => {
                         var surf = (pps.NurbsSurface)surfConv.ToPipe<dg.Surface, pps.Surface>(f.SurfaceGeometry().ToNurbsSurface());
-                        surf.TrimCurves.Clear();
-                        surf.TrimCurves.AddRange(f.Edges.Select((e) => curConv.ToPipe<dg.Curve, ppc.Curve>(e.CurveGeometry)));
+                        surf.OuterTrims.Clear();
+                        try
+                        {
+                            var closedTrim = dg.PolyCurve.ByJoinedCurves(f.Edges.Select((e) => e.CurveGeometry));
+                            surf.OuterTrims.Add(curConv.ToPipe<dg.Curve, ppc.Curve>(closedTrim));
+                        }
+                        catch (Exception e)
+                        {
+                            //do nothing
+                            //surf.OuterTrims.AddRange(ds.Edges.Select((edge) => curConv.ToPipe<dg.Curve, ppc.Curve>(edge.CurveGeometry)));
+                        }
                         return (pps.Surface)surf;
                     }).ToList());
                 },

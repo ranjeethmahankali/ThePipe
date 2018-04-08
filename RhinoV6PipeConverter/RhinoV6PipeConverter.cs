@@ -71,8 +71,15 @@ namespace RhinoV6PipeConverter
                         for (int i = 0; i < rb.Faces.Count; i++)
                         {
                             var surf = (pps.NurbsSurface)surfConv.ToPipe<rh.Surface, pps.Surface>(rb.Faces[i].ToNurbsSurface());
-                            surf.TrimCurves.Clear();
-                            surf.TrimCurves.AddRange(rb.Faces[i].Loops.Select((l) => curveConv.ToPipe<rh.Curve, ppc.Curve>(l.To3dCurve())));
+                            surf.OuterTrims.Clear();
+                            surf.OuterTrims.AddRange(rb.Faces[i].Loops.Where((l) =>
+                                l.LoopType == rh.BrepLoopType.Outer).Select((l) =>
+                                curveConv.ToPipe<rh.Curve, ppc.Curve>(l.To3dCurve())));
+                            surf.InnerTrims.Clear();
+                            surf.InnerTrims.AddRange(rb.Faces[i].Loops.Where((l) =>
+                                l.LoopType == rh.BrepLoopType.Inner).Select((l) =>
+                                curveConv.ToPipe<rh.Curve, ppc.Curve>(l.To3dCurve())));
+
                             faces.Add(surf);
                         }
                         var polySurf = new pps.PolySurface(faces);
@@ -88,9 +95,9 @@ namespace RhinoV6PipeConverter
                             var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(surf);
                             brep = rh.Brep.CreateFromSurface(rhSurf);
                             if (typeof(pps.NurbsSurface).IsAssignableFrom(surf.GetType())
-                                    && ((pps.NurbsSurface)surf).TrimCurves.Count > 0)
+                                    && ((pps.NurbsSurface)surf).OuterTrims.Count > 0)
                             {
-                                List<ppc.Curve> trims = ((pps.NurbsSurface)surf).TrimCurves;
+                                List<ppc.Curve> trims = ((pps.NurbsSurface)surf).OuterTrims;
                                 List<ppc.Curve> loops = brep.Faces.First().Loops.Select((l) =>
                                     curveConv.ToPipe<rh.Curve, ppc.Curve>(l.To3dCurve())).ToList();
 
@@ -109,9 +116,9 @@ namespace RhinoV6PipeConverter
                                 var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(s);
                                 var subrep = rh.Brep.CreateFromSurface(rhSurf);
                                 if (typeof(pps.NurbsSurface).IsAssignableFrom(s.GetType())
-                                    && ((pps.NurbsSurface)s).TrimCurves.Count > 0)
+                                    && ((pps.NurbsSurface)s).OuterTrims.Count > 0)
                                 {
-                                    List<ppc.Curve> trims = ((pps.NurbsSurface)s).TrimCurves;
+                                    List<ppc.Curve> trims = ((pps.NurbsSurface)s).OuterTrims;
                                     List<ppc.Curve> loops = subrep.Faces.First().Loops.Select((l) =>
                                         curveConv.ToPipe<rh.Curve, ppc.Curve>(l.To3dCurve())).ToList();
 

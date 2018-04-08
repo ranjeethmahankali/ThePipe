@@ -51,7 +51,7 @@
     <Compile Include="CurveConverter.cs" />
     <Compile Include="PlaneConverter.cs" />
     <Compile Include="PointConverter.cs" />
-    <Compile Include="RhinoPipeConverter.cs" />
+    <Compile Include="RhinoV6PipeConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SurfaceConverter.cs" />
   </ItemGroup>
