@@ -102,6 +102,16 @@ namespace PipeDataModel.Types.Geometry.Curve
                 !Utils.PipeDataUtil.EqualCollections(_weights, otherCurve.Weights)) { return false; }
             return true;
         }
+
+        public override List<Vec> Vertices()
+        {
+            return new List<Vec>() { StartPoint, EndPoint };
+        }
+
+        public override Curve Translated(Vec transVec)
+        {
+            return new NurbsCurve(_controlPoints.Select((c) => Vec.Sum(c, transVec)).ToList(), _degree, _weights, _knots, _isClosed);
+        }
         #endregion
     }
 }

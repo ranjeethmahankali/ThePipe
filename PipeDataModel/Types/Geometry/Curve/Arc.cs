@@ -128,6 +128,18 @@ namespace PipeDataModel.Types.Geometry.Curve
             return _endAngle == otherArc.EndAngle && _startAngle == otherArc.StartAngle
                 && _radius == otherArc.Radius && _plane.Equals(otherArc.Plane);
         }
+
+        public override List<Vec> Vertices()
+        {
+            return new List<Vec>() { StartPoint, EndPoint };
+        }
+
+        public override Curve Translated(Vec transVec)
+        {
+            return new Arc(new Plane(Vec.Sum(_plane.Origin, transVec), _plane.X, _plane.Y, _plane.Z), 
+                _radius, _startAngle, _endAngle);
+        }
+
         #endregion
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PipeDataModel.Types.Geometry;
 
 namespace PipeDataModel.Utils
 {
@@ -23,6 +24,16 @@ namespace PipeDataModel.Utils
 
             if (min == max) { throw new InvalidOperationException("Cannot normalize knots."); }
             return knots.Select((k) => (k - min) / (max - min)).ToList();
+        }
+
+        public static bool AreCoincident(Vec a, Vec b)
+        {
+            return Vec.Difference(a, b).Length < 1e-6;
+        }
+
+        public static bool ListContainsCoincidentPoint(List<Vec> pts, Vec pt)
+        {
+            return pts.Any((v) => AreCoincident(v, pt));
         }
 
         //public List<double> ReconciledKnots(List<double> pipeKnots, List<double> appKnots)

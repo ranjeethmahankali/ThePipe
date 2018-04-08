@@ -73,6 +73,21 @@ namespace PipeDataModel.Types.Geometry.Curve
 
             return true;
         }
+
+        public override List<Vec> Vertices()
+        {
+            var verts = new List<Vec>();
+            foreach(var cur in _segments)
+            {
+                verts.AddRange(cur.Vertices());
+            }
+            return verts;
+        }
+
+        public override Curve Translated(Vec transVec)
+        {
+            return new PolyCurve(_segments.Select((s) => s.Translated(transVec)).ToList());
+        }
         #endregion
     }
 }

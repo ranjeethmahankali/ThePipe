@@ -47,6 +47,16 @@ namespace PipeDataModel.Types.Geometry.Curve
         {
             return _startPt.Equals(otherLine.StartPoint) && _endPt.Equals(otherLine.EndPoint);
         }
+
+        public override List<Vec> Vertices()
+        {
+            return new List<Vec>() { _startPt, _endPt };
+        }
+
+        public override Curve Translated(Vec transVec)
+        {
+            return new Line(Vec.Sum(_startPt, transVec), Vec.Sum(_endPt, transVec));
+        }
         #endregion
     }
 }

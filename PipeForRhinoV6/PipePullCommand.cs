@@ -11,9 +11,10 @@ using PipeDataModel.Types;
 using PipeDataModel.DataTree;
 using PipeDataModel.Pipe;
 
-namespace PipeForRhino
+
+namespace PipeForRhinoV6
 {
-    [System.Runtime.InteropServices.Guid("77e390dc-fbd8-487e-886d-5409d0128d7a")]
+    [System.Runtime.InteropServices.Guid("68af2494-2147-48ea-9197-8750a0a7625e")]
     public class PipePullCommand : Command, IPipeEmitter
     {
         private static string APP_KEY = "rhinoPipe_77e390dc-fbd8-487e-886d-5409d0128d7a";
@@ -43,12 +44,12 @@ namespace PipeForRhino
         public void EmitPipeData(DataNode data)
         {
             _objectsReceived = new List<GeometryBase>();
-            if(data == null)
+            if (data == null)
             {
-                Rhino.UI.Dialogs.ShowMessageBox("Did not receive any data.", "Pipe pull");
+                Rhino.UI.Dialogs.ShowMessage("Did not receive any data.", "Pipe pull");
                 return;
             }
-            foreach(var child in data.ChildrenList)
+            foreach (var child in data.ChildrenList)
             {
                 _objectsReceived.Add(PipeConverter.FromPipe(child.Data));
             }
@@ -60,7 +61,7 @@ namespace PipeForRhino
             using (GetString getter = new GetString())
             {
                 getter.SetCommandPrompt("Enter the name/url for the pipe");
-                if(_prevPipeName != null) { getter.SetDefaultString(_prevPipeName); }
+                if (_prevPipeName != null) { getter.SetDefaultString(_prevPipeName); }
                 if (getter.Get() != GetResult.String)
                 {
                     RhinoApp.WriteLine("Invalid Input");
@@ -84,12 +85,12 @@ namespace PipeForRhino
             {
                 _pipe.Update();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Rhino.UI.Dialogs.ShowMessageBox(e.Message, "Error");
+                Rhino.UI.Dialogs.ShowMessage(e.Message, "Error");
             }
 
-            if(_objectsReceived.Count > 0)
+            if (_objectsReceived.Count > 0)
             {
                 DeletePulledObjects(pipeIdentifier, ref doc);
             }
@@ -121,8 +122,8 @@ namespace PipeForRhino
         private static void DeletePulledObjects(string pipeIdentifier, ref RhinoDoc doc)
         {
             List<Guid> pulledObjs = GetPulledObjectDictionary(ref doc, pipeIdentifier);
-            if(pulledObjs == null) { return; }
-            foreach(var id in pulledObjs)
+            if (pulledObjs == null) { return; }
+            foreach (var id in pulledObjs)
             {
                 doc.Objects.Delete(id, true);
             }
@@ -131,13 +132,13 @@ namespace PipeForRhino
         private static List<Guid> DeserializeToGuidList(string str)
         {
             List<Guid> ids = new List<Guid>();
-            if (str == null) { return ids; }
+            if(str == null) { return ids; }
             string[] guidStrArr = str.Split(';');
             foreach (var idStr in guidStrArr)
             {
-                if(idStr == "") { continue; }
+                if (idStr == "") { continue; }
                 Guid id;
-                if(Guid.TryParse(idStr, out id)) { ids.Add(id); }
+                if (Guid.TryParse(idStr, out id)) { ids.Add(id); }
             }
             return ids;
         }
@@ -145,10 +146,10 @@ namespace PipeForRhino
         private static string SerializeGuidList(List<Guid> idList)
         {
             string str = "";
-            for(int i = 0; i < idList.Count; i++)
+            for (int i = 0; i < idList.Count; i++)
             {
                 str += idList[i].ToString();
-                if(i != idList.Count - 1)
+                if (i != idList.Count - 1)
                 {
                     str += ";";
                 }

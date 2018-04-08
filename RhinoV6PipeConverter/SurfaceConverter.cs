@@ -9,7 +9,7 @@ using pp = PipeDataModel.Types.Geometry;
 using pps = PipeDataModel.Types.Geometry.Surface;
 using ppc = PipeDataModel.Types.Geometry.Curve;
 
-namespace RhinoPipeConverter
+namespace RhinoV6PipeConverter
 {
     public class SurfaceConverter : PipeConverter<rh.Surface, pps.Surface>
     {
@@ -31,7 +31,6 @@ namespace RhinoPipeConverter
                     extr.CappedAtStart = rhE.IsCappedAtBottom;
                     extr.CappedAtEnd = rhE.IsCappedAtTop;
                     extr.SurfaceNormal = vecConv.ToPipe<rh.Vector3d, pp.Vec>(rhE.NormalAt(rhE.Domain(0).Mid, rhE.Domain(1).Mid));
-
                     return extr;
                 },
                 (ppE) => {
@@ -55,7 +54,7 @@ namespace RhinoPipeConverter
                     }
 
                     var rhNorm = extr.NormalAt(extr.Domain(0).Mid, extr.Domain(1).Mid);
-                    if(rh.Vector3d.Multiply(rhNorm, vecConv.FromPipe<rh.Vector3d, pp.Vec>(ppE.SurfaceNormal)) < 0)
+                    if (rh.Vector3d.Multiply(rhNorm, vecConv.FromPipe<rh.Vector3d, pp.Vec>(ppE.SurfaceNormal)) < 0)
                     {
                         //extrusions don't need to be flipped;
                     }

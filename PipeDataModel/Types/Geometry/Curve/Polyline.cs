@@ -62,6 +62,16 @@ namespace PipeDataModel.Types.Geometry.Curve
             }
             return lines;
         }
+
+        public override List<Vec> Vertices()
+        {
+            return _points.ToList();
+        }
+
+        public override Curve Translated(Vec transVec)
+        {
+            return new Polyline(_points.Select((p) => Vec.Sum(p, transVec)).ToList());
+        }
         #endregion
     }
 }
