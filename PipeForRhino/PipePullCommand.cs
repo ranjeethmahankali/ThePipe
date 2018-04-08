@@ -130,9 +130,10 @@ namespace PipeForRhino
 
         private static List<Guid> DeserializeToGuidList(string str)
         {
-            string[] guidStrArr = str.Split(';');
             List<Guid> ids = new List<Guid>();
-            foreach(var idStr in guidStrArr)
+            if (str == null) { return ids; }
+            string[] guidStrArr = str.Split(';');
+            foreach (var idStr in guidStrArr)
             {
                 if(idStr == "") { continue; }
                 Guid id;

@@ -94,6 +94,7 @@ namespace RhinoV6PipeConverter
                             var surf = pb.Surfaces.FirstOrDefault();
                             var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(surf);
                             brep = rh.Brep.CreateFromSurface(rhSurf);
+                            if (!brep.IsValid) { brep.Repair(Rhino.RhinoMath.ZeroTolerance); }
                             if (typeof(pps.NurbsSurface).IsAssignableFrom(surf.GetType())
                                     && ((pps.NurbsSurface)surf).OuterTrims.Count > 0)
                             {
@@ -115,6 +116,7 @@ namespace RhinoV6PipeConverter
                             brep = rh.Brep.MergeBreps(pb.Surfaces.Select((s) => {
                                 var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(s);
                                 var subrep = rh.Brep.CreateFromSurface(rhSurf);
+                                if (!subrep.IsValid) { subrep.Repair(Rhino.RhinoMath.ZeroTolerance); }
                                 if (typeof(pps.NurbsSurface).IsAssignableFrom(s.GetType())
                                     && ((pps.NurbsSurface)s).OuterTrims.Count > 0)
                                 {
@@ -138,8 +140,11 @@ namespace RhinoV6PipeConverter
                         if (!brep.IsValidWithLog(out msg))
                         {
                             System.Diagnostics.Debug.WriteLine(msg);
-                            throw new InvalidOperationException("Failed to create a valid brep from " +
-                                "received data because: \n" + msg);
+                            if(!brep.Repair(Rhino.RhinoMath.ZeroTolerance) && !brep.IsValid)
+                            {
+                                throw new InvalidOperationException("Failed to create a valid brep from " +
+                                    "received data because: \n" + msg);
+                            }
                         }
                         return brep;
                     }
