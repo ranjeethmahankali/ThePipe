@@ -65,8 +65,9 @@ namespace RhinoV6PipeConverter
 
                             if (!PipeDataUtil.EqualIgnoreOrder(loops, trims))
                             {
-                                var brep2 = brep.Faces.First().Split(trims.Select((c) =>
-                                    curveConv.FromPipe<Curve, ppc.Curve>(c)).ToList(), Rhino.RhinoMath.ZeroTolerance);
+                                var rhTrims = trims.Select((c) => curveConv.FromPipe<Curve, ppc.Curve>(c)).ToList();
+                                var faceToSplit = brep.Faces.First();
+                                var brep2 = faceToSplit.Split(rhTrims, Rhino.RhinoMath.ZeroTolerance);
                                 if (brep2 != null && !brep2.IsValid) { brep2.Repair(Rhino.RhinoMath.ZeroTolerance); }
                                 if (brep2 != null && brep2.IsValid) { brep = brep2.Faces.Last().DuplicateFace(false); }
                             }

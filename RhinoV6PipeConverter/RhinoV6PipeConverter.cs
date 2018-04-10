@@ -88,7 +88,7 @@ namespace RhinoV6PipeConverter
                     },
                     (pb) => {
                         if (pb.Surfaces.Count <= 0) { return null; }
-                        rh.Brep brep;
+                        rh.Brep brep = null;
                         //trying to create a trimmed brep with built in methods
                         if (Util.TryCreateBrepWithBuiltInMethods(pb, out brep, surfConv, curveConv))
                         {
