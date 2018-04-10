@@ -57,6 +57,13 @@ namespace PipeForRhinoV6
 
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
+#if DEBUG
+            /*
+             * setting the document as a globally accessible member, so that the converters can accsess and add
+             * intermediate geometry to the document for examination
+             */
+            RhinoV6PipeConverter.DebugUtil.Document = doc;
+#endif
             string pipeIdentifier;
             using (GetString getter = new GetString())
             {
