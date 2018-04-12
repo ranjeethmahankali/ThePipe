@@ -29,7 +29,8 @@ namespace PipeForDynamo.Converters
             //solids - only one way mapping
             AddConverter(new PipeConverter<dg.Solid, pps.PolySurface>(
                 (ds) => {
-                    return new pps.PolySurface(ds.Faces.Select((f) => {
+                    List<List<int>> adjacency = new List<List<int>>();
+                    var faces = ds.Faces.Select((f) => {
                         var surf = (pps.NurbsSurface)surfConv.ToPipe<dg.Surface, pps.Surface>(f.SurfaceGeometry().ToNurbsSurface());
                         surf.OuterTrims.Clear();
                         try
@@ -42,8 +43,11 @@ namespace PipeForDynamo.Converters
                             //do nothing
                             //surf.OuterTrims.AddRange(ds.Edges.Select((edge) => curConv.ToPipe<dg.Curve, ppc.Curve>(edge.CurveGeometry)));
                         }
+                        adjacency.Add(f.Edges.SelectMany((e) => e.AdjacentFaces.ToList()).Distinct().Select((af) =>
+                                ds.Faces.ToList().IndexOf(af)).ToList());
                         return (pps.Surface)surf;
-                    }).ToList());
+                    }).ToList();
+                    return new pps.PolySurface(faces, adjacency);
                 },
                 null// null because of oneway mapping
             ));

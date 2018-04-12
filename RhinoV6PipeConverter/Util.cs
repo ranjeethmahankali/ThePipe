@@ -80,6 +80,7 @@ namespace RhinoV6PipeConverter
                             pps.Surface s = pb.Surfaces[i];
                             var rhSurf = surfConv.FromPipe<Surface, pps.Surface>(s);
                             var subrep = Brep.CreateFromSurface(rhSurf);
+                            if (!subrep.IsValid) { subrep.Repair(Rhino.RhinoMath.ZeroTolerance); }
                             if (typeof(pps.NurbsSurface).IsAssignableFrom(s.GetType())
                                 && ((pps.NurbsSurface)s).TrimCurves.Count > 0)
                             {
@@ -99,22 +100,23 @@ namespace RhinoV6PipeConverter
                             if(i == 0) { brep = subrep; }
                             else
                             {
-                                brep = Brep.MergeSurfaces(brep, subrep, Rhino.RhinoMath.ZeroTolerance, 
-                                    Rhino.RhinoMath.ZeroTolerance, Point2d.Unset, Point2d.Unset, 0.0, true) ?? 
-                                    Brep.MergeSurfaces(brep, subrep, Rhino.RhinoMath.ZeroTolerance, Rhino.RhinoMath.ZeroTolerance) ??
-                                    Brep.JoinBreps(new List<Brep>() { brep, subrep }, Rhino.RhinoMath.ZeroTolerance).First();
+                                //brep = Brep.MergeSurfaces(brep, subrep, Rhino.RhinoMath.ZeroTolerance, 
+                                //    Rhino.RhinoMath.ZeroTolerance, Point2d.Unset, Point2d.Unset, 0.0, true) ?? 
+                                //    Brep.MergeSurfaces(brep, subrep, Rhino.RhinoMath.ZeroTolerance, Rhino.RhinoMath.ZeroTolerance) ??
+                                //    Brep.JoinBreps(new List<Brep>() { brep, subrep }, Rhino.RhinoMath.ZeroTolerance).First();
+                                brep = Brep.MergeBreps(new List<Brep>() { brep, subrep }, Rhino.RhinoMath.ZeroTolerance);
                             }
                         }
                     }
 
                     attempts += 1;
                     //not doing anymore attempts if this time was successful
-                    //if (!brep.IsValid) { brep.Repair(Rhino.RhinoMath.ZeroTolerance); }
+                    if (!brep.IsValid) { brep.Repair(Rhino.RhinoMath.ZeroTolerance); }
                     if (brep.IsValid) { break; }
                 }
 
-                if (brep.IsValid) { return true; }
-                else { return false; }
+                if (!brep.IsValid) { brep.Repair(Rhino.RhinoMath.ZeroTolerance); }
+                return brep.IsValid;
             }
             catch(Exception e)
             {

@@ -68,6 +68,7 @@ namespace RhinoPipeConverter
             base(
                     (rb) => {
                         List<pps.Surface> faces = new List<pps.Surface>();
+                        List<List<int>> adjacency = new List<List<int>>();
                         for (int i = 0; i < rb.Faces.Count; i++)
                         {
                             var surf = (pps.NurbsSurface)surfConv.ToPipe<rh.Surface, pps.Surface>(rb.Faces[i].ToNurbsSurface());
@@ -81,8 +82,9 @@ namespace RhinoPipeConverter
                                 curveConv.ToPipe<rh.Curve, ppc.Curve>(l.To3dCurve())));
 
                             faces.Add(surf);
+                            adjacency.Add(rb.Faces[i].AdjacentFaces().ToList());
                         }
-                        var polySurf = new pps.PolySurface(faces);
+                        var polySurf = new pps.PolySurface(faces, adjacency);
 
                         return polySurf;
                     },
