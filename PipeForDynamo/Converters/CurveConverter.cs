@@ -82,7 +82,15 @@ namespace PipeForDynamo.Converters
                     return new ppc.PolyCurve(curs.Select((c) => ToPipe<dg.Curve, ppc.Curve>(c)).ToList());
                 },
                 (ppcrv) => {
-                    return dg.PolyCurve.ByJoinedCurves(ppcrv.Segments.Select((c) => FromPipe<dg.Curve, ppc.Curve>(c)));
+                    try
+                    {
+                        List<dg.Curve> curves = ppcrv.Segments.Select((c) => FromPipe<dg.Curve, ppc.Curve>(c)).ToList();
+                        return dg.PolyCurve.ByJoinedCurves(curves);
+                    }
+                    catch(Exception e)
+                    {
+                        return null;
+                    }
                 }
             );
             AddConverter(polyCurveConv);
