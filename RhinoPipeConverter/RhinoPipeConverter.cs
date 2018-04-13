@@ -97,44 +97,25 @@ namespace RhinoPipeConverter
                             if (pb.Surfaces.Count == 1)
                             {
                                 var surf = pb.Surfaces.FirstOrDefault();
-                                var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(surf);
-                                brep = rh.Brep.CreateFromSurface(rhSurf);
-                                if (typeof(pps.NurbsSurface).IsAssignableFrom(surf.GetType())
-                                        && ((pps.NurbsSurface)surf).TrimCurves.Count > 0)
-                                {
-                                    List<ppc.Curve> trims = ((pps.NurbsSurface)surf).TrimCurves;
-                                    List<ppc.Curve> loops = brep.Faces.First().Loops.Select((l) =>
-                                        curveConv.ToPipe<rh.Curve, ppc.Curve>(l.To3dCurve())).ToList();
-
-                                    if (!PipeDataUtil.EqualIgnoreOrder(loops, trims))
-                                    {
-                                        var brep2 = brep.Faces.First().Split(trims.Select((c) =>
-                                            curveConv.FromPipe<rh.Curve, ppc.Curve>(c)).ToList(), Rhino.RhinoMath.ZeroTolerance);
-                                        if (brep2 != null && brep2.IsValid) { brep = brep2.Faces.Last().DuplicateFace(false); }
-                                    }
-                                }
+                                brep = Util.GetTrimmedBrep(surf, surfConv, curveConv);
                             }
                             else
                             {
-                                brep = rh.Brep.MergeBreps(pb.Surfaces.Select((s) => {
-                                    var rhSurf = surfConv.FromPipe<rh.Surface, pps.Surface>(s);
-                                    var subrep = rh.Brep.CreateFromSurface(rhSurf);
-                                    if (typeof(pps.NurbsSurface).IsAssignableFrom(s.GetType())
-                                        && ((pps.NurbsSurface)s).TrimCurves.Count > 0)
+                                for (int i = 0; i < pb.Surfaces.Count; i++)
+                                {
+                                    pps.Surface s = pb.Surfaces[i];
+                                    var subrep = Util.GetTrimmedBrep(s, surfConv, curveConv);
+                                    //if (!subrep.IsValid) { subrep.Repair(Rhino.RhinoMath.ZeroTolerance); }
+                                    if (i == 0) { brep = subrep; }
+                                    else
                                     {
-                                        List<ppc.Curve> trims = ((pps.NurbsSurface)s).TrimCurves;
-                                        List<ppc.Curve> loops = subrep.Faces.First().Loops.Select((l) =>
-                                            curveConv.ToPipe<rh.Curve, ppc.Curve>(l.To3dCurve())).ToList();
-
-                                        if (!PipeDataUtil.EqualIgnoreOrder(loops, trims))
-                                        {
-                                            var brep2 = subrep.Faces.First().Split(trims.Select((c) =>
-                                                curveConv.FromPipe<rh.Curve, ppc.Curve>(c)).ToList(), Rhino.RhinoMath.ZeroTolerance);
-                                            if (brep2 != null && brep2.IsValid) { subrep = brep2.Faces.Last().DuplicateFace(false); }
-                                        }
+                                        //brep = Brep.MergeSurfaces(brep, subrep, Rhino.RhinoMath.ZeroTolerance, 
+                                        //    Rhino.RhinoMath.ZeroTolerance, Point2d.Unset, Point2d.Unset, 0.0, true) ?? 
+                                        //    Brep.MergeSurfaces(brep, subrep, Rhino.RhinoMath.ZeroTolerance, Rhino.RhinoMath.ZeroTolerance) ??
+                                        //    Brep.JoinBreps(new List<Brep>() { brep, subrep }, Rhino.RhinoMath.ZeroTolerance).First();
+                                        brep = rh.Brep.MergeBreps(new List<rh.Brep>() { brep, subrep }, Rhino.RhinoMath.ZeroTolerance);
                                     }
-                                    return subrep;
-                                }), Rhino.RhinoMath.ZeroTolerance);
+                                }
                             }
 
                             attempts += 1;

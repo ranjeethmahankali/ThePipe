@@ -142,7 +142,7 @@ namespace PipeForDynamo.Converters
                     if (pns.OuterTrims.Count > 0)
                     {
                         var trims = pns.OuterTrims.Select((t) =>
-                            ((dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(t.AsPolyCurve())).CloseWithLine()).ToList();
+                            ((dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(t.AsPolyCurve()))?.CloseWithLine()).ToList();
                         try
                         {
                             nurbs = nurbs.TrimWithEdgeLoops(trims);
