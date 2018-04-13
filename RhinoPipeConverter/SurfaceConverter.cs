@@ -72,7 +72,7 @@ namespace RhinoPipeConverter
                     
                     for (int u = 0; u < rns.Points.CountU; u++)
                     {
-                        for (int v = 0; v < rns.Points.CountU; v++)
+                        for (int v = 0; v < rns.Points.CountV; v++)
                         {
                             nurbs.SetControlPoint(ptConv.ToPipe<rh.Point3d, pp.Vec>(rns.Points.GetControlPoint(u, v).Location), u, v);
                             nurbs.SetWeight(rns.Points.GetControlPoint(u, v).Weight, u, v);

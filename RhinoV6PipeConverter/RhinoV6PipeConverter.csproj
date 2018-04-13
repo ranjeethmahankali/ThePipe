@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CurveConverter.cs" />
+    <Compile Include="DebugUtil.cs" />
     <Compile Include="PlaneConverter.cs" />
     <Compile Include="PointConverter.cs" />
     <Compile Include="RhinoV6PipeConverter.cs" />

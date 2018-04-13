@@ -32,8 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ProtoGeometry">
-      <HintPath>C:\Program Files\Dynamo 0.9\ProtoGeometry.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>C:\Program Files\Dynamo\Dynamo Core\1.3\ProtoGeometry.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

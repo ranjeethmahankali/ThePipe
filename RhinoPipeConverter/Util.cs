@@ -8,7 +8,7 @@ using pps = PipeDataModel.Types.Geometry.Surface;
 using ppc = PipeDataModel.Types.Geometry.Curve;
 using PipeDataModel.Utils;
 
-namespace RhinoV6PipeConverter
+namespace RhinoPipeConverter
 {
     public class Util
     {
@@ -36,7 +36,7 @@ namespace RhinoV6PipeConverter
             }
             return loop;
         }
-
+        /*
         public static bool TryCreateBrepWithBuiltInMethods(pps.PolySurface pb, out Brep brep, SurfaceConverter surfConv, CurveConverter curveConv)
         {
             if (pb.Surfaces.Count <= 0)
@@ -89,7 +89,7 @@ namespace RhinoV6PipeConverter
                 return false;
             }
         }
-
+        */
         public static Brep GetEnclosedFacesAsBrep(Brep brep, List<Curve> loops)
         {
             List<Brep> faces = new List<Brep>();
@@ -116,7 +116,7 @@ namespace RhinoV6PipeConverter
         {
             var rhSurf = surfConv.FromPipe<Surface, pps.Surface>(surface);
             var brep = Brep.CreateFromSurface(rhSurf);
-            if (!brep.IsValid) { brep.Repair(Rhino.RhinoMath.ZeroTolerance); }
+            //if (!brep.IsValid) { brep.Repair(Rhino.RhinoMath.ZeroTolerance); }
             if (typeof(pps.NurbsSurface).IsAssignableFrom(surface.GetType())
                     && ((pps.NurbsSurface)surface).TrimCurves.Count > 0)
             {
@@ -129,7 +129,7 @@ namespace RhinoV6PipeConverter
                     var rhTrims = trims.Select((c) => curveConv.FromPipe<Curve, ppc.Curve>(c)).ToList();
                     var faceToSplit = brep.Faces.First();
                     var brep2 = faceToSplit.Split(rhTrims, Rhino.RhinoMath.ZeroTolerance);
-                    if (brep2 != null && !brep2.IsValid) { brep2.Repair(Rhino.RhinoMath.ZeroTolerance); }
+                    //if (brep2 != null && !brep2.IsValid) { brep2.Repair(Rhino.RhinoMath.ZeroTolerance); }
                     if (brep2 != null && brep2.IsValid) { brep = GetEnclosedFacesAsBrep(brep2, rhTrims) ?? brep2; }
                 }
             }

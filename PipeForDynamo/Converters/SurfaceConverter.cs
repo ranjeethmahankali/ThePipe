@@ -142,7 +142,7 @@ namespace PipeForDynamo.Converters
                     if (pns.OuterTrims.Count > 0)
                     {
                         var trims = pns.OuterTrims.Select((t) =>
-                            ((dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(t.AsPolyCurve())).CloseWithLine()).ToList();
+                            ((dg.PolyCurve)curveConv.FromPipe<dg.Curve, ppc.Curve>(t.AsPolyCurve()))?.CloseWithLine()).ToList();
                         try
                         {
                             nurbs = nurbs.TrimWithEdgeLoops(trims);
@@ -164,7 +164,8 @@ namespace PipeForDynamo.Converters
             //Polysurfaces
             AddConverter(new PipeConverter<dg.PolySurface, pps.PolySurface>(
                 (dps) => {
-                    return new pps.PolySurface(dps.Faces.Select((f) => {
+                    List<List<int>> adjacency = new List<List<int>>();
+                    var faces = dps.Faces.Select((f) => {
                         var dgSurf = f.SurfaceGeometry().ToNurbsSurface();
                         var surf = nurbsConv.ToPipe<dg.NurbsSurface, pps.NurbsSurface>(dgSurf);
                         // add edges as trim curves
@@ -179,8 +180,11 @@ namespace PipeForDynamo.Converters
                             //do nothing
                             //surf.OuterTrims.AddRange(f.Edges.Select((edge) => curveConv.ToPipe<dg.Curve, ppc.Curve>(edge.CurveGeometry)));
                         }
+                        adjacency.Add(f.Edges.SelectMany((e) => e.AdjacentFaces.ToList()).Distinct().Select((af) =>
+                                dps.Faces.ToList().IndexOf(af)).ToList());
                         return (pps.Surface)surf;
-                    }).ToList());
+                    }).ToList();
+                    return new pps.PolySurface(faces, adjacency);
                 },
                 (ps) => {
                     return dg.PolySurface.ByJoinedSurfaces(ps.Surfaces.Select((s) => {

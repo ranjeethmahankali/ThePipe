@@ -17,29 +17,26 @@ namespace PipeForDynamo.Converters
         {
             var lineConv = new LineConverter(ptConv);
             AddConverter(lineConv);
-            var plineConv = new PolylineConverter(ptConv);
-            AddConverter(plineConv);
-            var pcurveConv = new PolyCurveConverter(this);
-            AddConverter(pcurveConv);
             var arcConv = new ArcConverter(ptConv, vecConv);
             AddConverter(arcConv);
 
             //to convert nurbs curves
             var nurbsConv = new PipeConverter<dg.NurbsCurve, ppc.NurbsCurve>(
                 (dc) => {
+                    ////just to smooth out anything weird about this curve
+                    //dc = dc.ToNurbsCurve();
+
                     ppc.NurbsCurve cur;
                     List<dg.Point> pts = dc.ControlPoints().ToList();
                     List<double> knots = dc.Knots().ToList();
-
-                    //just to smooth out anything weird about this curve
-                    dc = dc.ToNurbsCurve();
+                    
                     var startParam = dc.StartParameter();
                     var endParam = dc.EndParameter();
                     knots = knots.Select((k) => (k - startParam) / (endParam - startParam)).ToList();
                     //making sure all the weights are not zeros by setting them to 1 if they are
-                    double tolerance = 1e-3;
+                    double tolerance = 1e-4;
                     List<double> weights = dc.Weights().ToList();
-                    if(weights.Any((w) => w <= tolerance)) { weights = weights.Select((w) => Math.Max(w, tolerance)).ToList(); }
+                    if(weights.Any((w) => w <= tolerance)) { weights = weights.Select((w) => 1.0).ToList(); }
                     cur = new ppc.NurbsCurve(pts.Select((pt) => ptConv.ToPipe<dg.Point, ppg.Vec>(pt)).ToList(),
                             dc.Degree, weights, knots, dc.IsClosed);
 
@@ -55,8 +52,8 @@ namespace PipeForDynamo.Converters
                         if(pnc.IsClosed != cur.IsClosed)
                         {
                             cur = dg.NurbsCurve.ByControlPoints(
-                            pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)), pnc.Degree,
-                            pnc.IsClosed);
+                                pnc.ControlPoints.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)), pnc.Degree,
+                                pnc.IsClosed);
                         }
                     }
                     catch (Exception e)
@@ -77,6 +74,33 @@ namespace PipeForDynamo.Converters
                 },
                 null
             ));
+
+            //conversion for polycurves
+            var polyCurveConv = new PipeConverter<dg.PolyCurve, ppc.PolyCurve>(
+                (dpc) => {
+                    dg.Curve[] curs = dpc.Curves();
+                    return new ppc.PolyCurve(curs.Select((c) => ToPipe<dg.Curve, ppc.Curve>(c)).ToList());
+                },
+                (ppcrv) => {
+                    try
+                    {
+                        List<dg.Curve> curves = ppcrv.Segments.Select((c) => FromPipe<dg.Curve, ppc.Curve>(c)).ToList();
+                        return dg.PolyCurve.ByJoinedCurves(curves);
+                    }
+                    catch(Exception e)
+                    {
+                        return null;
+                    }
+                }
+            );
+            AddConverter(polyCurveConv);
+            //one way conversion for incoming polylines
+            var plineConv = new PipeConverter<dg.PolyCurve, ppc.Polyline>(
+                null,
+                (ppl) => {
+                    return polyCurveConv.FromPipe<dg.PolyCurve, ppc.PolyCurve>(ppl.AsPolyCurve());
+                }
+            );
         }
     }
 
@@ -98,30 +122,6 @@ namespace PipeForDynamo.Converters
         { }
     }
 
-    internal class PolylineConverter: PipeConverter<dg.PolyCurve, ppc.Polyline>
-    {
-        internal PolylineConverter(PointConverter ptConv):
-            base(
-                    (dpc) => {
-                        dg.Curve[] curs = dpc.Curves();
-                        List<ppg.Vec> pts = new List<ppg.Vec>();
-                        if (curs.Length == 0) { return new ppc.Polyline(pts); }
-
-                        pts.Add(ptConv.ToPipe<dg.Point, ppg.Vec>(curs[0].StartPoint));
-                        for(int i = 0; i < curs.Length; i++)
-                        {
-                            pts.Add(ptConv.ToPipe<dg.Point, ppg.Vec>(curs[i].EndPoint));
-                        }
-
-                        return new ppc.Polyline(pts);
-                    },
-                    (ppl) => {
-                        return dg.PolyCurve.ByPoints(ppl.Points.Select((pt) => ptConv.FromPipe<dg.Point, ppg.Vec>(pt)));
-                    }
-                )
-        { }
-    }
-
     internal class ArcConverter: PipeConverter<dg.Arc, ppc.Arc>
     {
         internal ArcConverter(PointConverter ptConv, VectorConverter vecConv):
@@ -135,21 +135,6 @@ namespace PipeForDynamo.Converters
                         return dg.Arc.ByCenterPointRadiusAngle(ptConv.FromPipe<dg.Point, ppg.Vec>(pparc.Plane.Origin), pparc.Radius, 
                             PipeDataUtil.RadiansToDegrees(pparc.StartAngle), PipeDataUtil.RadiansToDegrees(pparc.EndAngle), 
                             vecConv.FromPipe<dg.Vector, ppg.Vec>(pparc.Plane.Z));
-                    }
-                )
-        { }
-    }
-
-    internal class PolyCurveConverter: PipeConverter<dg.PolyCurve, ppc.PolyCurve>
-    {
-        internal PolyCurveConverter(CurveConverter curConv): 
-            base(
-                    (dpc) => {
-                        dg.Curve[] curs = dpc.Curves();
-                        return new ppc.PolyCurve(curs.Select((c) => curConv.ToPipe<dg.Curve, ppc.Curve>(c)).ToList());
-                    },
-                    (ppc) => {
-                        return dg.PolyCurve.ByJoinedCurves(ppc.Segments.Select((s) => curConv.FromPipe<dg.Curve, ppc.Curve>(s)));
                     }
                 )
         { }
