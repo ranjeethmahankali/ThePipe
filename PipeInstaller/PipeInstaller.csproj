@@ -75,6 +75,8 @@ xcopy /s /q /y "$(SolutionDir)PipeForGrasshopper\bin\PipeForGrasshopper.gha" "$(
 
 xcopy /s /q /y "$(SolutionDir)PipeForRhino\bin\PipeForRhino.rhp" "$(TargetDir)SetupFiles\"
 
+xcopy /s /q /y "$(SolutionDir)RhinoV6PipeConverter\bin\Release\RhinoV6PipeConverter.dll" "$(TargetDir)SetupFiles\"
+xcopy /s /q /y "$(SolutionDir)PipeForRhinoV6\bin\PipeForRhinoV6.rhp" "$(TargetDir)SetupFiles\"
 </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

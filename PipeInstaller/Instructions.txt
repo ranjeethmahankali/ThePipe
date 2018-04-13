@@ -33,9 +33,13 @@ PipeForDynamo - Dynamo Library
 --	From the SetupFiles, copy PipeDataModel.dll and PipeForDynamo.dll to any folder on your disk.
 --	To use it, load the PipeForDynamo.dll from within Dynamo by clicking File > Import Library.
 
-PipeForRhino - Rhino Plugin
+PipeForRhinoV5 - RhinocerosV5 Plugin
 --	From the SetupFiles, copy PipeDataModel.dll, RhinoPipeConverter.dll and PipeForRhino.rhp to any folder on your disk.
 --	Open Rhino, open the PluginManager and load the RHP file.
+
+PipeForRhinoV6 - RhinocerosV6 Plugin
+--	From the SetupFiles, copy PipeDataModel.dll, RhinoV6PipeConverter.dll and PipeForRhinoV6.rhp to any folder on your disk.
+--	Open RhinocerosV6, open the PluginManager and load the RHP file.
 
 PipeForGrasshopper - Grasshopper Plugin
 --	From the SetupFiles, copy PipeDataModel.dll, RhinoPipeConverter.dll and PipeForGrasshopper.gha to the Grasshopper Libraries
