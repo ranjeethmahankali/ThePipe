@@ -39,6 +39,7 @@ namespace PipeInstaller
             //shared setup files
             SetupFile pipeDataModel = new SetupFile("PipeDataModel.dll");
             SetupFile rhPipeConverter = new SetupFile("RhinoPipeConverter.dll");
+            SetupFile rhV6PipeConverter = new SetupFile("RhinoV6PipeConverter.dll");
             /*
              * Then create all the apps - i.e. ThePipe plugins and extensions for all the apps with proper setup files
              */
@@ -77,8 +78,8 @@ namespace PipeInstaller
             App rhinoV6Pipe = new App(rhinoV6AppName, setupFileDir, Path.Combine(programDataDir, appAuthorName),
                 "PipeForRhino Installation folder", true);
             rhinoV6Pipe.AddSetupFile(pipeDataModel);
-            rhinoV6Pipe.AddSetupFile(rhPipeConverter);
-            rhinoV6Pipe.AddSetupFile(new SetupFile("PipeForRhino.rhp"));
+            rhinoV6Pipe.AddSetupFile(rhV6PipeConverter);
+            rhinoV6Pipe.AddSetupFile(new SetupFile("PipeForRhinoV6.rhp"));
             rhinoV6Pipe.Message = string.Format("NOTE: Installation of ThePipe Rhinoceros(6) plugin is NOT finished. The files are copied to {0},\n" +
                 "but you need to load the RHP file (browse to that path) using Rhino's PluginManager to finish installation.",
                 rhinoV6Pipe.TargetDirectory);
