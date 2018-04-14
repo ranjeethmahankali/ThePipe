@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Converters\CurveConverter.cs" />
     <Compile Include="Converters\RevitPipeConverter.cs" />
+    <Compile Include="Converters\SurfaceConverter.cs" />
     <Compile Include="PipeForRevit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RevitPipeReceiver.cs" />
