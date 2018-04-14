@@ -85,7 +85,7 @@ namespace RhinoPipeConverter
                             adjacency.Add(rb.Faces[i].AdjacentFaces().ToList());
                         }
                         var polySurf = new pps.PolySurface(faces, adjacency);
-
+                        polySurf.IsSolid = rb.IsSolid;
                         return polySurf;
                     },
                     (pb) => {
