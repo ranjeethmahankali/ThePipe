@@ -14,6 +14,7 @@ namespace PipeDataModel.Types.Geometry.Surface
         #region fields
         private List<Surface> _surfaces = new List<Surface>();
         private Dictionary<int, List<int>> _adjacentSurfDict = new Dictionary<int, List<int>>();
+        private bool _isSolid = false;
         #endregion
 
         #region properties
@@ -21,6 +22,7 @@ namespace PipeDataModel.Types.Geometry.Surface
         //normal does not make sense for a polysurface
         public override Vec SurfaceNormal { get => null; set { } }
         public Dictionary<int, List<int>> AdjacentFaces { get => _adjacentSurfDict; set => _adjacentSurfDict = value; }
+        public bool IsSolid { get => _isSolid; set => _isSolid = value; }
         #endregion
 
         #region constructors
