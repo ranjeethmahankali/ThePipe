@@ -73,6 +73,7 @@ namespace PipeForRevit.Converters
                             rext.EndOffset - rext.StartOffset);
                     },
                     (pe) => {
+                        double tolerance = 1e-3;
                         rg.CurveArrArray profile = new rg.CurveArrArray();
                         rg.CurveArray curs = new rg.CurveArray();
                         List<ppc.Curve> pCurs = pe.ProfileCurve.FlattenedCurveList();
@@ -82,9 +83,8 @@ namespace PipeForRevit.Converters
                             curs.Append(revitCur);
                             rg.Plane newPl = Utils.SketchPlaneUtil.GetPlaneForCurve(revitCur);
 
-                            double tolerance = 1e-3;
                             if (plane == null) { plane = newPl; }
-                            else if (Math.Abs(plane.Normal.DotProduct(newPl.Normal) - 1) > tolerance)
+                            else if (Math.Abs(plane.Normal.Normalize().DotProduct(newPl.Normal.Normalize()) - 1) > tolerance)
                             {
                                 //the two planes are not aligned so throw exception
                                 throw new InvalidOperationException("Cannot create a Revit Extrusion because the profile " +
@@ -92,6 +92,12 @@ namespace PipeForRevit.Converters
                             }
                         });
                         profile.Append(curs);
+                        rg.XYZ dir = ptConv.FromPipe<rg.XYZ, ppg.Vec>(pe.Direction);
+                        if(Math.Abs(plane.Normal.Normalize().DotProduct(dir.Normalize()) - 1) > tolerance)
+                        {
+                            throw new NotImplementedException("Extrusions with direction not perpendicular to curve" +
+                                "cannot be imported into revit, try converting it to a nurbs surface before sending through the pipe");
+                        }
                         return PipeForRevit.ActiveDocument.FamilyCreate.NewExtrusion(false, profile,
                             rg.SketchPlane.Create(PipeForRevit.ActiveDocument, plane), pe.Height);
                     }

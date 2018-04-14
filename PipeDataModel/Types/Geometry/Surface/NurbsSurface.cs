@@ -92,6 +92,18 @@ namespace PipeDataModel.Types.Geometry.Surface
             return null;
         }
 
+        public List<Vec> GetControlPointsAsList()
+        {
+            List<Vec> pts = new List<Vec>();
+            for (int u = 0; u < _uCount; u++)
+            {
+                for (int v = 0; v < _vCount; v++)
+                {
+                    pts.Add(GetControlPointAt(u, v));
+                }
+            }
+            return pts;
+        }
 
         public void SetControlPoint(Vec pt, int u, int v)
         {

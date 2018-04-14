@@ -19,7 +19,8 @@ namespace PipeInstaller
             StringBuilder str = new StringBuilder("=================================\n");
             str.AppendLine("ThePipe Installer");
             str.AppendLine("=================================");
-            str.AppendLine("This Installer can install plugins/extensions of ThePipe for Revit 2017, Dynamo 9x, Rhinoceros 5 and Grasshopper 5.");
+            str.AppendLine("This Installer can install plugins/extensions of ThePipe for Revit 2017, Dynamo 1.3x, Rhinoceros 5," +
+                "Rhinoceros 6 and Grasshopper.");
             str.AppendLine("To learn what ThePipe is and how to use it watch the video at: https://www.youtube.com/watch?v=20S1--5kT98&t=9s.");
             str.AppendLine("To view the source code and high level documentation, please visit: https://github.com/ranjeethmahankali/ThePipe.");
             str.AppendLine("=================================\n");
@@ -58,18 +59,29 @@ namespace PipeInstaller
             dynamoPipe.AddSetupFile(new SetupFile("PipeForDynamo.dll"));
             dynamoPipe.Message = string.Format("NOTE: The files have been copied to {0}.\n" +
                 "To use the dynamo Pipe library, from within Dynamo, select File > Import Library, browse to the above path\n" +
-                "and select PipeForDynamo.dll.");
+                "and select PipeForDynamo.dll.", dynamoPipe.TargetDirectory);
 
             //rhino pipe plugin
-            string rhinoAppName = "PipeForRhino";
-            App rhinoPipe = new App(rhinoAppName, setupFileDir, Path.Combine(programDataDir, appAuthorName),
+            string rhinoV5AppName = "PipeForRhinoV5";
+            App rhinoPipe = new App(rhinoV5AppName, setupFileDir, Path.Combine(programDataDir, appAuthorName),
                 "PipeForRhino Installation folder", true);
             rhinoPipe.AddSetupFile(pipeDataModel);
             rhinoPipe.AddSetupFile(rhPipeConverter);
             rhinoPipe.AddSetupFile(new SetupFile("PipeForRhino.rhp"));
-            rhinoPipe.Message = string.Format("NOTE: Installation of ThePipe Rhinoceros plugin is NOT finished. The files copied to {0},\n" +
+            rhinoPipe.Message = string.Format("NOTE: Installation of ThePipe Rhinoceros plugin is NOT finished. The files are copied to {0},\n" +
                 "but you need to load the RHP file (browse to that path) using Rhino's PluginManager to finish installation.", 
                 rhinoPipe.TargetDirectory);
+
+            //rhino pipe plugin
+            string rhinoV6AppName = "PipeForRhinoV6";
+            App rhinoV6Pipe = new App(rhinoV6AppName, setupFileDir, Path.Combine(programDataDir, appAuthorName),
+                "PipeForRhino Installation folder", true);
+            rhinoV6Pipe.AddSetupFile(pipeDataModel);
+            rhinoV6Pipe.AddSetupFile(rhPipeConverter);
+            rhinoV6Pipe.AddSetupFile(new SetupFile("PipeForRhino.rhp"));
+            rhinoV6Pipe.Message = string.Format("NOTE: Installation of ThePipe Rhinoceros(6) plugin is NOT finished. The files are copied to {0},\n" +
+                "but you need to load the RHP file (browse to that path) using Rhino's PluginManager to finish installation.",
+                rhinoV6Pipe.TargetDirectory);
 
             //grasshopper pipe plugin
             string ghAppName = "PipeForGrasshopper";
@@ -83,6 +95,7 @@ namespace PipeInstaller
                 revitPipe,
                 dynamoPipe,
                 rhinoPipe,
+                rhinoV6Pipe,
                 ghPipe
             };
 

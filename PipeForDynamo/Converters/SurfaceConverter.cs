@@ -184,7 +184,8 @@ namespace PipeForDynamo.Converters
                                 dps.Faces.ToList().IndexOf(af)).ToList());
                         return (pps.Surface)surf;
                     }).ToList();
-                    return new pps.PolySurface(faces, adjacency);
+                    var polySurf = new pps.PolySurface(faces, adjacency);
+                    return polySurf;
                 },
                 (ps) => {
                     return dg.PolySurface.ByJoinedSurfaces(ps.Surfaces.Select((s) => {

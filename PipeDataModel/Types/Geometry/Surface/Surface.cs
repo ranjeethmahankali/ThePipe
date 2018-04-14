@@ -26,5 +26,31 @@ namespace PipeDataModel.Types.Geometry.Surface
 
         public abstract List<Vec> Vertices();
         public abstract List<Curve.Curve> Edges();
+
+        public List<Surface> FlattenedSurfaceList()
+        {
+            List<Surface> surfaces = new List<Surface>();
+            if (typeof(PolySurface).IsAssignableFrom(GetType()))
+            {
+                foreach(var surf in ((PolySurface)this).Surfaces) { surfaces.AddRange(surf.FlattenedSurfaceList()); }
+            }
+            else
+            {
+                surfaces.Add(this);
+            }
+            return surfaces;
+        }
+
+        public PolySurface AsPolySurface()
+        {
+            if (typeof(PolySurface).IsAssignableFrom(GetType()))
+            {
+                return (PolySurface)this;
+            }
+            else
+            {
+                return new PolySurface(new List<Surface>() { this }, new List<List<int>>() { new List<int>() });
+            }
+        }
     }
 }

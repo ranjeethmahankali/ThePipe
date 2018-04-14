@@ -14,15 +14,16 @@ using Rhino;
 
 namespace RhinoV6PipeConverter
 {
+#if DEBUG
     public class DebugUtil
     {
-        #region fields
+#region fields
         private static RhinoDoc _document = null;
-        #endregion
+#endregion
 
-        #region properties
+#region properties
         public static RhinoDoc Document { get => _document; set => _document = value; }
-        #endregion
+#endregion
 
         public static void AddObjectToDocument(GeometryBase obj)
         {
@@ -46,4 +47,5 @@ namespace RhinoV6PipeConverter
             File.WriteAllBytes(path, ObjectToByteArray(obj));
         }
     }
+#endif
 }
