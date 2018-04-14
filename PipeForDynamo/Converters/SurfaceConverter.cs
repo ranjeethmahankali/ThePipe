@@ -62,8 +62,8 @@ namespace PipeForDynamo.Converters
                     var extr = dg.Surface.BySweep(profile, path);
                     if (!profile.IsClosed)
                     {
-                        var cutPt = profile.PointAtDistance(1e-4);
-                        profile = profile.ParameterTrim(0, profile.ParameterAtPoint(cutPt));
+                        var cutPt = profile.PointAtSegmentLength(1e-4);
+                        profile = profile.TrimByParameter(0, profile.ParameterAtPoint(cutPt));
                         var profile2 = dg.PolyCurve.ByJoinedCurves(new List<dg.Curve>() { profile }).CloseWithLine();
                         if (!profile2.IsClosed) { return extr; }
                         profile = profile2;
