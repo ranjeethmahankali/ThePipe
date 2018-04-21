@@ -96,7 +96,7 @@ namespace PipeForRevit.Converters
                         if(Math.Abs(plane.Normal.Normalize().DotProduct(dir.Normalize()) - 1) > tolerance)
                         {
                             throw new NotImplementedException("Extrusions with direction not perpendicular to curve" +
-                                "cannot be imported into revit, try converting it to a nurbs surface before sending through the pipe");
+                                "cannot be imported into revit, try converting it to a mesh before sending through the pipe");
                         }
                         return PipeForRevit.ActiveDocument.FamilyCreate.NewExtrusion(false, profile,
                             rg.SketchPlane.Create(PipeForRevit.ActiveDocument, plane), pe.Height);

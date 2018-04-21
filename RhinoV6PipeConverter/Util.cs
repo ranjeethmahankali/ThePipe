@@ -126,7 +126,11 @@ namespace RhinoV6PipeConverter
 
                 if (!PipeDataUtil.EqualIgnoreOrder(loops, trims))
                 {
-                    var rhTrims = trims.Select((c) => curveConv.FromPipe<Curve, ppc.Curve>(c)).ToList();
+                    var rhTrims = trims.Select((c) => {
+                        var cur = curveConv.FromPipe<Curve, ppc.Curve>(c);
+                        var cur2d = rhSurf.Pullback(cur, Rhino.RhinoMath.ZeroTolerance);
+                        return rhSurf.Pushup(cur2d, Rhino.RhinoMath.ZeroTolerance);
+                    }).ToList();
                     var faceToSplit = brep.Faces.First();
                     var brep2 = faceToSplit.Split(rhTrims, Rhino.RhinoMath.ZeroTolerance);
                     if (brep2 != null && !brep2.IsValid) { brep2.Repair(Rhino.RhinoMath.ZeroTolerance); }
