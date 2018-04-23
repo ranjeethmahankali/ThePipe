@@ -3,7 +3,7 @@ INSTALLATION INSTRUCTIONS
 ==============================================
 
 --	Run the PipeInstaller.exe.
-	This installer can install ThePipe plugins/extensions for Revit 2017, Dynamo 9x, Rhinoceros 5 and Grasshopper 5.
+	This installer can install ThePipe plugins/extensions for Revit 2017, Dynamo 9x, Rhinoceros 5, Grasshopper 5 and Grasshopper 6.
 	You can decide which of these extensions by responding to the command line prompts with a y/n response.
 
 --	For some of these applications, the setup files need to be copied to specific locations for them to work properly.
@@ -17,6 +17,10 @@ INSTALLATION INSTRUCTIONS
 	installation path, using Rhino's PluginManager to finish installation. And for the Dynamo Library for ThePipe,
 	You have to load the library (PipeForDynamo.dll in C:\ProgramData\RanjeethMahankali\PipeForDynamo folder) through
 	File > Import Library in Dynamo.
+
+--	If you install both Grasshopper 5 plugin and Grasshopper 6 plugin, the later will overwrite the former installtion.
+	SO PLEASE INSTALL ONLY ONE OF THESE TWO PLUGINS UNLESS YOU KNOW WHAT YOU ARE DOING. Choose the version to match your Rhino installtion
+	and skip installing the other version.
 
 --	If the installation fails for any reason. Below are the instructions for manual installation.
 
@@ -41,6 +45,10 @@ PipeForRhinoV6 - RhinocerosV6 Plugin
 --	From the SetupFiles, copy PipeDataModel.dll, RhinoV6PipeConverter.dll and PipeForRhinoV6.rhp to any folder on your disk.
 --	Open RhinocerosV6, open the PluginManager and load the RHP file.
 
-PipeForGrasshopper - Grasshopper Plugin
+PipeForGrasshopperV5 - Grasshopper V5 Plugin
 --	From the SetupFiles, copy PipeDataModel.dll, RhinoPipeConverter.dll and PipeForGrasshopper.gha to the Grasshopper Libraries
-	folder, if copied right, Grasshopper should load the plugin automatically when it opens.
+	folder, if copied right, Grasshopper should load the plugin automatically when it opens. Use this only if you use grasshopper with Rhino 5.
+
+PipeForGrasshopperV6 - Grasshopper V6 Plugin
+--	From the SetupFiles, copy PipeDataModel.dll, RhinoV6PipeConverter.dll and PipeForGrasshopperV6.gha to the Grasshopper Libraries
+	folder, if copied right, Grasshopper should load the plugin automatically when it opens. Use this only if you use grasshopper with Rhino 6.

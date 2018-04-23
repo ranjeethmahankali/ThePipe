@@ -73,7 +73,7 @@ namespace PipeInstaller
                 "but you need to load the RHP file (browse to that path) using Rhino's PluginManager to finish installation.", 
                 rhinoPipe.TargetDirectory);
 
-            //rhino pipe plugin
+            //rhino v6 pipe plugin
             string rhinoV6AppName = "PipeForRhinoV6";
             App rhinoV6Pipe = new App(rhinoV6AppName, setupFileDir, Path.Combine(programDataDir, appAuthorName),
                 "PipeForRhino Installation folder", true);
@@ -84,20 +84,33 @@ namespace PipeInstaller
                 "but you need to load the RHP file (browse to that path) using Rhino's PluginManager to finish installation.",
                 rhinoV6Pipe.TargetDirectory);
 
-            //grasshopper pipe plugin
-            string ghAppName = "PipeForGrasshopper";
+            //grasshopperV5 pipe plugin
+            string ghAppName = "PipeForGrasshopperV5";
             App ghPipe = new App(ghAppName, setupFileDir, Path.Combine(appDataDir, "Grasshopper", "Libraries"),
                 "Grasshopper Plugins Folder", false);
             ghPipe.AddSetupFile(pipeDataModel);
             ghPipe.AddSetupFile(rhPipeConverter);
             ghPipe.AddSetupFile(new SetupFile("PipeForGrasshopper.gha"));
+            ghPipe.Message = "Installtion of GH Pipe plugin for v5 will be overriden by the GH Pipe plugin for v6 if you choose to install v6." +
+                "use this if you use GH with Rhino 5 and skip the GH v6 installtion";
+
+            //grasshopperV6 pipe plugin
+            string ghV6AppName = "PipeForGrasshopperV6";
+            App ghPipeV6 = new App(ghV6AppName, setupFileDir, Path.Combine(appDataDir, "Grasshopper", "Libraries"),
+                "Grasshopper Plugins Folder", false);
+            ghPipeV6.AddSetupFile(pipeDataModel);
+            ghPipeV6.AddSetupFile(rhV6PipeConverter);
+            ghPipeV6.AddSetupFile(new SetupFile("PipeForGrasshopperV6.gha"));
+            ghPipeV6.Message = "If you already installed GH Pipe plugin for v5, it was just overwritten by the v6 installtion just now." +
+                "This will work if you use GH with Rhino 6.";
 
             List<App> appList = new List<App> {
                 revitPipe,
                 dynamoPipe,
                 rhinoPipe,
                 rhinoV6Pipe,
-                ghPipe
+                ghPipe,
+                ghPipeV6
             };
 
             Console.WriteLine(GetHeader());

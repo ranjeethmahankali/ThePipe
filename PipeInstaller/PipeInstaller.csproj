@@ -72,6 +72,7 @@ xcopy /s /q /y "$(SolutionDir)PipeForRevit\PipeForRevit.addin" "$(TargetDir)Setu
 xcopy /s /q /y "$(SolutionDir)PipeForDynamo\bin\Release\PipeForDynamo.dll" "$(TargetDir)SetupFiles\"
 
 xcopy /s /q /y "$(SolutionDir)PipeForGrasshopper\bin\PipeForGrasshopper.gha" "$(TargetDir)SetupFiles\"
+xcopy /s /q /y "$(SolutionDir)PipeForGrasshopperV6\bin\PipeForGrasshopperV6.gha" "$(TargetDir)SetupFiles\"
 
 xcopy /s /q /y "$(SolutionDir)PipeForRhino\bin\PipeForRhino.rhp" "$(TargetDir)SetupFiles\"
 

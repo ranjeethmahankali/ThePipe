@@ -26,7 +26,7 @@ namespace PipeForGrasshopper
         /// new tabs/panels will automatically be created.
         /// </summary>
         public GHPipeBinaryReceiver()
-          : base("LocalBinaryPipeReceiver", "LBPR",
+          : base("PipeReceiver", "LBPR",
               "PipeForGrasshopper",
               "Data", "Data Transfer")
         {
@@ -151,7 +151,11 @@ namespace PipeForGrasshopper
             {
                 // You can add image files to your project resources and access them like this:
                 //return Resources.IconForThisComponent;
-                return Properties.Resources.pipe_receiver;
+#if GH_V5
+                return PipeForGrasshopper.Properties.Resources.pipe_receiver;
+#elif GH_V6
+                return PipeForGrasshopperV6.Properties.Resources.pipe_receiver;
+#endif
             }
         }
 

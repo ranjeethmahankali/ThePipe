@@ -3,7 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if GH_V5
 using RhinoPipeConverter;
+#elif GH_V6
+using RhinoV6PipeConverter;
+#else
+#error Please set the conditional compilation symbols field in the project properties to either GH_V5 or GH_V6
+#endif
 using Grasshopper.Kernel.Types;
 using PipeDataModel.Types;
 using ppg = PipeDataModel.Types.Geometry;
