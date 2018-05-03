@@ -82,6 +82,9 @@ namespace PipeDataModel.Pipe
         #endregion
 
         #region-methods
+        /// <summary>
+        /// Closes and disposes the pipe
+        /// </summary>
         public override void ClosePipe()
         {
             InterceptData();
@@ -92,6 +95,11 @@ namespace PipeDataModel.Pipe
                 _pipeClient = null;
             }
         }
+
+        /// <summary>
+        /// Intercepts data from any active instances of the same pipe (with the same name), if any exist.
+        /// Used before pushing data to avoid conflicts
+        /// </summary>
         private void InterceptData()
         {
             if (_isActive)

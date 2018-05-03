@@ -25,10 +25,18 @@ namespace PipeDataModel.Pipe
         #endregion
 
         #region-methods
+        /// <summary>
+        /// Sets the collector for this pip
+        /// </summary>
+        /// <param name="collector"></param>
         public void SetCollector(IPipeCollector collector)
         {
             _collector = collector;
         }
+        /// <summary>
+        /// Sets the emitter for this pipe
+        /// </summary>
+        /// <param name="emitter"></param>
         public void SetEmitter(IPipeEmitter emitter)
         {
             _emitter = emitter;
@@ -46,10 +54,24 @@ namespace PipeDataModel.Pipe
          * And the pipe classes that inherit this only have to implement the logic for pushing and pulling the
          * data.
          */
+        /// <summary>
+        /// should push the data node through this pipe instance
+        /// </summary>
+        /// <param name="data"></param>
         protected abstract void PushData(DataNode data);
+        /// <summary>
+        /// should pull the data node from this pipe instance
+        /// </summary>
+        /// <returns>returns the pulled datanode</returns>
         protected abstract DataNode PullData();
+        /// <summary>
+        /// should close the connection where meaningful to do so and should release any resources used by the pipe where relevant
+        /// </summary>
         public abstract void ClosePipe();
 
+        /// <summary>
+        /// Makes the pipe do its job by pulling the data and pushing the data.
+        /// </summary>
         public virtual void Update()
         {
             if (_collector != null) { PushData(_collector.CollectPipeData()); }

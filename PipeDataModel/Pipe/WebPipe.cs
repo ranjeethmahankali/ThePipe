@@ -51,6 +51,10 @@ namespace PipeDataModel.Pipe
         #endregion
 
         #region-base class implementation
+        /// <summary>
+        /// pulls the data from the pipe url by sending a HTTP GET request
+        /// </summary>
+        /// <returns>returns the pulled deserialized data node</returns>
         protected override DataNode PullData()
         {
             try
