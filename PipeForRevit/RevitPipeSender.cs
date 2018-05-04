@@ -39,40 +39,48 @@ namespace PipeForRevit
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            string pipeId = PipeForRevit.PipeIdentifier;
-            UIApplication uiApp = commandData.Application;
-            Document doc = uiApp.ActiveUIDocument.Document;
-            PipeForRevit.ActiveDocument = uiApp.ActiveUIDocument.Document;
-            Selection sel = uiApp.ActiveUIDocument.Selection;
-
-            List<Reference> picked = sel.PickObjects(ObjectType.Edge, "Select the curves to send through the pipe").ToList();
-            _selectedObjects = new List<GeometryObject>();
-            foreach(var objRef in picked)
+            try
             {
-                Edge edge = (Edge)doc.GetElement(objRef).GetGeometryObjectFromReference(objRef);
-                _selectedObjects.Add(edge.AsCurve());
-            }
+                string pipeId = PipeForRevit.PipeIdentifier;
+                UIApplication uiApp = commandData.Application;
+                Document doc = uiApp.ActiveUIDocument.Document;
+                PipeForRevit.ActiveDocument = uiApp.ActiveUIDocument.Document;
+                Selection sel = uiApp.ActiveUIDocument.Selection;
 
-            Pipe pipe = null;
-            Action callBack = () => {
-                if(pipe != null)
+                List<Reference> picked = sel.PickObjects(ObjectType.Edge, "Select the curves to send through the pipe").ToList();
+                _selectedObjects = new List<GeometryObject>();
+                foreach (var objRef in picked)
                 {
-                    pipe.ClosePipe();
+                    Edge edge = (Edge)doc.GetElement(objRef).GetGeometryObjectFromReference(objRef);
+                    _selectedObjects.Add(edge.AsCurve());
                 }
-                RevitPipeUtil.ShowMessage("Success", "Pushed data to the pipe.");
-            };
-            if (PipeDataUtil.IsValidUrl(pipeId))
-            {
-                pipe = new MyWebPipe(pipeId,callBack);
-            }
-            else
-            {
-                pipe = new LocalNamedPipe(pipeId, callBack);
-            }
-            pipe.SetCollector(this);
-            pipe.Update();
 
-            return Result.Succeeded;
+                Pipe pipe = null;
+                Action callBack = () => {
+                    if (pipe != null)
+                    {
+                        pipe.ClosePipe();
+                    }
+                    RevitPipeUtil.ShowMessage("Success", "Pushed data to the pipe.");
+                };
+                if (PipeDataUtil.IsValidUrl(pipeId))
+                {
+                    pipe = new MyWebPipe(pipeId, callBack);
+                }
+                else
+                {
+                    pipe = new LocalNamedPipe(pipeId, callBack);
+                }
+                pipe.SetCollector(this);
+                pipe.Update();
+
+                return Result.Succeeded;
+            }
+            catch(Exception e)
+            {
+                RevitPipeUtil.ShowMessage("Error", "The following error occured. Aborting operation.", e.Message);
+                return Result.Failed;
+            }
         }
     }
 }

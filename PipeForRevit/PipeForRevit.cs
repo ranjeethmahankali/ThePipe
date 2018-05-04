@@ -32,7 +32,13 @@ namespace PipeForRevit
 
         internal static string PipeIdentifier
         {
-            get { return _textBox == null ? null : (string)_textBox.Value; }
+            get
+            {
+                string id = _textBox == null ? null : (string)_textBox.Value;
+                if(id == null || id == "") { throw new InvalidDataException("Please provide a valid identifier for the pipe " +
+                    "(be sure to hit return after typing it in the text box)"); }
+                return id;
+            }
         }
 
         public Result OnShutdown(UIControlledApplication application)

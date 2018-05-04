@@ -58,50 +58,58 @@ namespace PipeForRevit
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            string pipeId = PipeForRevit.PipeIdentifier;
-            UIApplication uiApp = commandData.Application;
-            _document = uiApp.ActiveUIDocument.Document;
-            PipeForRevit.ActiveDocument = uiApp.ActiveUIDocument.Document;
-            Selection sel = uiApp.ActiveUIDocument.Selection;
+            try
+            {
+                string pipeId = PipeForRevit.PipeIdentifier;
+                UIApplication uiApp = commandData.Application;
+                _document = uiApp.ActiveUIDocument.Document;
+                PipeForRevit.ActiveDocument = uiApp.ActiveUIDocument.Document;
+                Selection sel = uiApp.ActiveUIDocument.Selection;
 
-            Pipe pipe = null;
-            Action callBack = () => {
-                if (pipe != null)
+                Pipe pipe = null;
+                Action callBack = () => {
+                    if (pipe != null)
+                    {
+                        pipe.ClosePipe();
+                    }
+                    RevitPipeUtil.ShowMessage("Success", "Pushed data to the pipe.");
+                };
+                if (PipeDataUtil.IsValidUrl(pipeId))
                 {
-                    pipe.ClosePipe();
-                }
-                RevitPipeUtil.ShowMessage("Success", "Pushed data to the pipe.");
-            };
-            if (PipeDataUtil.IsValidUrl(pipeId))
-            {
-                pipe = new MyWebPipe(pipeId, callBack);
-            }
-            else
-            {
-                pipe = new LocalNamedPipe(pipeId, callBack);
-            }
-            pipe.SetEmitter(this);
-            pipe.Update();
-
-            if(GeometryTypeMatch())
-            {
-                bool deleteExisting;
-                bool updateGeom = UserDecidedToUpdateGeometry(out deleteExisting);
-                if (updateGeom)
-                {
-                    UpdateGeometry(_receivedObjects);
+                    pipe = new MyWebPipe(pipeId, callBack);
                 }
                 else
                 {
-                    _previousIds = AddObjectsToDocument(_receivedObjects, deleteExisting);
+                    pipe = new LocalNamedPipe(pipeId, callBack);
                 }
-            }
-            else
-            {
-                _previousIds = AddObjectsToDocument(_receivedObjects, false);
-            }
+                pipe.SetEmitter(this);
+                pipe.Update();
 
-            return Result.Succeeded;
+                if (GeometryTypeMatch())
+                {
+                    bool deleteExisting;
+                    bool updateGeom = UserDecidedToUpdateGeometry(out deleteExisting);
+                    if (updateGeom)
+                    {
+                        UpdateGeometry(_receivedObjects);
+                    }
+                    else
+                    {
+                        _previousIds = AddObjectsToDocument(_receivedObjects, deleteExisting);
+                    }
+                }
+                else
+                {
+                    _previousIds = AddObjectsToDocument(_receivedObjects, false);
+                }
+
+                return Result.Succeeded;
+            }
+            catch (Exception e)
+            {
+                RevitPipeUtil.ShowMessage("Error", "The following error occured. Aborting operation.", e.Message);
+                return Result.Failed;
+            }
         }
 
         private bool UserDecidedToUpdateGeometry(out bool deleteExisting)
