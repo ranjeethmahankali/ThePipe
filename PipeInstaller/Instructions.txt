@@ -32,6 +32,7 @@ MANUAL INSTALLATION INSTRUCTIONS
 PipeForRevit - Revit Addin
 --	From the SetupFiles, copy PipeDataModel.dll, PipeArrow.png and PipeForRevit.dll to "C:\PipeForRevit\"
 --	From the SetupFiles, copy PipeForRevit.addin file to the Revit Addin manifests folder.
+--	Be sure to unblock all the files by going into the properties.
 
 PipeForDynamo - Dynamo Library
 --	From the SetupFiles, copy PipeDataModel.dll and PipeForDynamo.dll to any folder on your disk.
