@@ -13,13 +13,13 @@ projects in the folders named after them.
 
 This is still under development and not ready for distribution. If you
 want to try the Pipe for yourself, then watch this video:
-<https://www.youtube.com/watch?v=20S1--5kT98&t=9s>
+<https://www.youtube.com/watch?v=FNVJxAToKEA>
 
 If you are interested in developing your own application extensions or
 implementations of the pipe, please read this document, or watch this
 video:
 
-<https://www.youtube.com/watch?v=k8w2NICcN7s&t=231s>
+<https://www.youtube.com/watch?v=98e01zEeupE>
 
 **The Data Model**
 
