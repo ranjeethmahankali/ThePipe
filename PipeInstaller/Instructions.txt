@@ -3,7 +3,7 @@ INSTALLATION INSTRUCTIONS
 ==============================================
 
 --	Run the PipeInstaller.exe.
-	This installer can install ThePipe plugins/extensions for Revit 2017, Dynamo 9x, Rhinoceros 5, Grasshopper 5 and Grasshopper 6.
+	This installer can install ThePipe plugins/extensions for Revit 2017, Dynamo 9x, Rhinoceros 5, Rhinoceros 6 and Grasshopper.
 	You can decide which of these extensions by responding to the command line prompts with a y/n response.
 
 --	For some of these applications, the setup files need to be copied to specific locations for them to work properly.
