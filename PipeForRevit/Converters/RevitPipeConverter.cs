@@ -107,19 +107,19 @@ namespace PipeForRevit.Converters
 
     public class GeometryConverter: PipeConverter<rg.GeometryObject, IPipeMemberType>
     {
-        private CurveConverter _curveConv;
-        private MeshConverter _meshConv;
-
-        public CurveConverter CurveConverter { get => _curveConv; }
-        public MeshConverter MeshConverter{ get => _meshConv; }
+        public CurveConverter CurveConverter { get; private set; }
+        public MeshConverter MeshConverter{ get; private set; }
+        public SurfaceConverter SurfaceConverter { get; private set; }
 
         public GeometryConverter(PointConverter ptConv, PipeConverter<rg.Plane, ppg.Plane> planeConv)
         {
             //converting various types of curves
-            _curveConv = new CurveConverter(ptConv, planeConv);
-            AddConverter(_curveConv);
-            _meshConv = new MeshConverter(ptConv);
-            AddConverter(_meshConv);
+            CurveConverter = new CurveConverter(ptConv, planeConv);
+            AddConverter(CurveConverter);
+            MeshConverter = new MeshConverter(ptConv);
+            AddConverter(MeshConverter);
+            SurfaceConverter = new SurfaceConverter(ptConv, CurveConverter, MeshConverter);
+            AddConverter(SurfaceConverter);
             /*
              * Commenting out the Revit Polyline conversion because revit does not treat polylines as geometry
              * that means it has to be added as a set of lines, and that makes change tracking and updating 

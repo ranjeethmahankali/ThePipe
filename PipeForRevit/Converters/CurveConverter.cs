@@ -54,6 +54,10 @@ namespace PipeForRevit.Converters
                         (pt) => ptConv.ToPipe<rg.XYZ, ppg.Vec>(pt)).ToList(), rnc.Degree, rnc.Weights.Cast<double>().ToList(),
                         rnc.Knots.Cast<double>().ToList(), rnc.isClosed);
                 },
+                null
+            ));
+            var nurbsConv2 = AddConverter(new PipeConverter<rg.Curve, ppc.NurbsCurve>(
+                null,
                 (pnc) => {
                     if (pnc.IsClosed)
                     {
@@ -64,7 +68,7 @@ namespace PipeForRevit.Converters
                         return null;
                     }
                     var ptList = pnc.ControlPoints.Select((pt) => ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList();
-                    return (rg.NurbSpline)rg.NurbSpline.CreateCurve(ptList, pnc.Weights.ToList());
+                    return rg.NurbSpline.CreateCurve(ptList, pnc.Weights.ToList());
                 }
             ));
         }

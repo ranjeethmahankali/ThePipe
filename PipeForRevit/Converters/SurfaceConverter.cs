@@ -39,7 +39,7 @@ namespace PipeForRevit.Converters
                             ptConv.FromPipe<rg.XYZ, ppg.Vec>(pt)).ToList(), false, uvBound), false);
 
                         var loopId = brepBuider.AddLoop(faceId);
-                        var edges = ppNurbs.Edges();
+                        var edges = ppNurbs.Edges().SelectMany((e) => e.FlattenedCurveList());
                         foreach (var edge in edges)
                         {
                             var edgeId = brepBuider.AddEdge(rg.BRepBuilderEdgeGeometry.Create(curveConv.FromPipe<rg.Curve, ppc.Curve>(edge)));
