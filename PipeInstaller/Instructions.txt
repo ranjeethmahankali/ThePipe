@@ -29,6 +29,8 @@ INSTALLATION INSTRUCTIONS
 MANUAL INSTALLATION INSTRUCTIONS
 ==============================================
 
+--	Be sure to unblock all the downloaded files by going into their properties
+
 PipeForRevit - Revit Addin
 --	From the SetupFiles, copy PipeDataModel.dll, PipeArrow.png and PipeForRevit.dll to "C:\PipeForRevit\"
 --	From the SetupFiles, copy PipeForRevit.addin file to the Revit Addin manifests folder.
