@@ -52,7 +52,9 @@ namespace PipeForRevit
             }
             catch (PipeDataModel.Exceptions.PipeConversionException e)
             {
-                RevitPipeUtil.ShowMessage("Pipe Pull Failed!", "Conversion Error - Unsupported Types", e.Message);
+                RevitPipeUtil.ShowMessage("Pipe Pull Failed!", "Conversion Error - Unsupported Types", e.Message + 
+                    "\nPlease try bringing this geometry as one of the supported types, or try bringing it via Dynamo since ThePipe extension" +
+                    "for Dynamo supports more types than the revit add-in.");
             }
         }
 
