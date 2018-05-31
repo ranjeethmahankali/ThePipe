@@ -20,14 +20,39 @@ using Autodesk.Revit.DB.ExternalService;
 
 namespace PipeForRevit.Converters
 {
-    public class SurfaceConverter: PipeConverter<rg.Face, IPipeMemberType>
+    //public class SurfaceConverter: PipeConverter<rg.Face, ppg.Mesh>
+    //{
+    //    public SurfaceConverter(PointConverter ptConv, CurveConverter curveConv, MeshConverter meshConv): base(
+    //        (rf) => {
+    //            return meshConv.ToPipe<rg.Mesh, ppg.Mesh>(rf.Triangulate());
+    //        },
+    //        null
+    //    )
+    //    { }
+    //}
+
+    public class SolidConverter: PipeConverter<rg.Solid, ppg.Mesh>
     {
-        public SurfaceConverter(PointConverter ptConv, CurveConverter curveConv, MeshConverter meshConv): base(
-            (rf) => {
-                return meshConv.ToPipe<rg.Mesh, ppg.Mesh>(rf.Triangulate());
+        public SolidConverter(MeshConverter meshConv): base(
+            (rs) => {
+                //return meshConv.ToPipe<rg.Mesh, ppg.Mesh>(rf.Triangulate());
+                ppg.Mesh mesh = null;
+                foreach(rg.Face face in rs.Faces)
+                {
+                    var faceMesh = meshConv.ToPipe<rg.Mesh, ppg.Mesh>(face.Triangulate());
+                    if (mesh == null)
+                    {
+                        mesh = faceMesh;
+                    }
+                    else
+                    {
+                        mesh.MergeMesh(faceMesh);
+                    }
+                }
+
+                return mesh;
             },
             null
-        )
-        { }
+        ) { }
     }
 }

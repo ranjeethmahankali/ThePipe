@@ -109,6 +109,34 @@ namespace PipeDataModel.Types.Geometry
             return PipeDataUtil.EqualIgnoreOrder(_vertices, otherMesh.Vertices) &&
                 PipeDataUtil.Equal(_faces, otherMesh.Faces, (f1, f2) => PipeDataUtil.EqualIgnoreOrder(f1, f2));
         }
+        public void MergeMesh(Mesh other)
+        {
+            int vertCount = _vertices.Count;
+            int runningIndex = vertCount;
+            Dictionary<int, int> vertMap = new Dictionary<int, int>();
+            for(int i = 0; i < other.Vertices.Count; i++)
+            {
+                bool found = false;
+                for(int j = 0; j < vertCount; j++)
+                {
+                    if (_vertices[j].Equals(other.Vertices[i]))
+                    {
+                        found = true;
+                        vertMap.Add(i, j);
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    _vertices.Add(other.Vertices[i]);
+                    vertMap.Add(i, runningIndex++);
+                }
+            }
+            foreach(var face in other.Faces)
+            {
+                _faces.Add(face.Select((vi) => (ulong)vertMap[(int)vi]).ToArray());
+            }
+        }
 
         public static List<ulong[]> TriangulateFace(ulong[] face)
         {

@@ -48,18 +48,19 @@ namespace PipeForRevit
                 Selection sel = uiApp.ActiveUIDocument.Selection;
 
                 List<Reference> pickedCurves = sel.PickObjects(ObjectType.Edge, "Select the curves to send through the pipe or click finish to select" +
-                    "faces").ToList();
-                List<Reference> pickedSurfs = sel.PickObjects(ObjectType.Face, "Select the Faces to send through the pipe").ToList();
+                    "elements").ToList();
+                List<Reference> picked = sel.PickObjects(ObjectType.Element, "Select the elements to send through the pipe").ToList();
                 _selectedObjects = new List<GeometryObject>();
+                Options opt = new Options();
+                foreach (var objRef in picked)
+                {
+                    GeometryElement geom = doc.GetElement(objRef).get_Geometry(opt);
+                    _selectedObjects.AddRange(geom.Where((g) => g is Solid || g is Mesh));
+                }
                 foreach (var objRef in pickedCurves)
                 {
                     Edge edge = (Edge)doc.GetElement(objRef).GetGeometryObjectFromReference(objRef);
-                    _selectedObjects.Add(edge.AsCurve());
-                }
-                foreach(var objRef in pickedSurfs)
-                {
-                    Face face = (Face)doc.GetElement(objRef).GetGeometryObjectFromReference(objRef);
-                    _selectedObjects.Add(face);
+                    _selectedObjects.Add(edge);
                 }
 
                 Pipe pipe = null;

@@ -109,7 +109,7 @@ namespace PipeForRevit.Converters
     {
         public CurveConverter CurveConverter { get; private set; }
         public MeshConverter MeshConverter{ get; private set; }
-        public SurfaceConverter SurfaceConverter { get; private set; }
+        public SolidConverter SolidConverter { get; private set; }
 
         public GeometryConverter(PointConverter ptConv, PipeConverter<rg.Plane, ppg.Plane> planeConv)
         {
@@ -118,8 +118,8 @@ namespace PipeForRevit.Converters
             AddConverter(CurveConverter);
             MeshConverter = new MeshConverter(ptConv);
             AddConverter(MeshConverter);
-            SurfaceConverter = new SurfaceConverter(ptConv, CurveConverter, MeshConverter);
-            AddConverter(SurfaceConverter);
+            SolidConverter = new SolidConverter(MeshConverter);
+            AddConverter(SolidConverter);
             /*
              * Commenting out the Revit Polyline conversion because revit does not treat polylines as geometry
              * that means it has to be added as a set of lines, and that makes change tracking and updating 
