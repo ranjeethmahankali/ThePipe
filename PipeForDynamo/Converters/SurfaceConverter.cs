@@ -112,6 +112,11 @@ namespace PipeForDynamo.Converters
                     return nurbs;
                 },
                 (pns) => {
+                    if(pns.IsClosedInU || pns.IsClosedInV)
+                    {
+                        throw new PipeDataModel.Exceptions.PipeConversionException(pns.GetType(), typeof(dg.Surface), "Closed Nurbs surfaces are not " +
+                            "supported in dynamo, please try converting this geometry to split-open surfaces or meshes before sending it through the pipe.");
+                    }
 
                     List<List<dg.Point>> pts = new List<List<dg.Point>>();
                     List<List<double>> weights = new List<List<double>>();
