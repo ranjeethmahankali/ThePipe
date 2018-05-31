@@ -56,6 +56,13 @@ namespace RhinoV6PipeConverter
                             (f) => pp.Mesh.FaceIsTriangle(f) ? new rh.MeshFace((int)f[0], (int)f[1], (int)f[2]) :
                                 new rh.MeshFace((int)f[0], (int)f[1], (int)f[2], (int)f[3])
                         ));
+
+                        string err;
+                        if(!mesh.IsValidWithLog(out err))
+                        {
+                            System.Diagnostics.Debug.WriteLine(err);
+                        }
+
                         return mesh;
                     }
                 )

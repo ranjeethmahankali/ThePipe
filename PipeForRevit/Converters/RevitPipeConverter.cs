@@ -109,7 +109,7 @@ namespace PipeForRevit.Converters
     {
         public CurveConverter CurveConverter { get; private set; }
         public MeshConverter MeshConverter{ get; private set; }
-        //public SurfaceConverter SurfaceConverter { get; private set; }
+        public SurfaceConverter SurfaceConverter { get; private set; }
 
         public GeometryConverter(PointConverter ptConv, PipeConverter<rg.Plane, ppg.Plane> planeConv)
         {
@@ -118,8 +118,8 @@ namespace PipeForRevit.Converters
             AddConverter(CurveConverter);
             MeshConverter = new MeshConverter(ptConv);
             AddConverter(MeshConverter);
-            //SurfaceConverter = new SurfaceConverter(ptConv, CurveConverter, MeshConverter);
-            //AddConverter(SurfaceConverter);
+            SurfaceConverter = new SurfaceConverter(ptConv, CurveConverter, MeshConverter);
+            AddConverter(SurfaceConverter);
             /*
              * Commenting out the Revit Polyline conversion because revit does not treat polylines as geometry
              * that means it has to be added as a set of lines, and that makes change tracking and updating 
@@ -166,13 +166,8 @@ namespace PipeForRevit.Converters
                         for(int i = 0; i < rm.NumTriangles; i++)
                         {
                             rg.MeshTriangle tr = rm.get_Triangle(i);
-                            rg.XYZ A = tr.get_Vertex(0);
-                            rg.XYZ B = tr.get_Vertex(1);
-                            rg.XYZ C = tr.get_Vertex(2);
                             pm.Faces.Add(new ulong[] {
-                                (ulong)rm.Vertices.IndexOf(A),
-                                (ulong)rm.Vertices.IndexOf(B),
-                                (ulong)rm.Vertices.IndexOf(C)
+                                tr.get_Index(0), tr.get_Index(1), tr.get_Index(2)
                             });
                         }
 

@@ -50,7 +50,6 @@
     <Compile Include="Types\Geometry\Curve\NurbsCurve.cs" />
     <Compile Include="Types\Geometry\Curve\PolyCurve.cs" />
     <Compile Include="Types\Geometry\Curve\Polyline.cs" />
-    <Compile Include="Types\Geometry\GeometryGroup.cs" />
     <Compile Include="Types\Geometry\Mesh.cs" />
     <Compile Include="Types\Geometry\Plane.cs" />
     <Compile Include="Types\Geometry\Surface\Extrusion.cs" />
