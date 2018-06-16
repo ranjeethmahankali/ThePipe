@@ -51,6 +51,7 @@ namespace PipeForRhinoV6
             }
             foreach (var child in data.ChildrenList)
             {
+                if(child?.Data == null) { continue; }
                 _objectsReceived.Add(PipeConverter.FromPipe(child.Data));
             }
         }
