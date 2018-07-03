@@ -52,8 +52,9 @@ namespace PipeDataModel.Types.Geometry.Curve
         #region-constructors
         public Arc(Plane pl, double rad, double startAng, double endAng)
         {
-            if(!(0 <= startAng && startAng <= 2*Math.PI && 0 <= endAng && endAng <= 2 * Math.PI
-                && startAng != endAng && rad > 0))
+            EnsureWithinRange(ref startAng);
+            EnsureWithinRange(ref endAng);
+            if (!(startAng != endAng && rad > 0))
             {
                 throw new ArgumentException("Invalid parameters provided for the Arc constructor");
             }
@@ -138,6 +139,23 @@ namespace PipeDataModel.Types.Geometry.Curve
         {
             return new Arc(new Plane(Vec.Sum(_plane.Origin, transVec), _plane.X, _plane.Y, _plane.Z), 
                 _radius, _startAngle, _endAngle);
+        }
+
+        /// <summary>
+        /// Makers sure the given angle is between 0 and 2PI and will adjust it if not
+        /// </summary>
+        /// <param name="angle"></param>
+        private static void EnsureWithinRange(ref double angle)
+        {
+            double twoPI = 2 * Math.PI;
+            while(angle > twoPI)
+            {
+                angle -= twoPI;
+            }
+            while(angle < 0)
+            {
+                angle += twoPI;
+            }
         }
 
         #endregion
