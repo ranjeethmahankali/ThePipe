@@ -19,14 +19,16 @@ namespace PipeForDynamo
         {
             DynamoPipeReceiver receiver = DynamoPipeReceiver.GetReceiver(pipeIdentifier, _converter);
             if (receiver.Update()){ return receiver.Data; }
-            return null;
+            return receiver.Message;
         }
 
-        public static bool PushToPipe(string pipeIdentifier, object data)
+        public static object PushToPipe(string pipeIdentifier, object data)
         {
             DynamoPipeSender sender = DynamoPipeSender.GetSender(pipeIdentifier, _converter);
             sender.Data = data;
-            return sender.Update();
+            bool success = sender.Update();
+            if (success) { return true; }
+            else { return sender.Message; }
         }
     }
 }

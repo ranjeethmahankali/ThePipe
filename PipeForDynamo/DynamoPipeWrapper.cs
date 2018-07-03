@@ -16,12 +16,17 @@ namespace PipeForDynamo
         private object _data;
         protected Pipe _pipe;
         protected DynamoPipeConverter _converter;
+        /// <summary>
+        /// Used to capture error messages that need to be reported to the user
+        /// </summary>
+        protected string _message = "";
 
         public object Data
         {
             get { return _data; }
             set { _data = value; }
         }
+        public string Message { get => _message; }
 
         internal DynamoPipeWrapper(string pipeIdentifier, DynamoPipeConverter converter)
         {
@@ -46,6 +51,7 @@ namespace PipeForDynamo
             }
             catch(Exception e)
             {
+                _message = e.Message;
                 return false;
             }
         }
