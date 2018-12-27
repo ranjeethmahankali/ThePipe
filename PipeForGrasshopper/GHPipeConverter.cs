@@ -39,6 +39,10 @@ namespace PipeForGrasshopper
                     (ghNum) => { return new PipeNumber(ghNum.Value); },
                     (pData) => { return new GH_Number(pData.Value); }
                 ));
+            AddConverter(new PipeConverter<GH_Integer, PipeInteger>(
+                    (ghInt) => { return new PipeInteger(ghInt.Value); },
+                    (pInt) => { return new GH_Integer(pInt.Value); }
+                ));
             AddConverter(new PipeConverter<GH_String, PipeString>(
                     (ghStr) => { return new PipeString(ghStr.Value); },
                     (pData) => { return new GH_String(pData.Value); }
