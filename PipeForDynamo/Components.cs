@@ -30,5 +30,10 @@ namespace PipeForDynamo
             if (success) { return true; }
             else { return sender.Message; }
         }
+
+        public static object PushListToPipe(string pipeIdentifier, IList<object> listData)
+        {
+            return PushToPipe(pipeIdentifier, listData);
+        }
     }
 }
