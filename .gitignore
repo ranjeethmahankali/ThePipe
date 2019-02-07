@@ -240,9 +240,9 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
-/PipeForRevit/Resources
+#/PipeForRevit/Resources
 
-Documentation/
-*.ai
-*.png
-*.db
+#Documentation/
+#*.ai
+#*.png
+#*.db
