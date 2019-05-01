@@ -19,7 +19,7 @@ namespace PipeInstaller
             StringBuilder str = new StringBuilder("=================================\n");
             str.AppendLine("ThePipe Installer");
             str.AppendLine("=================================");
-            str.AppendLine("This Installer can install plugins/extensions of ThePipe for Revit 2017, Dynamo 1.3x, Rhinoceros 5," +
+            str.AppendLine("This Installer can install plugins/extensions of ThePipe for Revit, Dynamo 1.3x, Rhinoceros 5," +
                 "Rhinoceros 6 and Grasshopper.");
             str.AppendLine("To learn what ThePipe is and how to use it watch the video at: https://www.youtube.com/watch?v=20S1--5kT98&t=9s.");
             str.AppendLine("To view the source code and high level documentation, please visit: https://github.com/ranjeethmahankali/ThePipe.");
@@ -36,6 +36,7 @@ namespace PipeInstaller
 
         static void Main(string[] args)
         {
+            Console.WriteLine(GetHeader());
             //shared setup files
             SetupFile pipeDataModel = new SetupFile("PipeDataModel.dll");
             SetupFile rhPipeConverter = new SetupFile("RhinoPipeConverter.dll");
@@ -49,7 +50,21 @@ namespace PipeInstaller
             revitPipe.AddSetupFile(pipeDataModel);
             revitPipe.AddSetupFile(new SetupFile("PipeForRevit.dll"));
             revitPipe.AddSetupFile(new SetupFile("PipeArrow.png"));
-            revitPipe.AddSetupFile(new SetupFile("PipeForRevit.addin", Path.Combine(programDataDir, @"Autodesk\Revit\Addins\2017"), 
+            Console.Write("Do you want to install the Revit plugin for ThePipe ? (y/n): ");
+            string response = Console.ReadLine().ToLower().Trim();
+            int revitVersion = 2019;
+            if(response == "y")
+            {
+                Console.Write("Which major version of Revit do you use ? (Only input the year and not the number after the dot e.g. 2017, 2018 or 2019): ");
+                string versionStr = Console.ReadLine();
+                if(!int.TryParse(versionStr, out revitVersion))
+                {
+                    Console.WriteLine("The version you input could not be parsed into a valid year. The installer will try to " +
+                        "install the plugin for 2019 version. Please try running the installer again if that is not what you wanted.");
+                    revitVersion = 2019;
+                }
+            }
+            revitPipe.AddSetupFile(new SetupFile("PipeForRevit.addin", Path.Combine(programDataDir, string.Format(@"Autodesk\Revit\Addins\{0}", revitVersion)), 
                 "Revit Addin Manifests Folder"));
 
             //dynamo pipe library
@@ -113,12 +128,10 @@ namespace PipeInstaller
                 ghPipeV6
             };
 
-            Console.WriteLine(GetHeader());
-
             foreach (var app in appList)
             {
                 Console.Write(string.Format("Do you want to install {0} ?(y/n): ", app.Name));
-                string response = Console.ReadLine();
+                response = Console.ReadLine();
                 if (response.ToLower() != "y") { continue; }
                 try
                 {
